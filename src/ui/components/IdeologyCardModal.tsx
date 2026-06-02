@@ -1,25 +1,37 @@
 // Shown during the "ideology" phase. Reveals the drawn ideology card so the
 // player to the active player's RIGHT can read both options aloud, then the
 // active player chooses left or right. Also allows a paid redraw (4 of any).
+//
+// The two sides are rendered as physical-style cards (dark question header with
+// a chevron notch, cream body with the answer, a payout coin row, and a colored
+// ideologue ribbon badge) to match the printed Ideology cards.
 import { useMemo } from "react";
 import Modal from "./Modal";
-import type { GameState, IdeologyCardSide, Resource } from "@/engine/types";
+import type { GameState, IdeologyCardSide, Ideologue, Resource } from "@/engine/types";
 import { RESOURCES } from "@/engine/types";
 import { IDEOLOGY_CARDS } from "@/data/cards/ideology";
 import { useDispatch } from "@/ui/hooks/useDispatch";
 import { activePlayer } from "@/engine/selectors";
-import { RESOURCE_COLOR, RESOURCE_LABEL, ResourceCoin } from "./ResourceTrack";
-import Coin, { IDEOLOGUE_LABEL } from "./Coin";
+import { RESOURCE_LABEL, ResourceCoin } from "./ResourceTrack";
+import { IDEOLOGUE_LABEL } from "./Coin";
 
 interface Props {
   state: GameState;
 }
 
-const IDEOLOGUE_BG: Record<string, string> = {
-  capitalist: "bg-capitalist/20 border-capitalist",
-  supremo: "bg-supremo/20 border-supremo",
-  showstopper: "bg-showstopper/20 border-showstopper",
-  idealist: "bg-idealist/20 border-idealist",
+// Ideologue → ribbon/accent color. Mirrors the theme colors in tailwind.config.
+const IDEOLOGUE_HEX: Record<Ideologue, string> = {
+  capitalist: "#10b981",
+  supremo: "#ef4444",
+  showstopper: "#3b82f6",
+  idealist: "#eab308",
+};
+
+const IDEOLOGUE_RING: Record<Ideologue, string> = {
+  capitalist: "focus:ring-capitalist hover:ring-capitalist/70",
+  supremo: "focus:ring-supremo hover:ring-supremo/70",
+  showstopper: "focus:ring-showstopper hover:ring-showstopper/70",
+  idealist: "focus:ring-idealist hover:ring-idealist/70",
 };
 
 export default function IdeologyCardModal({ state }: Props) {
@@ -46,7 +58,10 @@ export default function IdeologyCardModal({ state }: Props) {
     <Modal
       title={
         <span>
-          Ideology Card — <span className="text-neutral-400">read aloud by the player to {active.name}'s right</span>
+          Ideology Card —{" "}
+          <span className="text-neutral-400">
+            read aloud by the player to {active.name}'s right
+          </span>
         </span>
       }
       closable={false}
@@ -58,15 +73,16 @@ export default function IdeologyCardModal({ state }: Props) {
             Content advisory: {card.advisory}
           </div>
         ) : null}
-        <div className="text-base font-medium">{card.prompt}</div>
-        <div className="grid grid-cols-2 gap-3">
-          <SideButton
-            side="left"
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <SideCard
+            id={card.id}
+            prompt={card.prompt}
             data={card.left}
             onPick={() => dispatch({ t: "answerIdeology", side: "left" })}
           />
-          <SideButton
-            side="right"
+          <SideCard
+            id={card.id}
+            prompt={card.prompt}
             data={card.right}
             onPick={() => dispatch({ t: "answerIdeology", side: "right" })}
           />
@@ -90,47 +106,104 @@ export default function IdeologyCardModal({ state }: Props) {
   );
 }
 
-function SideButton({
-  side,
+// Flatten a payout map into a left-to-right list of coin tokens, repeating a
+// coin once per unit so the row reads like the printed card's icon strip.
+type CoinToken = { kind: Resource | "any"; key: string };
+
+function payoutCoins(data: IdeologyCardSide): CoinToken[] {
+  const out: CoinToken[] = [];
+  for (const r of RESOURCES) {
+    const n = data.payout[r] ?? 0;
+    for (let i = 0; i < n; i++) out.push({ kind: r, key: `${r}-${i}` });
+  }
+  const any = data.payout.any ?? 0;
+  for (let i = 0; i < any; i++) out.push({ kind: "any", key: `any-${i}` });
+  return out;
+}
+
+function SideCard({
+  id,
+  prompt,
   data,
   onPick,
 }: {
-  side: "left" | "right";
+  id: string;
+  prompt: string;
   data: IdeologyCardSide;
   onPick: () => void;
 }) {
   const ideologue = data.ideologue;
-  const payout: { r: Resource | "any"; n: number; color: string }[] = [];
-  for (const r of RESOURCES) {
-    const n = data.payout[r] ?? 0;
-    if (n > 0) payout.push({ r, n, color: RESOURCE_COLOR[r] });
-  }
-  if (data.payout.any) {
-    payout.push({ r: "any", n: data.payout.any, color: "text-neutral-200" });
-  }
+  const accent = IDEOLOGUE_HEX[ideologue];
+  const coins = payoutCoins(data);
+
+  // Concave-ended ribbon banner, like the printed name plate.
+  const bannerClip =
+    "polygon(0 0, 100% 0, calc(100% - 12px) 50%, 100% 100%, 0 100%, 12px 50%)";
+
   return (
     <button
       type="button"
       onClick={onPick}
-      className={`text-left rounded-lg border ${IDEOLOGUE_BG[ideologue]} p-3 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-white`}
+      className={`group flex flex-col overflow-hidden rounded-xl bg-neutral-900 text-left shadow-lg ring-2 ring-transparent transition hover:-translate-y-0.5 hover:shadow-xl focus:outline-none ${IDEOLOGUE_RING[ideologue]}`}
     >
-      <div className="flex items-center gap-1.5 text-[10px] uppercase text-neutral-300 mb-1">
-        <span>{side === "left" ? "Left" : "Right"} ·</span>
-        <Coin ideologue={ideologue} size="sm" />
-        <span>{IDEOLOGUE_LABEL[ideologue]}</span>
+      {/* Dark question header with a downward chevron notch. */}
+      <div className="relative px-4 pt-4 pb-5">
+        <div className="text-center text-[11px] font-bold uppercase leading-snug tracking-wide text-neutral-100">
+          {prompt}
+        </div>
+        <div
+          aria-hidden
+          className="absolute left-1/2 -bottom-[7px] h-0 w-0 -translate-x-1/2 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-neutral-900"
+        />
       </div>
-      <div className="text-sm font-medium mb-2">{data.text}</div>
-      <div className="flex flex-wrap items-center gap-2 text-sm font-bold">
-        {payout.map((p, i) => (
-          <span
-            key={`${p.r}-${i}`}
-            className={`${p.color} inline-flex items-center gap-0.5`}
-            title={p.r === "any" ? "Any resource" : RESOURCE_LABEL[p.r]}
-          >
-            +{p.n}
-            {p.r === "any" ? <span>?</span> : <ResourceCoin resource={p.r} size="sm" />}
+
+      {/* Cream card body. */}
+      <div className="flex flex-1 flex-col bg-[#f6f1e7] px-4 pt-5 pb-3">
+        <p className="mb-4 flex-1 text-center font-serif text-sm leading-relaxed text-neutral-700">
+          {data.text}
+        </p>
+
+        {/* Payout coin strip, flanked by chevron flourishes. */}
+        <div className="mb-4 flex items-center justify-center gap-1.5">
+          <span style={{ color: accent }} className="text-base font-bold leading-none">
+            «
           </span>
-        ))}
+          {coins.length === 0 ? (
+            <span className="text-xs text-neutral-400">—</span>
+          ) : (
+            coins.map((c) =>
+              c.kind === "any" ? (
+                <span
+                  key={c.key}
+                  title="Any resource"
+                  className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-neutral-400 bg-white text-xs font-bold text-neutral-600"
+                >
+                  ?
+                </span>
+              ) : (
+                <ResourceCoin key={c.key} resource={c.kind} size="md" />
+              ),
+            )
+          )}
+          <span style={{ color: accent }} className="text-base font-bold leading-none">
+            »
+          </span>
+        </div>
+
+        {/* Ideologue name plate. */}
+        <div className="relative">
+          <div
+            className="mx-auto flex w-full max-w-[200px] items-center justify-center px-6 py-1.5"
+            style={{ backgroundColor: accent, clipPath: bannerClip }}
+          >
+            <span className="text-xs font-bold uppercase tracking-[0.15em] text-white">
+              {IDEOLOGUE_LABEL[ideologue]}
+            </span>
+          </div>
+          <span className="absolute right-0 bottom-0 translate-y-1 text-[8px] uppercase tracking-wide text-neutral-400">
+            ID {id}
+          </span>
+        </div>
       </div>
     </button>
   );
