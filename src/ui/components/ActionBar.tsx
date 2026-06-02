@@ -1,13 +1,12 @@
-// Bottom action bar. Buttons open modals or dispatch end-turn.
+// Bottom action bar. Buttons open turn-action modals.
 // Note: Influence is triggered by clicking a voter card on the HQ Mat (which
 // lets the player pick which card), so there is no Influence button here.
+// End Turn lives in the top bar (Game.tsx) beside the active player's name.
 interface Props {
   onGerrymander: () => void;
   onTrade: () => void;
   onPlayConspiracy: () => void;
   onBuyConspiracy: () => void;
-  onEndTurn: () => void;
-  canEndTurn: boolean;
   canPlayConspiracy: boolean;
   canBuyConspiracy: boolean;
   inActionsPhase: boolean;
@@ -18,8 +17,6 @@ export default function ActionBar({
   onTrade,
   onPlayConspiracy,
   onBuyConspiracy,
-  onEndTurn,
-  canEndTurn,
   canPlayConspiracy,
   canBuyConspiracy,
   inActionsPhase,
@@ -39,15 +36,6 @@ export default function ActionBar({
       </button>
       <button type="button" onClick={onPlayConspiracy} disabled={!canPlayConspiracy} className={btn}>
         Play Conspiracy
-      </button>
-      <div className="flex-1" />
-      <button
-        type="button"
-        onClick={onEndTurn}
-        disabled={!canEndTurn}
-        className="px-4 py-2 rounded-md bg-blue-700 hover:bg-blue-600 disabled:opacity-40 focus:outline-none focus:ring-2 focus:ring-white text-sm font-semibold"
-      >
-        End Turn
       </button>
     </div>
   );

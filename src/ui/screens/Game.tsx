@@ -101,8 +101,27 @@ export default function Game() {
           SHASN — Turn {state.turn} ·{" "}
           <span className="text-neutral-300">{state.phase}</span>
         </div>
-        <div className="text-xs text-neutral-400">
-          {state.players.length} players · {active.name}'s turn
+        <div className="flex items-center gap-3">
+          <div className="text-xs text-neutral-400">
+            {state.players.length} players · {active.name}'s turn
+          </div>
+          <button
+            type="button"
+            onClick={() => dispatch({ t: "endTurn" })}
+            disabled={!(inActions && pending === 0 && !overCap)}
+            title={
+              !inActions
+                ? "Not in the actions phase"
+                : pending > 0
+                ? "Place all pending voters first"
+                : overCap
+                ? "Discard down to your resource cap first"
+                : "End your turn"
+            }
+            className="px-3 py-1.5 rounded-md bg-blue-700 hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-white text-sm font-semibold"
+          >
+            End Turn
+          </button>
         </div>
       </div>
 
@@ -177,8 +196,6 @@ export default function Game() {
         onTrade={() => setModal({ kind: "trade" })}
         onPlayConspiracy={() => setModal({ kind: "conspiracy" })}
         onBuyConspiracy={() => dispatch({ t: "buyConspiracy", payment: {} })}
-        onEndTurn={() => dispatch({ t: "endTurn" })}
-        canEndTurn={inActions && pending === 0 && !overCap}
         canPlayConspiracy={active.conspiracyHand.length > 0}
         canBuyConspiracy={state.decks.conspiracy.length > 0}
         inActionsPhase={inActions}
