@@ -8,7 +8,7 @@ import {
   pendingVoterCount,
   totalResources,
 } from "@/engine/selectors";
-import Board from "@/ui/components/Board";
+import MapBoard from "@/ui/components/MapBoard";
 import HqMat from "@/ui/components/HqMat";
 import PlayerMat from "@/ui/components/PlayerMat";
 import PlayerSummary from "@/ui/components/PlayerSummary";
@@ -85,9 +85,12 @@ export default function Game() {
         </button>
       ) : null}
 
-      {/* 3-column main */}
-      <div className="flex-1 grid grid-cols-[220px_minmax(0,1fr)_320px] gap-3 p-3 overflow-hidden">
-        {/* Left: summaries of non-active players */}
+      {/* 3-column main:
+            left  — summaries of non-active players (narrow)
+            centre — the territorial map (dominant, landscape)
+            right — HQ Mat (top) + active PlayerMat (below) */}
+      <div className="flex-1 grid grid-cols-[200px_minmax(0,1fr)_320px] gap-3 p-3 overflow-hidden">
+        {/* Left: summaries */}
         <div className="flex flex-col gap-2 overflow-y-auto">
           {state.players.map((p, i) => (
             <PlayerSummary
@@ -101,7 +104,14 @@ export default function Game() {
           ))}
         </div>
 
-        {/* Center: HQ + board */}
+        {/* Centre: the map */}
+        <div className="overflow-y-auto flex items-start">
+          <div className="w-full">
+            <MapBoard state={state} />
+          </div>
+        </div>
+
+        {/* Right: HQ Mat on top, active PlayerMat below */}
         <div className="flex flex-col gap-3 overflow-y-auto">
           <HqMat
             state={state}
@@ -113,11 +123,6 @@ export default function Game() {
             }
             buyConspiracyDisabled={!inActions || state.decks.conspiracy.length === 0}
           />
-          <Board state={state} />
-        </div>
-
-        {/* Right: active player mat */}
-        <div className="overflow-y-auto">
           <PlayerMat
             player={active}
             onPlayConspiracy={(cardId) =>
