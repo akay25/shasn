@@ -8,7 +8,7 @@
 // via `onSlotClick`, drives voter placement. Region labels are an HTML overlay
 // so text stays crisp and styled like the rest of the UI.
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { GameState, Player } from "@/engine/types";
 import {
   totalVotersInZone,
@@ -24,6 +24,27 @@ const HEX_W = Math.sqrt(3) * SIZE;       // horizontal pitch ≈ 38.1
 const HEX_V = 1.5 * SIZE;                // vertical pitch  = 33
 const MARGIN = 26;
 const SS = 2;                            // supersample factor for crisp canvas
+
+// ---- Pan / zoom viewport ---------------------------------------------------
+
+const MIN_ZOOM = 1;                       // 1 = whole board fills the frame
+const MAX_ZOOM = 5;
+const ZOOM_STEP = 1.25;
+
+// Temporarily hide the on-map voter holes / pegs so the board reads as a plain
+// geographic map you can drag and zoom. Flip back to `true` to restore them.
+const SHOW_VOTERS = false;
+
+// Clamp a candidate {zoom,x,y} so the scaled layer stays inside the vw×vh
+// viewport (centred when it's smaller than the frame).
+function clampView(zoom: number, x: number, y: number, vw: number, vh: number) {
+  const z = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
+  const sw = vw * z;
+  const sh = vh * z;
+  const cx = sw >= vw ? Math.min(0, Math.max(vw - sw, x)) : (vw - sw) / 2;
+  const cy = sh >= vh ? Math.min(0, Math.max(vh - sh, y)) : (vh - sh) / 2;
+  return { zoom: z, x: cx, y: cy };
+}
 
 function cellPixel(col: number, row: number): { x: number; y: number } {
   return {
@@ -147,7 +168,7 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
     }
 
     // Pass 3 — voter holes / pegs, volatile badges, highlights.
-    for (const z of board.zones) {
+    if (SHOW_VOTERS) for (const z of board.zones) {
       const zs = state.zones[z.id];
       const highlights = selectable[z.id];
       board.geometry[z.id].cells.forEach((cell, idx) => {
@@ -201,9 +222,75 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
     }
   }, [state, layout, selectableSlots, board]);
 
+  // ---- Pan / zoom ----------------------------------------------------------
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const [view, setView] = useState({ zoom: 1, x: 0, y: 0 });
+  const dragRef = useRef<{ sx: number; sy: number; px: number; py: number } | null>(null);
+  const movedRef = useRef(false);
+
+  // Wheel-to-zoom toward the cursor. Registered non-passively so we can
+  // preventDefault the page scroll.
+  useEffect(() => {
+    const vp = viewportRef.current;
+    if (!vp) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = vp.getBoundingClientRect();
+      const cx = e.clientX - rect.left;
+      const cy = e.clientY - rect.top;
+      const factor = e.deltaY < 0 ? ZOOM_STEP : 1 / ZOOM_STEP;
+      setView((v) => {
+        const z2 = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, v.zoom * factor));
+        const lx = (cx - v.x) / v.zoom;
+        const ly = (cy - v.y) / v.zoom;
+        return clampView(z2, cx - z2 * lx, cy - z2 * ly, rect.width, rect.height);
+      });
+    };
+    vp.addEventListener("wheel", onWheel, { passive: false });
+    return () => vp.removeEventListener("wheel", onWheel);
+  }, []);
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    if (e.button !== 0) return;
+    dragRef.current = { sx: e.clientX, sy: e.clientY, px: view.x, py: view.y };
+    movedRef.current = false;
+    viewportRef.current?.setPointerCapture(e.pointerId);
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    const d = dragRef.current;
+    const vp = viewportRef.current;
+    if (!d || !vp) return;
+    const dx = e.clientX - d.sx;
+    const dy = e.clientY - d.sy;
+    if (Math.abs(dx) + Math.abs(dy) > 4) movedRef.current = true;
+    const rect = vp.getBoundingClientRect();
+    setView((v) => clampView(v.zoom, d.px + dx, d.py + dy, rect.width, rect.height));
+  };
+  const onPointerUp = (e: React.PointerEvent) => {
+    dragRef.current = null;
+    viewportRef.current?.releasePointerCapture?.(e.pointerId);
+  };
+
+  // Zoom buttons / reset — centred on the frame.
+  const zoomBy = (factor: number) => {
+    const vp = viewportRef.current;
+    if (!vp) return;
+    const rect = vp.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    setView((v) => {
+      const z2 = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, v.zoom * factor));
+      const lx = (cx - v.x) / v.zoom;
+      const ly = (cy - v.y) / v.zoom;
+      return clampView(z2, cx - z2 * lx, cy - z2 * ly, rect.width, rect.height);
+    });
+  };
+  const resetView = () => setView({ zoom: 1, x: 0, y: 0 });
+
   // Click → nearest cell → (zoneId, slotIdx).
   const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!onSlotClick) return;
+    if (movedRef.current) return;            // ignore clicks that were really pans
     const canvas = canvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
@@ -222,19 +309,33 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
   };
 
   return (
-    <div className="relative w-full" style={{ aspectRatio: `${layout.vbW}/${layout.vbH}` }}>
-      <canvas
-        ref={canvasRef}
-        onClick={handleClick}
-        className={`absolute inset-0 w-full h-full block rounded-xl shadow-lg ${
-          onSlotClick ? "cursor-pointer" : ""
-        }`}
-        role="img"
-        aria-label="SHASN region map"
-      />
+    <div
+      ref={viewportRef}
+      className="relative w-full overflow-hidden rounded-xl shadow-lg bg-[#bfa676] select-none cursor-grab active:cursor-grabbing"
+      style={{ aspectRatio: `${layout.vbW}/${layout.vbH}`, touchAction: "none" }}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={onPointerUp}
+      onPointerLeave={onPointerUp}
+    >
+      {/* Pan / zoom layer — transformed as a unit so the canvas and the HTML
+          overlay labels stay locked together. */}
+      <div
+        className="absolute inset-0 origin-top-left"
+        style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})` }}
+      >
+        <canvas
+          ref={canvasRef}
+          onClick={handleClick}
+          className={`absolute inset-0 w-full h-full block ${
+            onSlotClick ? "cursor-pointer" : ""
+          }`}
+          role="img"
+          aria-label="SHASN region map"
+        />
 
-      {/* HTML overlay: region labels + status chips. */}
-      {board.zones.map((zone) => {
+        {/* HTML overlay: region labels + status chips. */}
+        {board.zones.map((zone) => {
         const c = board.geometry[zone.id].centroid;
         const { x, y } = cellPixel(c.col, c.row);
         const left = (x / layout.vbW) * 100;
@@ -272,7 +373,39 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
             </div>
           </div>
         );
-      })}
+        })}
+      </div>
+
+      {/* Zoom controls — sit above the transformed layer so they don't pan. */}
+      <div
+        className="absolute bottom-2 right-2 flex flex-col gap-1"
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={() => zoomBy(ZOOM_STEP)}
+          title="Zoom in"
+          className="w-8 h-8 rounded-md bg-black/60 hover:bg-black/80 text-amber-50 text-lg font-bold border border-amber-100/20 leading-none"
+        >
+          +
+        </button>
+        <button
+          type="button"
+          onClick={() => zoomBy(1 / ZOOM_STEP)}
+          title="Zoom out"
+          className="w-8 h-8 rounded-md bg-black/60 hover:bg-black/80 text-amber-50 text-lg font-bold border border-amber-100/20 leading-none"
+        >
+          −
+        </button>
+        <button
+          type="button"
+          onClick={resetView}
+          title="Reset view"
+          className="w-8 h-8 rounded-md bg-black/60 hover:bg-black/80 text-amber-50 text-xs font-bold border border-amber-100/20 leading-none"
+        >
+          ⤢
+        </button>
+      </div>
     </div>
   );
 }
