@@ -13,7 +13,7 @@ import { CONSPIRACY_CARDS } from "@/data/cards/conspiracy";
 import { useDispatch } from "@/ui/hooks/useDispatch";
 import { activePlayer } from "@/engine/selectors";
 import { BOARD } from "@/data/board";
-import { RESOURCE_COLOR, RESOURCE_GLYPH } from "./ResourceTrack";
+import { RESOURCE_COLOR, ResourceCoin } from "./ResourceTrack";
 
 interface Props {
   state: GameState;
@@ -170,8 +170,8 @@ export default function ConspiracyModal({ state, initialCardId, onClose }: Props
                     key={r}
                     className="flex items-center justify-between border border-neutral-700 rounded p-1"
                   >
-                    <span className={`text-xs ${RESOURCE_COLOR[r]} font-bold`}>
-                      {RESOURCE_GLYPH[r]}
+                    <span className={`text-xs ${RESOURCE_COLOR[r]} font-bold inline-flex items-center`}>
+                      <ResourceCoin resource={r} size="xs" />
                     </span>
                     <div className="flex items-center gap-1">
                       <button

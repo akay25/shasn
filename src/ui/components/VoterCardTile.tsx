@@ -1,7 +1,7 @@
-// A face-up voter card on the HQ Mat, showing voter count and cost glyphs.
-import type { VoterCard } from "@/engine/types";
+// A face-up voter card on the HQ Mat, showing voter count and cost coins.
+import type { Resource, VoterCard } from "@/engine/types";
 import { RESOURCES } from "@/engine/types";
-import { RESOURCE_COLOR, RESOURCE_GLYPH } from "./ResourceTrack";
+import { ResourceCoin } from "./ResourceTrack";
 
 interface Props {
   card: VoterCard | null;
@@ -18,15 +18,13 @@ export default function VoterCardTile({ card, onClick, disabled, label }: Props)
       </div>
     );
   }
-  const costEntries: { key: string; glyph: string; n: number; color: string }[] = [];
+  const costEntries: { key: string; resource: Resource | null; n: number }[] = [];
   for (const r of RESOURCES) {
     const n = card.cost[r] ?? 0;
-    if (n > 0) {
-      costEntries.push({ key: r, glyph: RESOURCE_GLYPH[r], n, color: RESOURCE_COLOR[r] });
-    }
+    if (n > 0) costEntries.push({ key: r, resource: r, n });
   }
   if (card.cost.any) {
-    costEntries.push({ key: "any", glyph: "?", n: card.cost.any, color: "text-neutral-300" });
+    costEntries.push({ key: "any", resource: null, n: card.cost.any });
   }
   return (
     <button
@@ -41,11 +39,15 @@ export default function VoterCardTile({ card, onClick, disabled, label }: Props)
           voter{card.voters > 1 ? "s" : ""}
         </div>
       </div>
-      <div className="flex flex-wrap gap-1 text-xs">
+      <div className="flex flex-wrap items-center gap-1 text-xs">
         {costEntries.map((c) => (
-          <span key={c.key} className={`${c.color} font-bold`}>
+          <span key={c.key} className="font-bold inline-flex items-center gap-0.5">
             {c.n}
-            {c.glyph}
+            {c.resource ? (
+              <ResourceCoin resource={c.resource} size="xs" />
+            ) : (
+              <span className="text-neutral-300">?</span>
+            )}
           </span>
         ))}
       </div>

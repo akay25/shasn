@@ -6,7 +6,7 @@ import type { GameState, Resource } from "@/engine/types";
 import { RESOURCES } from "@/engine/types";
 import { activePlayer, totalResources } from "@/engine/selectors";
 import { useDispatch } from "@/ui/hooks/useDispatch";
-import { RESOURCE_BG, RESOURCE_COLOR, RESOURCE_GLYPH, RESOURCE_LABEL } from "./ResourceTrack";
+import { RESOURCE_BG, RESOURCE_COLOR, RESOURCE_LABEL, ResourceCoin } from "./ResourceTrack";
 
 interface Props {
   state: GameState;
@@ -51,8 +51,8 @@ export default function ResourceDiscardModal({ state }: Props) {
                 key={r}
                 className={`border ${RESOURCE_BG[r]} rounded p-2 flex flex-col items-center`}
               >
-                <div className={`text-xs ${RESOURCE_COLOR[r]} font-bold`}>
-                  {RESOURCE_GLYPH[r]} {RESOURCE_LABEL[r]}
+                <div className={`text-xs ${RESOURCE_COLOR[r]} font-bold inline-flex items-center gap-1`}>
+                  <ResourceCoin resource={r} size="xs" /> {RESOURCE_LABEL[r]}
                 </div>
                 <div className="text-[10px] text-neutral-400">have {have}</div>
                 <div className="flex items-center gap-1 mt-1">

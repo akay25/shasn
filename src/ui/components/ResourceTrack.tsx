@@ -1,12 +1,19 @@
-// Displays a player's 4 resources with their colored token and glyph.
+// Displays a player's 4 resources, each with its ideologue coin image.
 import type { Resource } from "@/engine/types";
 import { RESOURCES } from "@/engine/types";
 
-export const RESOURCE_GLYPH: Record<Resource, string> = {
-  funds: "¤",   // ¤
-  clout: "★",   // ★
-  media: "✦",   // ✦
-  trust: "❤",   // ❤
+import coinFunds from "@/assets/coins/coin_capitalist.png";
+import coinClout from "@/assets/coins/coin_supremo.png";
+import coinMedia from "@/assets/coins/coin_showstopper.png";
+import coinTrust from "@/assets/coins/coin_idealist.png";
+
+// Each resource maps to its ideologue's coin (rulebook p.15: every resource
+// corresponds to one of the four Ideologues).
+export const RESOURCE_COIN: Record<Resource, string> = {
+  funds: coinFunds,   // The Capitalist
+  clout: coinClout,   // The Supremo
+  media: coinMedia,   // The Showstopper
+  trust: coinTrust,   // The Idealist
 };
 
 export const RESOURCE_COLOR: Record<Resource, string> = {
@@ -30,6 +37,31 @@ export const RESOURCE_LABEL: Record<Resource, string> = {
   trust: "Trust",
 };
 
+// Coin sizes (px). Use class `inline-block` on the img to keep baseline flow.
+const COIN_SIZE = { xs: 14, sm: 18, md: 22, lg: 32 } as const;
+type CoinSize = keyof typeof COIN_SIZE;
+
+interface ResourceCoinProps {
+  resource: Resource;
+  size?: CoinSize;
+  className?: string;
+}
+
+export function ResourceCoin({ resource, size = "sm", className = "" }: ResourceCoinProps) {
+  const px = COIN_SIZE[size];
+  return (
+    <img
+      src={RESOURCE_COIN[resource]}
+      alt={RESOURCE_LABEL[resource]}
+      title={RESOURCE_LABEL[resource]}
+      width={px}
+      height={px}
+      className={`inline-block align-middle select-none pointer-events-none ${className}`}
+      draggable={false}
+    />
+  );
+}
+
 interface Props {
   resources: Record<Resource, number>;
   cap?: number;
@@ -47,9 +79,7 @@ export default function ResourceTrack({ resources, cap, compact }: Props) {
           }`}
           title={RESOURCE_LABEL[r]}
         >
-          <div className={`${RESOURCE_COLOR[r]} ${compact ? "text-xs" : "text-base"} leading-none`}>
-            {RESOURCE_GLYPH[r]}
-          </div>
+          <ResourceCoin resource={r} size={compact ? "xs" : "md"} />
           <div className={`${compact ? "text-xs" : "text-lg"} font-bold leading-none mt-0.5`}>
             {resources[r] ?? 0}
           </div>

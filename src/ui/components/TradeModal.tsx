@@ -15,8 +15,8 @@ import { CONSPIRACY_CARDS } from "@/data/cards/conspiracy";
 import {
   RESOURCE_BG,
   RESOURCE_COLOR,
-  RESOURCE_GLYPH,
   RESOURCE_LABEL,
+  ResourceCoin,
 } from "./ResourceTrack";
 
 interface Props {
@@ -181,8 +181,8 @@ function SideEditor(props: {
               key={r}
               className={`border ${RESOURCE_BG[r]} rounded p-1 flex items-center justify-between`}
             >
-              <span className={`text-xs ${RESOURCE_COLOR[r]} font-bold`} title={RESOURCE_LABEL[r]}>
-                {RESOURCE_GLYPH[r]} {avail}
+              <span className={`text-xs ${RESOURCE_COLOR[r]} font-bold inline-flex items-center gap-1`} title={RESOURCE_LABEL[r]}>
+                <ResourceCoin resource={r} size="xs" /> {avail}
               </span>
               <div className="flex items-center gap-1">
                 <button

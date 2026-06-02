@@ -8,7 +8,7 @@ import { RESOURCES } from "@/engine/types";
 import { IDEOLOGY_CARDS } from "@/data/cards/ideology";
 import { useDispatch } from "@/ui/hooks/useDispatch";
 import { activePlayer } from "@/engine/selectors";
-import { RESOURCE_COLOR, RESOURCE_GLYPH, RESOURCE_LABEL } from "./ResourceTrack";
+import { RESOURCE_COLOR, RESOURCE_LABEL, ResourceCoin } from "./ResourceTrack";
 
 interface Props {
   state: GameState;
@@ -99,14 +99,13 @@ function SideButton({
   onPick: () => void;
 }) {
   const ideologue = data.ideologue;
-  const payout: { r: Resource | "any"; n: number; glyph: string; color: string }[] = [];
+  const payout: { r: Resource | "any"; n: number; color: string }[] = [];
   for (const r of RESOURCES) {
     const n = data.payout[r] ?? 0;
-    if (n > 0)
-      payout.push({ r, n, glyph: RESOURCE_GLYPH[r], color: RESOURCE_COLOR[r] });
+    if (n > 0) payout.push({ r, n, color: RESOURCE_COLOR[r] });
   }
   if (data.payout.any) {
-    payout.push({ r: "any", n: data.payout.any, glyph: "?", color: "text-neutral-200" });
+    payout.push({ r: "any", n: data.payout.any, color: "text-neutral-200" });
   }
   return (
     <button
@@ -118,15 +117,15 @@ function SideButton({
         {side === "left" ? "Left" : "Right"} · {ideologue}
       </div>
       <div className="text-sm font-medium mb-2">{data.text}</div>
-      <div className="flex flex-wrap gap-2 text-sm font-bold">
+      <div className="flex flex-wrap items-center gap-2 text-sm font-bold">
         {payout.map((p, i) => (
           <span
             key={`${p.r}-${i}`}
-            className={p.color}
+            className={`${p.color} inline-flex items-center gap-0.5`}
             title={p.r === "any" ? "Any resource" : RESOURCE_LABEL[p.r]}
           >
             +{p.n}
-            {p.glyph}
+            {p.r === "any" ? <span>?</span> : <ResourceCoin resource={p.r} size="sm" />}
           </span>
         ))}
       </div>

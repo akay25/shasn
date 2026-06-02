@@ -10,8 +10,8 @@ import { useDispatch } from "@/ui/hooks/useDispatch";
 import {
   RESOURCE_BG,
   RESOURCE_COLOR,
-  RESOURCE_GLYPH,
   RESOURCE_LABEL,
+  ResourceCoin,
 } from "./ResourceTrack";
 
 interface Props {
@@ -66,9 +66,9 @@ export default function InfluenceVoterModal({ state, openIdx, onClose }: Props) 
         <div className="text-sm text-neutral-300">
           Cost:{" "}
           {RESOURCES.filter((r) => baseCost[r] > 0).map((r) => (
-            <span key={r} className={`mr-2 font-bold ${RESOURCE_COLOR[r]}`}>
+            <span key={r} className={`mr-2 font-bold ${RESOURCE_COLOR[r]} inline-flex items-center gap-0.5`}>
               {baseCost[r]}
-              {RESOURCE_GLYPH[r]}
+              <ResourceCoin resource={r} size="xs" />
             </span>
           ))}
           {anyNeeded > 0 ? (
@@ -90,8 +90,8 @@ export default function InfluenceVoterModal({ state, openIdx, onClose }: Props) 
                     key={r}
                     className={`border ${RESOURCE_BG[r]} rounded p-2 flex flex-col items-center`}
                   >
-                    <div className={`text-xs ${RESOURCE_COLOR[r]} font-bold`}>
-                      {RESOURCE_GLYPH[r]} {RESOURCE_LABEL[r]}
+                    <div className={`text-xs ${RESOURCE_COLOR[r]} font-bold inline-flex items-center gap-1`}>
+                      <ResourceCoin resource={r} size="xs" /> {RESOURCE_LABEL[r]}
                     </div>
                     <div className="text-[10px] text-neutral-400">
                       avail {Math.max(0, avail)}
