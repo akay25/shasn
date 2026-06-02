@@ -257,18 +257,15 @@ export default function Game() {
           className="w-1.5 shrink-0 cursor-col-resize bg-neutral-800 hover:bg-blue-500/70 active:bg-blue-500 transition-colors"
         />
 
-        {/* Map + HQ */}
-        <div className="flex-1 grid grid-cols-[minmax(0,1fr)_320px] gap-3 p-3 overflow-hidden">
-          <div className="overflow-y-auto flex items-start">
-            <div className="w-full">
-              <MapBoard
-                state={state}
-                selectableSlots={selectableSlots}
-                onSlotClick={onMapSlotClick}
-              />
-            </div>
-          </div>
-          <div className="overflow-y-auto">
+        {/* Map fills the whole right side; the HQ Mat (voters container) floats
+            over it in the top-right corner. */}
+        <div className="flex-1 relative overflow-hidden">
+          <MapBoard
+            state={state}
+            selectableSlots={selectableSlots}
+            onSlotClick={onMapSlotClick}
+          />
+          <div className="absolute top-3 right-3 z-10 w-[320px] max-w-[45%] shadow-xl">
             <HqMat
               state={state}
               onInfluenceClick={(openIdx) =>

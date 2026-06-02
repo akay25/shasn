@@ -27,23 +27,34 @@ const SS = 2;                            // supersample factor for crisp canvas
 
 // ---- Pan / zoom viewport ---------------------------------------------------
 
-const MIN_ZOOM = 1;                       // 1 = whole board fills the frame
-const MAX_ZOOM = 5;
+const MAX_ZOOM = 6;                       // max magnification over fit-to-frame
 const ZOOM_STEP = 1.25;
 
 // Temporarily hide the on-map voter holes / pegs so the board reads as a plain
 // geographic map you can drag and zoom. Flip back to `true` to restore them.
 const SHOW_VOTERS = false;
 
-// Clamp a candidate {zoom,x,y} so the scaled layer stays inside the vw×vh
-// viewport (centred when it's smaller than the frame).
-function clampView(zoom: number, x: number, y: number, vw: number, vh: number) {
-  const z = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom));
-  const sw = vw * z;
-  const sh = vh * z;
+// Scale at which the whole cw×ch board just fits inside the vw×vh viewport.
+function fitScale(vw: number, vh: number, cw: number, ch: number): number {
+  if (!vw || !vh) return 1;
+  return Math.min(vw / cw, vh / ch);
+}
+
+// Clamp a candidate transform {s,x,y} so the board (cw×ch board-px, scaled by s)
+// stays inside the vw×vh viewport: never zoomed out past fit, never magnified
+// past MAX_ZOOM, and panned no further than its own edges (centred on any axis
+// where it's smaller than the frame).
+function clampView(
+  s: number, x: number, y: number,
+  vw: number, vh: number, cw: number, ch: number,
+) {
+  const fit = fitScale(vw, vh, cw, ch);
+  const sc = Math.max(fit, Math.min(fit * MAX_ZOOM, s));
+  const sw = cw * sc;
+  const sh = ch * sc;
   const cx = sw >= vw ? Math.min(0, Math.max(vw - sw, x)) : (vw - sw) / 2;
   const cy = sh >= vh ? Math.min(0, Math.max(vh - sh, y)) : (vh - sh) / 2;
-  return { zoom: z, x: cx, y: cy };
+  return { s: sc, x: cx, y: cy };
 }
 
 function cellPixel(col: number, row: number): { x: number; y: number } {
@@ -223,10 +234,31 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
   }, [state, layout, selectableSlots, board]);
 
   // ---- Pan / zoom ----------------------------------------------------------
+  // The board is laid out at its natural vbW×vbH board-pixel size and then
+  // transformed (translate + uniform scale) to fit the viewport, so it fills an
+  // arbitrarily-shaped container without distortion. `s` is the absolute scale
+  // (board-px → screen-px); `x,y` is the on-screen offset of the board's
+  // top-left corner. s === 0 means "not yet measured".
   const viewportRef = useRef<HTMLDivElement>(null);
-  const [view, setView] = useState({ zoom: 1, x: 0, y: 0 });
+  const { vbW, vbH } = layout;
+  const [view, setView] = useState({ s: 0, x: 0, y: 0 });
   const dragRef = useRef<{ sx: number; sy: number; px: number; py: number } | null>(null);
   const movedRef = useRef(false);
+
+  // Fit + re-clamp to the live viewport size. On first measure (s === 0)
+  // clampView snaps up to the fit scale, centring the board.
+  useEffect(() => {
+    const vp = viewportRef.current;
+    if (!vp) return;
+    const reflow = () => {
+      const rect = vp.getBoundingClientRect();
+      setView((v) => clampView(v.s, v.x, v.y, rect.width, rect.height, vbW, vbH));
+    };
+    reflow();
+    const ro = new ResizeObserver(reflow);
+    ro.observe(vp);
+    return () => ro.disconnect();
+  }, [vbW, vbH]);
 
   // Wheel-to-zoom toward the cursor. Registered non-passively so we can
   // preventDefault the page scroll.
@@ -240,15 +272,16 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
       const cy = e.clientY - rect.top;
       const factor = e.deltaY < 0 ? ZOOM_STEP : 1 / ZOOM_STEP;
       setView((v) => {
-        const z2 = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, v.zoom * factor));
-        const lx = (cx - v.x) / v.zoom;
-        const ly = (cy - v.y) / v.zoom;
-        return clampView(z2, cx - z2 * lx, cy - z2 * ly, rect.width, rect.height);
+        if (!v.s) return v;
+        const s2 = v.s * factor;
+        const lx = (cx - v.x) / v.s;
+        const ly = (cy - v.y) / v.s;
+        return clampView(s2, cx - s2 * lx, cy - s2 * ly, rect.width, rect.height, vbW, vbH);
       });
     };
     vp.addEventListener("wheel", onWheel, { passive: false });
     return () => vp.removeEventListener("wheel", onWheel);
-  }, []);
+  }, [vbW, vbH]);
 
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.button !== 0) return;
@@ -264,14 +297,14 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
     const dy = e.clientY - d.sy;
     if (Math.abs(dx) + Math.abs(dy) > 4) movedRef.current = true;
     const rect = vp.getBoundingClientRect();
-    setView((v) => clampView(v.zoom, d.px + dx, d.py + dy, rect.width, rect.height));
+    setView((v) => clampView(v.s, d.px + dx, d.py + dy, rect.width, rect.height, vbW, vbH));
   };
   const onPointerUp = (e: React.PointerEvent) => {
     dragRef.current = null;
     viewportRef.current?.releasePointerCapture?.(e.pointerId);
   };
 
-  // Zoom buttons / reset — centred on the frame.
+  // Zoom buttons (centred on the frame) and reset-to-fit.
   const zoomBy = (factor: number) => {
     const vp = viewportRef.current;
     if (!vp) return;
@@ -279,13 +312,19 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
     const cx = rect.width / 2;
     const cy = rect.height / 2;
     setView((v) => {
-      const z2 = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, v.zoom * factor));
-      const lx = (cx - v.x) / v.zoom;
-      const ly = (cy - v.y) / v.zoom;
-      return clampView(z2, cx - z2 * lx, cy - z2 * ly, rect.width, rect.height);
+      if (!v.s) return v;
+      const s2 = v.s * factor;
+      const lx = (cx - v.x) / v.s;
+      const ly = (cy - v.y) / v.s;
+      return clampView(s2, cx - s2 * lx, cy - s2 * ly, rect.width, rect.height, vbW, vbH);
     });
   };
-  const resetView = () => setView({ zoom: 1, x: 0, y: 0 });
+  const resetView = () => {
+    const vp = viewportRef.current;
+    if (!vp) return;
+    const rect = vp.getBoundingClientRect();
+    setView(clampView(fitScale(rect.width, rect.height, vbW, vbH), 0, 0, rect.width, rect.height, vbW, vbH));
+  };
 
   // Click → nearest cell → (zoneId, slotIdx).
   const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -311,25 +350,30 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
   return (
     <div
       ref={viewportRef}
-      className="relative w-full overflow-hidden rounded-xl shadow-lg bg-[#bfa676] select-none cursor-grab active:cursor-grabbing"
-      style={{ aspectRatio: `${layout.vbW}/${layout.vbH}`, touchAction: "none" }}
+      className="relative w-full h-full overflow-hidden bg-[#bfa676] select-none cursor-grab active:cursor-grabbing"
+      style={{ touchAction: "none" }}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerLeave={onPointerUp}
     >
-      {/* Pan / zoom layer — transformed as a unit so the canvas and the HTML
-          overlay labels stay locked together. */}
+      {/* Pan / zoom layer — laid out at the board's natural size and transformed
+          as a unit so the canvas and the HTML overlay labels stay locked
+          together. Hidden until the viewport has been measured. */}
       <div
-        className="absolute inset-0 origin-top-left"
-        style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})` }}
+        className="absolute top-0 left-0 origin-top-left"
+        style={{
+          width: vbW,
+          height: vbH,
+          transform: `translate(${view.x}px, ${view.y}px) scale(${view.s})`,
+          visibility: view.s ? "visible" : "hidden",
+        }}
       >
         <canvas
           ref={canvasRef}
           onClick={handleClick}
-          className={`absolute inset-0 w-full h-full block ${
-            onSlotClick ? "cursor-pointer" : ""
-          }`}
+          className={`block ${onSlotClick ? "cursor-pointer" : ""}`}
+          style={{ width: vbW, height: vbH }}
           role="img"
           aria-label="SHASN region map"
         />
@@ -378,7 +422,7 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
 
       {/* Zoom controls — sit above the transformed layer so they don't pan. */}
       <div
-        className="absolute bottom-2 right-2 flex flex-col gap-1"
+        className="absolute bottom-2 left-2 flex flex-col gap-1"
         onPointerDown={(e) => e.stopPropagation()}
       >
         <button
