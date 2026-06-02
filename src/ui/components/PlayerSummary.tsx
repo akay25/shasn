@@ -2,19 +2,13 @@
 // ideology card count, conspiracy hand count.
 import type { Player } from "@/engine/types";
 import ResourceTrack from "./ResourceTrack";
+import Coin from "./Coin";
 
 interface Props {
   player: Player;
   isActive?: boolean;
   isNext?: boolean;
 }
-
-const COLOR_BG: Record<string, string> = {
-  capitalist: "bg-capitalist",
-  supremo: "bg-supremo",
-  showstopper: "bg-showstopper",
-  idealist: "bg-idealist",
-};
 
 export default function PlayerSummary({ player, isActive, isNext }: Props) {
   return (
@@ -28,7 +22,7 @@ export default function PlayerSummary({ player, isActive, isNext }: Props) {
       }`}
     >
       <div className="flex items-center gap-2 mb-1">
-        <div className={`w-3 h-3 rounded-full ${COLOR_BG[player.color]}`} />
+        <Coin ideologue={player.color} size="sm" />
         <div className="font-semibold text-sm truncate flex-1">{player.name}</div>
         {isActive ? (
           <div className="text-[10px] uppercase text-white/80">Active</div>

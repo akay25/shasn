@@ -1,20 +1,8 @@
-// Displays a player's 4 resources, each with its ideologue coin image.
+// Player resource display. The resource → coin mapping lives in <Coin>;
+// ResourceCoin is just a thin convenience that translates Resource → Ideologue.
 import type { Resource } from "@/engine/types";
 import { RESOURCES } from "@/engine/types";
-
-import coinFunds from "@/assets/coins/coin_capitalist.png";
-import coinClout from "@/assets/coins/coin_supremo.png";
-import coinMedia from "@/assets/coins/coin_showstopper.png";
-import coinTrust from "@/assets/coins/coin_idealist.png";
-
-// Each resource maps to its ideologue's coin (rulebook p.15: every resource
-// corresponds to one of the four Ideologues).
-export const RESOURCE_COIN: Record<Resource, string> = {
-  funds: coinFunds,   // The Capitalist
-  clout: coinClout,   // The Supremo
-  media: coinMedia,   // The Showstopper
-  trust: coinTrust,   // The Idealist
-};
+import Coin, { CoinSize, RESOURCE_TO_IDEOLOGUE } from "./Coin";
 
 export const RESOURCE_COLOR: Record<Resource, string> = {
   funds: "text-funds",
@@ -37,10 +25,6 @@ export const RESOURCE_LABEL: Record<Resource, string> = {
   trust: "Trust",
 };
 
-// Coin sizes (px). Use class `inline-block` on the img to keep baseline flow.
-const COIN_SIZE = { xs: 14, sm: 18, md: 22, lg: 32 } as const;
-type CoinSize = keyof typeof COIN_SIZE;
-
 interface ResourceCoinProps {
   resource: Resource;
   size?: CoinSize;
@@ -48,16 +32,12 @@ interface ResourceCoinProps {
 }
 
 export function ResourceCoin({ resource, size = "sm", className = "" }: ResourceCoinProps) {
-  const px = COIN_SIZE[size];
   return (
-    <img
-      src={RESOURCE_COIN[resource]}
-      alt={RESOURCE_LABEL[resource]}
+    <Coin
+      ideologue={RESOURCE_TO_IDEOLOGUE[resource]}
+      size={size}
+      className={className}
       title={RESOURCE_LABEL[resource]}
-      width={px}
-      height={px}
-      className={`inline-block align-middle select-none pointer-events-none ${className}`}
-      draggable={false}
     />
   );
 }

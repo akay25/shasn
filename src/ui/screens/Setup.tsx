@@ -3,20 +3,7 @@ import { useState } from "react";
 import type { Ideologue } from "@/engine/types";
 import { IDEOLOGUES } from "@/engine/types";
 import { useGameStore } from "@/store/gameStore";
-
-const COLOR_BG: Record<Ideologue, string> = {
-  capitalist: "bg-capitalist",
-  supremo: "bg-supremo",
-  showstopper: "bg-showstopper",
-  idealist: "bg-idealist",
-};
-
-const COLOR_LABEL: Record<Ideologue, string> = {
-  capitalist: "Capitalist",
-  supremo: "Supremo",
-  showstopper: "Showstopper",
-  idealist: "Idealist",
-};
+import Coin, { IDEOLOGUE_LABEL } from "@/ui/components/Coin";
 
 interface PlayerDraft {
   name: string;
@@ -119,14 +106,16 @@ export default function Setup() {
                         return out;
                       })
                     }
-                    title={COLOR_LABEL[ig]}
-                    className={`w-6 h-6 rounded-full ${COLOR_BG[ig]} ${
+                    title={IDEOLOGUE_LABEL[ig]}
+                    className={`rounded-full p-0.5 transition ${
                       p.color === ig
                         ? "ring-2 ring-white"
                         : "opacity-60 hover:opacity-100"
                     }`}
-                    aria-label={`${p.name} color ${COLOR_LABEL[ig]}`}
-                  />
+                    aria-label={`${p.name} color ${IDEOLOGUE_LABEL[ig]}`}
+                  >
+                    <Coin ideologue={ig} size="md" />
+                  </button>
                 ))}
               </div>
             </div>

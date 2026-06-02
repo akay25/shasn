@@ -9,6 +9,7 @@ import { IDEOLOGY_CARDS } from "@/data/cards/ideology";
 import { useDispatch } from "@/ui/hooks/useDispatch";
 import { activePlayer } from "@/engine/selectors";
 import { RESOURCE_COLOR, RESOURCE_LABEL, ResourceCoin } from "./ResourceTrack";
+import Coin, { IDEOLOGUE_LABEL } from "./Coin";
 
 interface Props {
   state: GameState;
@@ -113,8 +114,10 @@ function SideButton({
       onClick={onPick}
       className={`text-left rounded-lg border ${IDEOLOGUE_BG[ideologue]} p-3 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-white`}
     >
-      <div className="text-[10px] uppercase text-neutral-300 mb-1">
-        {side === "left" ? "Left" : "Right"} · {ideologue}
+      <div className="flex items-center gap-1.5 text-[10px] uppercase text-neutral-300 mb-1">
+        <span>{side === "left" ? "Left" : "Right"} ·</span>
+        <Coin ideologue={ideologue} size="sm" />
+        <span>{IDEOLOGUE_LABEL[ideologue]}</span>
       </div>
       <div className="text-sm font-medium mb-2">{data.text}</div>
       <div className="flex flex-wrap items-center gap-2 text-sm font-bold">

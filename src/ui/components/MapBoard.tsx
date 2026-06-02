@@ -15,6 +15,7 @@
 
 import type { GameState, Player } from "@/engine/types";
 import { BOARD } from "@/data/board";
+import { COIN_SRC } from "./Coin";
 import {
   totalVotersInZone,
   voterCountInZone,
@@ -143,13 +144,6 @@ const COLOR_TEXT: Record<string, string> = {
   idealist: "text-idealist",
 };
 
-const COLOR_HEX: Record<string, string> = {
-  capitalist: "#10b981",  // green
-  supremo: "#ef4444",     // red
-  showstopper: "#3b82f6", // blue
-  idealist: "#eab308",    // yellow
-};
-
 // ---- Component -------------------------------------------------------------
 
 interface Props {
@@ -247,29 +241,51 @@ export default function MapBoard({ state }: Props) {
                         </text>
                       </g>
                     ) : null}
-                    {/* Voter peg */}
+                    {/* Voter peg — the coin image of the owner's ideologue. */}
                     {owner ? (
                       <g pointerEvents="none">
+                        <image
+                          href={COIN_SRC[owner.color]}
+                          x={x - SIZE * 0.5}
+                          y={y - SIZE * 0.5 + (isVolatile ? SIZE * 0.05 : 0)}
+                          width={SIZE}
+                          height={SIZE}
+                          preserveAspectRatio="xMidYMid slice"
+                          style={{ clipPath: "circle(50% at 50% 50%)" }}
+                        />
                         <circle
                           cx={x}
                           cy={y + (isVolatile ? SIZE * 0.05 : 0)}
-                          r={SIZE * 0.42}
-                          fill={COLOR_HEX[owner.color]}
+                          r={SIZE * 0.5}
+                          fill="none"
                           stroke="#1a1410"
-                          strokeWidth={1.2}
+                          strokeWidth={1.4}
                         />
                         {slot?.isMajority ? (
-                          <text
-                            x={x}
-                            y={y + (isVolatile ? SIZE * 0.05 : 0)}
-                            textAnchor="middle"
-                            dominantBaseline="central"
-                            fontSize={SIZE * 0.5}
-                            fill="#fff"
-                            fontWeight={900}
-                          >
-                            ★
-                          </text>
+                          <g>
+                            <circle
+                              cx={x}
+                              cy={y + (isVolatile ? SIZE * 0.05 : 0)}
+                              r={SIZE * 0.5}
+                              fill="none"
+                              stroke="#ffffff"
+                              strokeWidth={1.8}
+                            />
+                            <text
+                              x={x}
+                              y={y + (isVolatile ? SIZE * 0.05 : 0)}
+                              textAnchor="middle"
+                              dominantBaseline="central"
+                              fontSize={SIZE * 0.5}
+                              fill="#fff"
+                              stroke="#000"
+                              strokeWidth={0.4}
+                              fontWeight={900}
+                              style={{ paintOrder: "stroke" }}
+                            >
+                              ★
+                            </text>
+                          </g>
                         ) : null}
                       </g>
                     ) : null}

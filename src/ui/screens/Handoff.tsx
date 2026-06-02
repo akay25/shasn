@@ -4,13 +4,8 @@
 import { useGameStore } from "@/store/gameStore";
 import { useDispatch } from "@/ui/hooks/useDispatch";
 import { activePlayer } from "@/engine/selectors";
+import Coin from "@/ui/components/Coin";
 
-const COLOR_BG: Record<string, string> = {
-  capitalist: "bg-capitalist",
-  supremo: "bg-supremo",
-  showstopper: "bg-showstopper",
-  idealist: "bg-idealist",
-};
 const COLOR_TEXT: Record<string, string> = {
   capitalist: "text-capitalist",
   supremo: "text-supremo",
@@ -31,7 +26,7 @@ export default function Handoff() {
 
   return (
     <div className="fixed inset-0 bg-black text-white flex flex-col items-center justify-center p-8 text-center">
-      <div className={`w-24 h-24 rounded-full ${COLOR_BG[next.color]} mb-6`} />
+      <Coin ideologue={next.color} size="xxl" className="mb-6 shadow-xl" />
       <div className="text-sm uppercase tracking-widest text-neutral-400 mb-2">
         Pass the device to
       </div>
