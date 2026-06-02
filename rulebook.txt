@@ -1,0 +1,1430 @@
+                                          rty of
+                               o   pe
+                              pr
+
+
+                                                                    ly
+                                                                    on
+                                                               el
+                                   au                          nn
+                                        tho               so
+                                              rized per
+
+
+
+
+C O L L E C T O R ’ S   E D I T I O N              R U L E B O O K
+
+
+           CREATED BY ZAIN MEMON
+                                                  GAME
+                                                  BOARD
+
+
+
+                                                  1
+                                                      IDEOLOGY
+                                                      CARDS
+
+                                                                 108
+    W H A T ’ S
+    I N T H E
+    B O X
+
+
+
+
+                                                      IDEOLOGUE
+                                                      CARDS         4
+
+2
+
+
+
+
+                           VOTERS
+                                    300
+                                    (60X5)
+
+
+
+
+                                                                  20
+                          60
+                                                       CONSPIRACY
+                                                       CARDS
+                  VOTER
+                  CARDS
+
+
+                                HEADLINE
+                                CARDS
+                                             20
+                                          H Q M AT
+
+
+
+                                          1
+
+
+                                                          P L AY E R
+                                                          M ATS
+
+                                                                       5
+
+
+
+RESOURCES
+
+
+
+
+FUNDS            CLOUT            MEDIA       TRUST                                            3
+
+
+
+  50               50              50              50
+
+GAME CONTENTS
+
+1            x   Game Board
+60           x   Voter Cards                       K I C KSTA RT E R PR O M OT I O N A L
+300 (60x5)   x   Voter Pegs                                    R EWA R D S
+200 (50x4)   x   Resource Tokens
+1            x   HQ Mat
+5            x   Player Mats
+4            x   Ideologue Cards               1      x     Edge of Chaos Mat
+                                              11      x     Home Turfs
+                                              5       x     I Owe You Tokens
+K I C KSTA RT E R E D I T I O N                2      x     Tracker Tokens
+                                              13      x     Elite Cards
+108          x Ideology Cards                 12      x     Cost of Victory Cards
+20           x Conspiracy Cards                1      x     Scenario Book
+20           x Headline Cards                 5       x     Voter Pouches with Party Symbols
+                                               1      x     Cardboard Public Reserve Box
+PRESIDENTIAL EDITION                           1      x     Collector’s Edition Rule Book
+
+
+432          x Ideology Cards
+80           x Conspiracy Cards
+80           x Headline Cards
+    F R O M
+    T H E
+    C R E A T O R S
+
+                      In early 2018, we set out to build an
+                      intervention that could create real
+                      political dialogue, without all the
+                      hostility, pitchfork-carrying tribalism
+                      and whataboutery that had long since
+                      become the norm in politics.
+
+                      We wanted to create something that
+                      could bring people together, engage and
+                      entertain, while enabling conversations
+                      about our most urgent problems. As our
+                      first game, SHASN tries to manifest our
+                      aspirations - of reflecting upon the real
+                      world, through the sheer joy of gaming.
+
+                      To our delight, the tabletop community
+                      welcomed us with open arms. It’s been
+4                     the warmest and coolest community
+                      we’ve ever been a part of. SHASN would
+                      not have been possible without all the
+                      support we received.
+
+                      If this game helps you hash out your
+                      differences with another player, or
+                      even find some common ground, we
+                      will consider our job done. At the very
+                      least, we hope it gives you another lens
+                      through which to interpret our world,
+                      and at the most, we hope it inspires you
+                      to participate in the democractic process
+                      further.
+
+                      Games are a profound medium. We’re
+                      so excited for more creators to tell
+                      meaningful stories through them in the
+                      future, and hope to do the same. Thank
+                      you so much for the support and vote of
+                      confidence that has made it possible.
+                                               H O W T O
+                                               R E A D T H I S
+                                               R U L E B O O K
+
+
+This rulebook has been split into two parts - a narrative introduction
+phase, and a detailed list of rules for every mechanic. On your first
+readthrough, only read the top section of each page (marked with )
+to learn how to begin the game. Once you start playing, you can refer
+to individual sections to check for additional rules.
+
+
+
+
+   What’s In The Box                       2
+   From The Creators                      4
+   Index                                   5
+   Shasn / ∫a Sən                          6
+   Objective & Setup                       7
+   Forming Majorities                     8
+            Breaking Majorities            9
+   Influencing Voters                     10      I N D E X
+                                                                         5
+   Resources                              11
+            Resource Cap And Trading      12
+   Ideology Cards                         13
+   Content Advisory                       14
+   Ideologues                             15
+   Gerrymandering                         16
+   Volatile Areas And Headline Cards      18
+   Conspiracy Cards                       19
+   End-Game Scoring                       20
+   Order Of Turn                          21
+   Elites                                 22
+   Home Turfs                             23
+   Edge Of Chaos                          24
+   2 Player Mode                          26
+   Ideologue Powers Explained             28
+            The Capitalist                29
+            The Supremo                   30
+            The Showstopper               31
+            The Idealist                  32
+            Reference                     33
+   Glossary Of Terms                      34
+   Credit List                            35
+                                   (noun) Origin: Sanskrit
+    S H A S N
+                                   1. Governance, rule, or regime
+    / ∫ A SƏN                      2. Throne, or seat of power
+
+
+
+
+    Welcome to SHASN. You are a politician.
+    Enter an election that will decide the fate of your nation.
+
+
+
+
+6
+
+
+
+
+                       Copyright 2019, Memesys Lab. Colours may vary.
+                                                              O B J E C T I V E
+                                                              & S E T U P
+
+
+
+The game ends when all possible majorities in all zones
+have been formed. The player with the highest number of
+majority voters wins the game.
+
+
+
+
+▶ Each player selects a Player Mat, along with its
+corresponding bag of voter pegs and I Owe You
+Token.
+▶ All players vote to determine Player 1. In the case of
+a tie, vote again. Players cannot vote for themselves.
+Players take turns clockwise.
+▶ Player 1 receives any 1 resource of their choice from
+the Public Reserve (i.e., the resource bank). Player
+2 receives any 2 resources. Player 3 receives any 3
+resources. Player 4 receives any 4 resources. Player 5
+receives any 5 resources. Players keep their resources
+on their Player Mats.                                                                     7
+
+
+
+                                 Designer’s Note: This is to offset first
+                                 player advantage.
+
+
+
+
+                                                   G A M E P L A Y           T I P :
+                                                      Every starting position offers a
+                                                  different advantage. You could strike
+                                                   deals with other players in order to
+                                                           influence their vote.
+
+
+
+
+▶ Select a campaign. Remove any Ideology Cards if
+desired, based on Content Advisory.
+▶ Shuffle that campaign’s corresponding decks
+of Ideology Cards, Conspiracy Cards, and Headline
+Cards.
+▶ Place the following on the HQ Mat:
+
+
+             ▷ Conspiracy Cards.
+             ▷ Headline Cards.
+             ▷ Voter Cards. Draw and place the top 3 cards face up.
+    F O R M I N G
+    M A J O R I T I E S
+
+
+
+    There are 9 zones on the board. Elections will be contested
+    in each of these zones. Form a majority in a zone by
+    influencing more than half the voters in that zone.
+
+
+
+
+                            Each of the 9 zones can hold a maximum number
+                            of voters. The fraction on each zone denotes its
+                            majority requirement.
+
+
+
+                               This zone has
+                               space for 11
+                               voters. You
+                               must place
+                               6 of your
+                               own voters
+8                              out of the 11
+                               total possible
+                               voters in this
+                               zone to form a
+                               majority here.
+
+
+
+
+                            ▶ Every voter peg has a blank side and a side
+                            marked with its party symbol. Non-majority voters
+                            are placed on the board with the blank side up.
+                            ▶ A majority is formed in a zone immediately after its
+                            majority requirement is met.
+                            ▶ To denote a formed majority in a zone, flip over as
+                            many voters as were required to form the majority,
+                            with the party symbol side up. Each voter used to
+                            form a majority (called a ‘majority voter’) earns you 1
+                            point during end-game scoring.
+
+
+
+
+              Designer’s Note: We understand that this does not accurately
+              represent any one political system. The ambition was to
+              translate the fundamental ideas behind the democratic process
+              in general, to allow the game to be played around the world.
+    By
+   forming a
+   majority in
+   the North-
+   West zone,
+   you have
+   earned 6
+   points.
+
+
+
+
+▶ Only the number of majority voters count
+towards a player’s final total in the game. In the
+above illustration, placing any more voters in this
+zone after the first 6 will not earn any additional
+points and will be kept with the blank side up.
+
+
+
+
+                 ▶ A majority can be broken through                      B R E A K I N G
+                 certain powers and effects. If you no                   MAJORITIES          9
+                 longer have enough voters to meet the
+                 majority requirement of a zone, your
+                 majority breaks. Flip over your remaining
+                 voters blank side up.
+
+
+
+
+                                                      G A M E P L A Y           T I P :
+                                                      Once you form a majority, don’t take
+                                                       it for granted. A majority can be
+                                                            broken. Watch your back.
+     I N F L U E N C I N G
+     VO T E R S
+
+
+     Voters can be influenced through Voter Cards. Each Voter
+     Card has a combination of resources on it. Pay these
+     resources to the Public Reserve (the resource bank) in
+     order to influence that many voters and place them on
+     the board.
+
+
+
+
+10
+
+
+
+
+                             Voter Cards can contain 1, 2 or 3 voters. Three open
+                             Voter Cards must always be available on the HQ Mat.
+
+
+                             ▶ After influencing a Voter Card, a player must place
+                             its voters on the board in a single zone.
+                             ▶ Any influenced voters must be placed on the
+                             board by the end of the same turn. Failure to do so
+                             will lead to these voters being discarded.
+                             ▶ Voters from a single Voter Card cannot be split
+                             across zones. Voters obtained from any other means
+                             can be split.
+                             ▶ After a Voter Card is influenced, discard it and
+                             immediately flip open a new one in its place from
+                             the draw pile.
+                             ▶ There is no limit to how many voters you can
+                             influence in your turn.
+                             ▶ If the draw pile gets emptied, shuffle and reuse all
+                             the discarded Voter Cards.
+                             ▶ If there aren’t enough empty areas left in any one
+                             zone to place the influenced voters from a single
+                             Voter Card, all voters from that card get discarded.
+                                                             R E S O U R C E S
+
+
+
+There are 4 resources in SHASN - Campaign Funds, Street
+Clout, Media Attention, and Public Trust. Earn and trade
+resources in order to influence Voter Cards.
+
+
+
+
+▶ Campaign Funds: If there is       ▶ Media Attention: In an era of
+a profit to be made, someone’s      media saturation, it is vital for
+making it. Earn the support         politicians to maximise visibility
+and funds of industry giants        in the public eye. If you choose
+by promising business-friendly      to baffle, entertain and outrage
+practices and creating market       with your words, you will earn
+demand through your policies.       lots of media attention.
+
+
+
+
+                                                                                 11
+
+
+
+
+▶ Street Clout: If politics is a    ▶ Public Trust: Intention
+numbers game, leaders that          matters. When you seek to
+appeal to the majority set          create a world where all can
+themselves up for success.          engage in the pursuit of
+Accumulate clout quickly            happiness, regardless of who
+by tending to populist              they are, where they come from,
+sentiments and engaging in          or the pragmatism of change,
+identity politics.                  you will earn people’s trust.
+
+
+All four resources are equally important, and are used to influence
+voters, buy Conspiracies, and take special actions.
+
+
+A        indicates that a player can spend any resource of their choice.
+     R E S O U R C E
+     C A P A N D
+     T R A D I N G
+
+
+                       ▶ You will earn resources from Ideology Cards and
+                       passive Ideologue Powers (page 28).
+                       ▶ Players have a default resource cap of 12.
+                       ▶ If at any time you cross your resource cap, you
+                       must choose and discard any excess resources down
+                       to your current resource cap. You cannot take any
+                       other actions until you do so.
+                       ▶ You can trade resources and Conspiracy Cards
+                       with opponents.
+                       ▶ You can trade resources with other players in any
+                       ratio. At least 1 resource must be exchanged by both
+12                     parties. At least 1 player must be the active player for
+                       a trade to occur.
+                       ▶ You can initiate a trade at any point during your
+                       turn.
+                       ▶ Ideology Cards cannot be traded (unless specified
+                       otherwise).
+
+
+
+
+     A U C T I O N     ▶ Certain events in the game will initiate an auction.
+                       ▶ You can bid up to as many resources as your
+                       resource cap during an auction. You do not need to
+                       hold the number of resources you bid. If you win the
+                       bid, you can pay off the bid amount in successive
+                       turns. The seller can now take your I Owe You Token
+                       and keep it above their Player Mat to keep track of
+                       how many resources you owe them.
+                       ▶ However, you cannot make any purchases until
+                       you have completely paid off your bid.
+                       ▶ If nobody places a bid for your auctioned item,
+                       discard it and receive the minimum bid value from
+                       the Public Reserve.
+                                                               I D E O L O G Y
+                                                               C A R D S
+
+
+Resources are earned from answering Ideology Cards. At the start
+of each turn, the player on your right will read aloud both sides of
+the top Ideology Card for you. Ideology Cards pose important policy
+questions. You will have to pick between the two available answers
+on each card. Every answer will yield a different set of resources.
+
+
+    ▶ Players take turns in clockwise order. At the start
+    of your turn, the player to your right will draw the top
+    Ideology Card and read both sides aloud to you. These
+    Ideology Cards pose important policy questions.
+
+
+
+
+                                                                                                     13
+
+
+
+
+    ▶ You must choose between the 2 available answers,
+    each of which corresponds to an Ideologue and
+    yields a different set of resources. After confirming
+    your answer, keep the card under your Player Mat
+    with your answer face up and receive the resources
+    denoted on it.
+    ▶ Before answering an Ideology Card, you can also
+    choose to have it redrawn by paying any 4 resources
+    to the Public Reserve. If you do so, the player to your
+                                                                       G A M E P L A Y
+    right should discard this Ideology Card and draw a                     T I P :
+    new one.                                                       Read between the lines - every
+                                                                   Ideologue has a distinct voice.
+    ▶ Keep the Ideology Card hidden until the active
+    player has confirmed their answer. Every Campaign
+    Box is especially designed for this purpose.
+
+
+    Designer’s Note: While replaying the same campaign multiple times
+    might familiarize players with some of the answers, Ideology Cards
+    are only a small part of the gameplay experience. The interactions of
+    all the other components, along with a strong social strategy element,
+    ensure replayability for all your games to come.
+     C O N T E N T
+     A D V I S O R Y
+
+
+     Certain Ideology Cards include sensitive themes and
+     subject matter. Such cards are marked with     or   You
+     may choose to remove these cards before the game begins.
+     Doing so will not affect the gameplay experience adversely.
+
+
+
+
+                                 Mature/ Sensitive Themes
+
+                                 Trigger Warning
+
+
+
+
+14
+
+
+
+
+            Designer’s Note: We have chosen to include these questions
+            because they do exist in the real world and can inspire necessary
+            conversations. To exclude them would be to pretend that they
+            don’t affect our lives. However, due to their sensitive nature, we
+            have given players the option to play with them as they see fit.
+                                                                 IDEOLOGUES
+
+
+   In SHASN, both answers on an Ideology Card belong to a
+   different Ideologue. There are 4 Ideologues -
+   The Capitalist, The Supremo, The Showstopper, and The
+   Idealist. As you collect multiple cards belonging to these
+   Ideologues, you will unlock exciting powers.
+
+
+
+           ▶ Build a unique combination of ideologies and powers each time you
+           play. Every resource also corresponds to one of the four Ideologues.
+
+
+T H E CA PI TA L I ST    THE SUPREMO          THE SHOWSTOPPER          THE IDEALIST
+
+
+
+
+                                                                                              15
+
+
+
+
+           ▶ While answering an Ideology Card in your turn, you have two answers to
+           choose from. Both answers belong to different Ideologues, denoted by the
+           colored band at the bottom of the card.
+           ▶ Every Ideologue has a passive power: For every 2 Ideology Cards you hold
+           of an Ideologue, get 1 extra resource of that type.
+           ▶ Collecting 3 Ideology Cards of a single Ideologue unlocks their Level 3 Power.
+           ▶ Collecting 5 Ideology Cards of a single Ideologue unlocks their Level 5 Power.
+           ▶ Ideologue Powers can be used in the same turn in which they are unlocked.
+           ▶ You can have multiple Ideologue Powers active at the same time.
+           ▶ You can use your unlocked Ideologue Powers every turn, as long as you still
+           hold the number of Ideology Cards needed to use each power.
+     G E R R Y-
+     M A N D E R I N G
+
+
+     Gain Gerrymandering Rights in a zone by having the most
+     voters there. This allows you to Gerrymander (move) one
+     non-majority voter in or out that zone, or in between two
+     adjacent zones every turn. Gerrymander to disperse your
+     opponent’s voters and consolidate your own.
+
+
+
+
+16
+
+
+
+
+                         If you have Gerrymandering Rights
+                         in North-West, you can Gerrymander
+                         voters in or out of it. You can also
+                         Gerrymander voters in between
+                         adjacent zones.
+▶ You can only Gerrymander non-
+majority voters, ie, voters that are not
+used to form majorities (unless specified
+otherwise).
+▶ You can Gerrymander voters
+belonging to all players, including your
+own.
+▶ If you gain Gerrymandering Rights in
+a zone during your turn, you may use it
+in the same turn.
+▶ If two or more players are tied for
+most voters in a zone, no player has
+Gerrymandering Rights in that zone.
+▶ Voters in Volatile Areas cannot be
+Gerrymandered.                                                                      17
+▶ Having even 1 voter in a zone with no
+other voters gives you Gerrymandering
+Rights in that zone. However, you may
+not move your only voter out of a zone
+by using that zone’s Gerrymandering
+Rights.
+
+
+
+
+                                             G A M E P L A Y            T I P :
+                                              Gerrymandering is an important
+                                              strategy to slow opponents down
+                                             by dispersing their voters. When you
+                                              can Gerrymander, Gerrymander.
+
+
+
+
+Designer’s Note: We understand that real-world
+Gerrymandering redraws the district and does not entail
+moving the voter around. However, we decided to go
+ahead with an abstraction more in line with the game’s
+mechanics instead. The resulting effect is mathematically
+identical and assumes that each empty area in a zone
+has an undecided voter in it.
+                V O L A T I L E A R E A S
+                A N D H E A D L I N E
+                C A R D S
+
+               There are 11 Volatile Areas across the board. If your voter is
+               placed in a Volatile Area, a Headline is triggered. At the end
+               of the ongoing turn, draw the top Headline Card and resolve
+               it. Headline Cards contain an array of lucrative opportunities
+               and devastating penalties.
+
+
+
+
+18
+
+
+
+                                              ▶ A voter peg in a Volatile Area stays there
+                                              permanently. It cannot be Gerrymandered,
+                                              converted, moved, or affected in any way.
+                                              ▶ You can either place your own or an opponent’s
+                                              voter into a Volatile Area.
+                                              ▶ If multiple voters are placed in Volatile Areas
+                                              during a turn, that many Headline Cards will be
+                                              triggered. Headline Cards will be resolved in order of
+                                              the voters that were placed in Volatile Areas.
+                                              ▶ Movable Volatile Areas are a Kickstarter
+                                              Promotional Reward. These are 9 extra Volatile Areas
+                                              that can be placed anywhere on the board. This
+                                              allows for more Headline Cards to be triggered than
+                                              in a standard game. These are compatible with all
+                                              game modes.
+
+
+
+
+     G A M E P L A Y             T I P :
+         Each campaign has a unique
+      combination of Headlines, good and
+     bad. You can check the Headline Deck
+     Box to build a more informed strategy.
+                                                       C O N S P I R A C Y
+                                                       C A R D S
+
+
+Conspiracy Cards offer a wide range of boosts and attacks.
+They can be bought for any 4-5 resources, as denoted
+by the cost on the back of the card. You can use them
+immediately or save them for later.
+
+
+
+
+                                                                                            19
+
+
+
+
+▶ Players can only buy the top Conspiracy Card in
+the draw pile.
+▶ You can use a Conspiracy Card at any point in your
+turn. You can also use one right before an opponent
+answers their Ideology Card and begins their turn.
+▶ There is no limit to the number of Conspiracy
+Cards you can hold. You can also use multiple
+Conspiracy Cards at a time, one after the other.
+▶ If two players use Conspiracy Cards at the same
+time, they will be resolved in turn order.
+
+                                                        G A M E P L A Y         T I P :
+                                                       End-game scoring depends entirely
+                                                       on how many voters you have on the
+                                                        board. Don’t splurge endlessly on
+                                                               Conspiracy Cards.
+     E N D - G A M E
+     S C O R I N G
+
+
+     The game ends when all possible majorities in all zones have
+     been formed. Every voter used to form a majority is worth 1
+     point. The player with the highest number of majority voters
+     wins the game.
+
+
+
+                   ▶ Only your total number of majority voters will be taken into
+                   consideration during scoring, not the number of zones you
+                   capture.
+                   ▶ Non-majority voters do not add to a player’s final score.
+                   ▶ If every single Voter Area on the board gets filled, without all
+                   majorities having been formed, every player will play their final
+                   turn, starting with whoever filled the final empty area.
+
+
+
+
+20
+                                          TIE-BREAKER
+
+                        In case two extremely well-matched politicians end the
+                        game with the same number of points, the player with
+                        the greater real-life privilege wins. This will help you
+                        calculate your privilege:
+                        www.playSHASN.com/privilege
+
+                        All players must agree to this rule and calculate
+                        their privilege before the game begins. We do not
+                        recommend using this rule in your first playthrough.
+
+
+
+
+                   Designer’s Note: SHASN was designed to be as accurate
+                   a simulation as possible, one that also serves as a tool of
+                   reflection for its players. This tie-breaker was created to
+                   acknowledge the consequence of birth in shaping the outcome
+                   of our efforts. However, this is a non-binding rule. Our intention
+                   is not to reinforce, but to remind players of the privilege that
+                   permeates our lives. We hope to be able to remove this rule
+                   from future editions of SHASN, in a world where such a concept
+                   has become redundant. In the same spirit, this rule will not be
+                   applicable in The Future of Humanity: Earth 2040 Campaign.
+                                                  O R D E R
+                                                  O F T U R N
+
+
+
+
+START OF TURN
+▶ At the start of your turn, the player to your right will draw the top
+Ideology Card and read both sides aloud to you. You must choose
+between the 2 available answers.
+▶ However, before answering, you can choose to have the Ideology
+Card redrawn by paying any 4 resources to the Public Reserve.
+▶ After confirming your answer, keep the Ideology Card under
+your Player Mat with your answer face up. Receive the resources
+corresponding to your answer, and any other resources earned
+from passive Ideologue Powers (page 28).
+▶ Check your resource cap. If you cross it, choose and discard any
+excess resources down to your current cap before taking any other
+actions.
+
+
+
+TURN ACTIONS - After taking the above actions, you may take
+as many of the following actions as you are able to, in any order.
+▶ Influence Voter Cards - Spend resources to influence open Voter
+Cards on the HQ mat (page 10).                                            21
+▶ Place Voters - Place influenced and evicted voters on the board
+(page 29).
+▶ Form Majorities - Form majorities by influencing more than half
+the voters in a zone (page 8).
+▶ Trade - Trade resources and Conspiracy Cards with players. Players
+can also trade before answering their Ideology Card (page 12).
+▶ Buy / Use Conspiracy Cards - Spend any combination of
+resources to buy the top Conspiracy Card(s). You may use them
+immediately or save them for later. You may buy multiple
+Conspiracy Cards in a turn (page 19).
+▶ Gerrymander - Gerrymander voters (page 16).
+▶ Ideologue Powers - Use unlocked Ideologue Powers (page 28).
+You can take the same action multiple times over the course of
+your turn, if allowed. For example, a player may trade a resource,
+influence a Voter Card, trade more resources, and influence
+another Voter Card in their turn.
+
+
+
+POST TURN ACTIONS
+
+▶ Players must resolve a Headline Card for each of their
+voters placed in Volatile Areas during a turn (page 18).
+▶ Draw and read an Ideology Card for the next player.
+▶ Before the next player answers their Ideology Card, any
+player may choose to play a Conspiracy Card.
+                                                                           The next few pages,
+                                                                        marked with this gradient
+     E L I T E S                                                         border, contain rules for
+                                                                         SHASN add-ons only. You
+                                                                          do not need to refer to
+     Additional Components Required: Elite Cards (KS Promo)               these while playing the
+                                                                               base game.
+
+
+     A great politician isn’t created by accident,
+     but crafted with painstaking precision.
+     In SHASN, there are 13 such politicians, called
+     The Elites. Every Elite is a hybrid of two Ideologues, with
+     a negation of another. Become an Elite by collecting its
+     corresponding Ideology Cards, and add new electrifying
+     powers to your arsenal.
+
+
+
+                                  ▶ Every Elite is a hybrid of two Ideologues, with a
+                                  negation of another. For instance, to become The
+                                  Technocrat, a player must have at least 3 cards
+                                  belonging to The Capitalist as well as 3 cards
+22                                belonging to The Showstopper. However, they can
+                                  have no cards belonging to The Supremo.
+                                  ▶ Players can use an Elite’s power immediately after
+                                  unlocking it. If they fail to keep meeting that Elite’s
+                                  requirements, they will lose its power. For instance,
+                                  if a Technocrat receives a single Ideology Card
+                                  belonging to The Supremo, they cease to be The
+                                  Technocrat.
+                                  ▶ Players can be multiple Elites at a time, if their
+                                  combination of Ideology Cards allows it. Doing so will
+                                  allow them to use multiple Elite powers in their turn.
+                                  ▶ All other standard SHASN rules apply.
+
+
+
+                                  THE TECHNOCRAT
+                                  ▶ 3 Capitalist - 3 Showstopper - 0 Supremo
+                                  ▶ Your Player Mat can now hold a combination of resources
+                                  and voters, up to 12. Keep influenced voters on your Player Mat
+                                  to place them on the board later, anytime during your turn.
+                                  ▶ Powers that increase or decrease your resource cap also affect
+                                  this power.
+THE LOBBYIST
+▶ 3 Capitalist - 3 Showstopper - 0 Idealist
+▶ Double the resources earned from answering Ideology Cards.
+▶ Only double the resources that are denoted on the side that
+you have chosen.
+
+
+
+THE PHILANTHROPIST
+▶ 3 Capitalist - 3 Idealist - 0 Supremo
+▶ Once per turn, donate 2 resources to any opponent and
+influence 1 open Voter Card for free.
+
+
+
+THE PATRON
+▶ 3 Capitalist - 3 Idealist - 0 Showstopper
+▶ Pick 2 opponents. Every time they influence a 3-Voter Card,
+                                                                      23
+you get 1 free voter. Place your voter(s) at the end of their turn.
+
+
+
+THE PROVOCATEUR
+▶ 3 Showstopper - 3 Supremo - 0 Capitalist
+▶ Twice per turn, buy a Conspiracy Card at -2 cost from the
+draw pile or at -1 cost from the discard pile.
+
+
+
+THE PROPOGANDIST
+▶ 3 Showstopper - 3 Supremo - 0 Idealist
+▶ Once per turn, buy the top Headline Card from the draw pile
+for any 3 resources, and pick any player to resolve it.
+
+
+
+THE ACTIVIST
+▶ 3 Showstopper - 3 Idealist - 0 Capitalist
+▶ Peek at any Conspiracy Card(s) held by an opponent.
+     THE WHISTLEBLOWER
+     ▶ 3 Showstopper - 3 Idealist - 0 Supremo
+     ▶ Every time an opponent uses a Conspiracy Card, discard 1 of
+     their voters. For every full round of play where no opponents use
+     Conspiracy Cards, gain 2 voters.
+
+
+
+     THE GURU
+     ▶ 3 Supremo - 3 Idealist - 0 Capitalist
+     ▶ Once per turn, discard 1 of your voters to gain any 3 resources.
+
+     THE GUERILLA
+     ▶ 3 Supremo - 3 Idealist - 0 Showstopper
+     ▶ Once per turn, move up to 4 of your voters into adjacent
+     zones. You can use this power in addition to regular
+24   Gerrymandering.
+     ▶ In addition to Gerrymandering.
+
+
+     THE MAFIOSO
+     ▶ 3 Supremo - 3 Capitalist - 0 Showstopper
+     ▶ Every player has to pay you 1 resource after answering their
+     Ideology Card in order to proceed with their turn.
+
+
+
+     THE DICTATOR
+     ▶ 3 Supremo - 3 Capitalist - 0 Idealist
+     ▶ Convert voters by Gerrymandering them into any zone where
+     you have Gerrymandering Rights.
+
+
+
+     THE RENEGADE
+     ▶ Have 3 Passive Ideologue Powers without any Level 3 Powers.
+     ▶ Once per turn, select and use any other Elite Power.
+                                                      H O M E   T U R F S
+
+
+
+Additional Components Required: Home Turfs (KS Promo)
+
+
+
+This mode adds a unique two-sided Home Turf to each
+zone, injecting the board with powerful advantages and
+challenges. Gain the Gerrymandering Rights in a zone to
+exercise its Home Turf power once per turn. At the end of
+your turn, flip over all used Home Turfs.
+
+
+
+
+▶ You can use a Home Turf’s power at any point
+during your turn.
+▶ You must compulsorily use some Home Turf
+powers every turn, while some others can be used at
+your discretion, as specified on the Home Turf.                             25
+
+▶ Every time you use a Home Turf power, you must
+flip over that Home Turf at the end of your turn.
+▶ All other standard SHASN rules apply.
+     E D G E O F
+     C H A O S
+
+     Additional Components Required: Edge of Chaos Tracker (KS Promo)
+
+
+
+     A great leader knows how to compete and cooperate with
+     perfect balance. In this game mode, players can increase
+     or decrease Chaos through their actions, on a 13 point
+     Chaos Tracker. If Chaos reaches the 13th point, democracy
+     ends and everybody loses.
+
+
+
+
+                                                     ▶ This is a 4 player game mode
+                                                     only. After all players have
+                                                     selected their Player Mats and
+26
+                                                     voters, the remaining bag of
+                                                     voters now become the Chaos
+                                                     Voters.
+                                                     ▶ At the beginning of the
+                                                     game, place a Chaos Voter
+                                                     peg at the STABILITY point
+                                                     on the tracker (Level 0).
+                                                     There is a reward or penalty
+                                                     corresponding to every point
+                                                     on the Chaos Tracker.
+                                                     ▶ Every time you increase or
+                                                     decrease Chaos through your
+                                                     actions, move the Chaos Voter
+                                                     peg on the tracker accordingly,
+                                                     and receive the corresponding
+                                                     rewards/penalties.
+                                                     ▶ Answering certain Ideology
+                                                     Cards, using certain Conspiracy
+                                                     Cards, and using Level 3 and
+Level 5 Ideologue Powers will affect Chaos by either
+increasing or decreasing it.
+▶ Every Ideology Card in each campaign deck is
+numbered. Before playing this game mode, make
+sure to select and play with the Ideology Cards
+numbered from 1 to 48 in your chosen campaign. The
+Ideology Cards which affect Chaos are in this range.
+▶ You can make the game mode easier by lowering
+the level of Chaos in the game. To do so, add the next
+12 Ideology Cards after 48. Every subsequent set of 12
+cards that you add will make this game mode easier.
+▶ You may also reduce Chaos by paying the resource
+cost as denoted at the bottom of the tracker. Paying
+to reduce Chaos will not earn you the corresponding
+benefits on the tracker.                                  27
+
+▶ Chaos Voters are also earned through this Tracker.
+If you earn a Chaos Voter, place it anywhere on the
+board by the end of your turn (except in Volatile
+Areas).
+▶ Chaos Voters can be affected just like regular voters
+- they can be Gerrymandered, discarded, converted
+etc.
+▶ If enough Chaos Voters are gathered in a zone and
+are able to meet that zone’s majority requirement,
+a Chaos majority is formed. Discard all non-Chaos
+voters in that zone. This zone is now permanently out
+of play for all effects and purposes, and is not taken
+into account during end-game scoring.
+▶ If you fail to place Chaos Voters earned by you on
+the board, the player after you must place the voters
+during their turn instead.
+▶ If you evict Chaos Voters, the next player after you
+will place them back on the board during their turn.
+         2 P L AY E R
+         M O D E
+
+         Additional Components Required: 2-3 Player Board (sold separately)
+
+
+
+         Face off with a singular enemy in a relentless battle for
+         every square inch of this unique board. Shuffle and assign
+         a Zone Requirement to each zone. To form a majority, you
+         will need to meet an additional condition in every zone.
+
+
+
+
+28
+
+
+
+
+                                       ▶ There are 14 unique Zone Requirements Cards.
+                                       Shuffle and divide them between the 2 players.
+     S E T U P
+                                       Players have to take turns placing these Zone
+                                       Requirements on the board, until each of the 7
+                                       zones has a requirement.
+                                       ▶ Player 2 will place the first requirement on the
+board, Player 1 will place the second. Both players
+will alternate until every zone has a requirement..
+Therefore, Player 2 will get to determine 4 Zone
+Requirements and Player 1 will determine 3. This
+has been designed to offset any potential Player 1
+advantage.
+▶ Remove all Conspiracy Cards and Headline Cards
+not applicable to this game mode (marked with         ).
+▶ How To Determine Player 1:
+Each player will receive 8 resources (2 of each type).
+The players must now secretly bid resources, and
+reveal their bids at the same time. The player with
+the higher bid will begin the game as Player 1. All bid
+resources will go back to the Public Reserve. Players
+will keep their remaining resources. In case of a tie,
+bid again.
+
+
+▶ Types of Zone Requirements:                              29
+           One-Time Requirement: These
+           requirements have to be met only once
+           during the course of the game. Once
+           a player meets the requirements, they
+           must place one voter peg on the Zone
+           Requirement Card to denote their
+           eligibility in that zone.
+
+
+           While Forming Majority: These
+           requirements have to be met every time
+           a majority is being formed. If a majority
+           exchanges hands, this requirement must
+           be met again.
+
+
+           Zonal Rule: This introduces a rule
+           modification only applicable to the zone
+           this card is played on.
+
+
+▶ To ensure that each Ideology Card is unknown
+to the opponent, players have to randomly draw
+Ideology Cards from the middle of the deck whilst
+picking out cards for each other.
+▶ All other standard SHASN rules apply.
+     C O S T O F         V I C T O R Y
+     C A R D S
+
+     Additional Components Required: Cost of Victory Cards (KS Promo)
+
+
+
+     For the victors: congratulations, you’ve won. But at what
+     cost? Who have you become and what does your SHASN
+     look like? Select the Cost of Victory Card corresponding to
+     your primary and secondary Ideology to gaze upon the
+     world of your creation.
+
+
+
+
+30
+▶ The Cost of Victory Cards offer a glimpse, a
+premonition into the world that your ideological
+beliefs might create.
+▶ There are 12 Cost of Victory Cards, each
+corresponding to a unique combination of a primary
+Ideology and secondary Ideology.
+▶ After you win a game of SHASN, you can select the
+Cost of Victory Card that applies to you and read it
+aloud for all players to hear. This is the price of your
+vision.
+▶ In case of a tie between your ideologies, you can
+select the combination that you prefer.
+▶ For instance: if you win with the combination
+of Ideology Cards as illustrated here, identify your       31
+primary ideology (The Capitalist) and your secondary
+ideology (The Showstopper). The Cost of Victory
+Card corresponding to this combination is “The
+Reignmaker.”
+     I D E O L O G U E
+     P O W E R S
+     E X P L A I N E D
+
+
+     Every Ideologue has a passive power: For every 2 Ideology
+     Cards you hold of an Ideologue, get 1 extra resource of that
+     type. You will also unlock unique powers when you collect 3
+     and 5 cards of one Ideologue respectively.
+
+
+
+
+                          ▶ If you have 2 Ideology Cards of The
+                          Capitalist, you will get 1 extra Funds
+                          resource each turn. If you have 4
+32                        Ideology Cards of The Capitalist, you will
+                          get 2 extra Funds resources every turn
+                          and so on.
+                          ▶ You receive these extra resources
+                          when you answer the Ideology Card at
+                          the start of your turn.
+                          ▶ You will keep receiving extra
+                          resources every turn as long as you hold
+                          the corresponding Ideology Cards.
+                          ▶ You gain the bonus resource(s) in the
+                          same turn that you collect the required
+                          number of Ideology Cards. For example:
+                          receiving a second ‘The Capitalist’ card
+                          will earn you an extra Funds resource
+                          immediately.
+                                                               T H E
+                                                               CAPITALIST
+
+
+
+
+                                                                            33
+
+
+
+Level 3 : Prospecting
+Once per turn, give 1 resource to the Public Reserve to
+get up to 2 resources of your choice.
+
+▶ You must take both resources from the Public
+Reserve at the same time.
+▶ The two resources you get can be of different types.
+Level 5 : Land Grab
+Three times per turn, evict any 1 voter from the board
+and send it back to its player (including majority
+voters).
+
+▶ An opponent whose voters are evicted through this
+power can place the voters back anywhere on the
+board in their next turn. If the player fails to place their
+voters in their next turn, these voters are discarded.
+▶ If you evict your own voters, you can place them
+back anywhere on the board right away.
+▶ Majority voters can be evicted. Voters in Volatile
+Areas cannot be evicted.
+34
+
+
+
+                     Level 3 : Donations
+                     Twice per turn, snatch 1 resource from another player.
+
+                     ▶ You can use this power to snatch resources, ie, take
+                     resources from other players without giving anything
+                     in return.
+                     ▶ You can snatch 2 resources from the same player or
+                     1 resource each from 2 different players.
+                     ▶ You can snatch resources one at a time over the
+                     course of your turn.
+
+
+     T H E           Level 5 : Payback
+                     Twice per turn, spend 1 resource to discard 1 of an
+     S U P R E M O   opponent’s voter (including majority voters).
+
+                     ▶ You can pay 1 resource of your choice to discard 1
+                     voter belonging to an opponent.
+                     ▶ You can do this up to twice per turn.
+                     ▶ Majority voters can be discarded. Voters in
+                     Volatile Areas cannot be discarded.
+                                                        T H E
+                                                        S H OWS T O P P E R
+
+
+
+
+                                                                              35
+
+
+
+Level 3 : Going Viral
+Twice per turn, get +1 voter for any Voter Card that
+you influence.
+
+▶ You can get an extra voter for every Voter Card you
+influence.
+▶ You can get an extra voter on a maximum of 2
+unique Voter Cards, every turn.
+
+Level 5 : Election Fever
+You can Gerrymander 2 voters instead of 1 for every
+zone where you have Gerrymandering Rights
+(including majority voters).
+
+▶ The 2 voters you Gerrymander per majority can
+belong to the same player or to different players.
+▶ You cannot use this power if you don’t have
+Gerrymandering Rights in any zone.
+▶ Majority voters can be Gerrymandered. Voters in
+Volatile Areas cannot be Gerrymandered.
+36
+                       Level 3 : Helping Hands
+                       Twice per turn, get 1 resource discount on any
+                       purchase.
+                       ▶ By using a resource discount on a
+                       purchase, you can pay any 1 resource less
+                       on that purchase. These purchases only
+                       include influencing Voter Cards and buying
+                       Conspiracy Cards. Any other actions with a
+                       resource cost cannot be discounted, unless
+                       specified otherwise.
+                       ▶ You may choose which resource(s) to
+                       discount while influencing a Voter Card.
+                       ▶ You can split your discounts on 2 purchases,
+                       or combine them on the same purchase.
+     T H E
+     I D E A L I S T
+                       Level 5 : Tough Love:
+                       Once per turn, spend 2 Trust resources + any
+                       2 resources to convert 2 of an opponent’s
+                       voters into yours (including majority voters).
+                       ▶ The 2 converted voters must belong to the
+                       same player in the same zone.
+                       ▶ You cannot use this power without paying
+                       the resource cost.
+                       ▶ This power’s cost can be discounted using
+                       The Idealist Level 3 Power.
+                       ▶ Majority voters can be converted. Voters in
+                       Volatile Areas cannot be converted.
+                                                                   REFERENCE
+
+
+
+
+Passive   Get 1            Get 1            Get 1             Get 1
+          for every        for every        for every         for every 2
+          2 “The           2 “The           2 “The            “The Idealist”
+          Capitalist”      Supremo”         Showstopper”      cards
+          cards            cards            cards
+
+Level 3   Trade 1          Snatch 2         +1 voter / card   2 discounts
+          resource for 2   resources
+
+
+                                                                               37
+
+
+Level 5   Evict 3 voters   Pay 1            +1                Pay 2
+                           to discard 1     Gerrymander /
+                           voter, up to 2   zone              +2     to
+                           times                              convert 2
+                                                              voters
+     GLOSSARY
+     OF TERMS
+
+
+
+
+        Active Player: The player whose turn is ongoing is known as the Active
+        Player.
+        Area: Each slot on the board where a voter can be placed is called an Area.
+        Auction: When an item is auctioned, all players can bid resources for it.
+        You can bid as many resources as you want, up to your resource cap.
+        Convert: When you convert an opponent’s voter, replace it in the same
+        area with your voter.
+        Discard: When you discard a voter, remove it from the board permanently.
+        Discount: Having a discount allows you to pay 1 less resource on a
+        purchase, as specified by the card or power.
+        Donate: You can donate resources and voters, only when specified by a
+        card or action. Donate a resource by giving it to another player free of cost,
+        without receiving any resources in return. When you donate a voter to an
+        opponent, it is converted to their voter.
+        Evict: When you evict a voter, it is removed from the board and placed
+        back on the mat of its corresponding player. In their turn, that player can
+        place the evicted voter back anywhere on the board. If they fail to do so,
+38      the evicted voter gets discarded.
+        Gerrymander: Having more voters than any other player in a zone grants
+        you Gerrymandering Rights in that zone. This allows you to move one
+        non-majority voter in between adjacent zones every turn, within that
+        zone’s area of influence.
+        Gerrymandering Rights: If you have more voters than any other player in
+        any zone, you gain the Gerrymandering Rights in that zone. This allows
+        you to Gerrymander voters using that zone.
+        Ideologue: There are 4 major Ideologues in the game - The Capitalist, The
+        Supremo, The Showstopper and The Idealist. Ideologues should not be
+        confused with Ideology Cards.
+        Snatch: The Snatch action allows you to steal resources and/or Conspiracy
+        Cards from an opponent without giving them anything in return, as
+        specified.
+        Trade: You can initiate a trade at any point during your turn. One player in
+        the trade must be the active player. You can trade in any ratio, but at least
+        one resource must be exchanged by both players. .
+        Volatile Area: Every zone on the board has at least one Volatile Area in it.
+        Placing a voter in a Volatile Area triggers a Headline Card, resolved at the
+        end of the turn. Voters inside Volatile Areas cannot be discarded, evicted,
+        converted, Gerrymandered, or otherwise affected.
+        Zone: There are 9 zones on the board. Each zone has its own majority
+        requirement.
+                                                     C R E D I T   L I S T
+
+
+
+
+Zain Memon                 Creator
+Soumik Lahiri              Creative Director and Illustrator
+Nidhi Shetty               Game Designer, Head of Video
+Aayush Asthana             Game Designer, Head of Writing
+Mayuresh Paradkar          Game Designer, Head of Manufacturing and Logistics
+Mandir Dighe               Producer, Campaign Manager
+Janvi Ghatalia             Product Designer
+Alisha Coelho Pereira      Senior Graphic Designer
+Maithili Madhusudanan      Graphic Designer
+Abhishek Lamba             Additional Game Designer
+Amaan Shaikh               Additional Game Developer
+Matt Fantastic             Additional Game Developer
+Jonathan Ritter-Roderick   Campaign Consultant
+Christopher Rappley        Campaign Consultant
+
+
+Special Thanks
+                                                                                 39
+György Pálfi
+                           INDIA 2019-20 Campaign        USA 2019-20 Campaign
+Lakshmi Pratury
+Zsófia Ruttkay
+                           Aayush Asthana                Michael McCanne
+Kani Kusruti
+                           Nidhi Shetty
+Ramit Verma
+                           Amaan Shaikh
+Kunal Kamra
+                           Abhishek Lamba
+Naomi Shah
+                           Mandir Dighe                  Fall Of The Republic:
+Wendy Chao
+(RULEBOOK EDITOR)          Mayuresh Paradkar             Rome 40 BCE Campaign
+
+                                                         Arthur Guilford
+Playtesters                The Future of Humanity:       Jac Mindelan
+                           Earth 2040 Campaign           James Portnow
+Justin Goodman
+                                                         Robert Rath
+John Schiavo               Karthik KK
+Nick Dianatkhah            Raghava KK                    Edited By
+                           Nihal Ahmed                   Manoj Prabhakar
+Produced By
+
+Vinay Shukla
+Anand Gandhi
+                           UK 2019-20:                   Additional Writing
+                           Brexit Campaign               and Editing:
+Memesys Producers:
+                                                         Aayush Asthana
+Pooja Shetty
+                           Luke Moody                    Abhishek Lamba
+Neil Pagedar
+Khushboo Ranka
+C O L L E C T O R S   E D I T I O N   R U L E B O O K
+
