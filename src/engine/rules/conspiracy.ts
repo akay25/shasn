@@ -148,7 +148,7 @@ export function resolveConspiracyEffect(
       if (!slot) return { ok: false, error: "No voter at target slot" };
       if (slot.playerId !== tpid) return { ok: false, error: "Voter does not belong to target player" };
       if (slot.playerId === np.id) return { ok: false, error: "Cannot target own voter" };
-      if (isVolatileSlot(zid, slotIdx)) {
+      if (isVolatileSlot(state, zid, slotIdx)) {
         return { ok: false, error: "Voters in Volatile Areas cannot be discarded" };
       }
       z.slots[slotIdx] = null;
@@ -178,7 +178,7 @@ export function resolveConspiracyEffect(
       const a = zaSt.slots[sA];
       const b = zbSt.slots[sB];
       if (!a || !b) return { ok: false, error: "Both slots must contain a voter" };
-      if (isVolatileSlot(zA, sA) || isVolatileSlot(zB, sB)) {
+      if (isVolatileSlot(state, zA, sA) || isVolatileSlot(state, zB, sB)) {
         return { ok: false, error: "Cannot swap voters in Volatile Areas" };
       }
       if (a.isMajority || b.isMajority) {

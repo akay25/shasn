@@ -3,7 +3,6 @@
 // in/out of the zone or between two adjacent zones (including the zone
 // itself + adjacent).
 import type { GameState, ActionResult, PlayerId } from "@/engine/types";
-import { BOARD, getZone } from "@/data/board";
 import {
   activePlayer,
   gerrymanderingRightsHolder,
@@ -47,8 +46,8 @@ export function applyGerrymander(
   if (overCap(state)) {
     return { ok: false, error: "Resource cap exceeded — discard first" };
   }
-  const fromDef = BOARD.zones.find((z) => z.id === fromZone);
-  const toDef = BOARD.zones.find((z) => z.id === toZone);
+  const fromDef = state.board.zones.find((z) => z.id === fromZone);
+  const toDef = state.board.zones.find((z) => z.id === toZone);
   if (!fromDef || !toDef) return { ok: false, error: "Unknown zone" };
   const fz = state.zones[fromZone];
   const tz = state.zones[toZone];
@@ -86,7 +85,7 @@ export function applyGerrymander(
   const sourceVoter = fz.slots[fromSlotIdx];
   if (!sourceVoter) return { ok: false, error: "No voter at source slot" };
   if (sourceVoter.isMajority) return { ok: false, error: "Cannot gerrymander a majority voter" };
-  if (isVolatileSlot(fromZone, fromSlotIdx)) {
+  if (isVolatileSlot(state, fromZone, fromSlotIdx)) {
     return { ok: false, error: "Voters in Volatile Areas cannot be gerrymandered" };
   }
 
@@ -143,7 +142,7 @@ export function applyGerrymander(
   next.powerUsage[usageKey] = usedThisTurn + 1;
 
   // Volatile-area trigger if target is volatile.
-  if (isVolatileSlot(toZone, toSlotIdx)) {
+  if (isVolatileSlot(next, toZone, toSlotIdx)) {
     next.pendingHeadlines += 1;
     logEvent(next, "volatileTriggered", { zoneId: toZone, slotIdx: toSlotIdx });
   }

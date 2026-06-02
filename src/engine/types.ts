@@ -41,6 +41,33 @@ export interface ZoneState {
   majorityHolder: PlayerId | null;
 }
 
+// ---------- Board geometry (per-game, procedurally generated) ----------
+
+// A single hex on the substrate grid, in odd-r offset coordinates.
+export interface HexCell {
+  col: number;
+  row: number;
+}
+
+// Rendering geometry for one zone: the hexes that make up its organic region,
+// in the SAME order as `ZoneState.slots` so cell index i ↔ slot index i.
+export interface ZoneGeometry {
+  cells: HexCell[];                 // length === zone.capacity
+  centroid: { col: number; row: number }; // label anchor (grid units)
+  color: string;                    // pastel terrain fill (#rrggbb)
+}
+
+// A complete, per-game board: the 9 zone definitions plus the geometry needed
+// to draw and hit-test them. Generated fresh each game so region shapes,
+// adjacency, and colours differ — only the capacities/majority targets are
+// fixed (see src/data/board.ts template).
+export interface BoardLayout {
+  zones: Zone[];
+  geometry: Record<string, ZoneGeometry>;
+  cols: number;                     // substrate width  (in hex columns)
+  rows: number;                     // substrate height (in hex rows)
+}
+
 // ---------- Cards ----------
 
 export interface IdeologyCardSide {
@@ -171,6 +198,7 @@ export interface GameState {
   players: Player[];
   activePlayerIdx: number;
   turn: number;
+  board: BoardLayout;                  // per-game generated region map
   zones: Record<string, ZoneState>;
   decks: {
     ideology: string[];   ideologyDiscard: string[];

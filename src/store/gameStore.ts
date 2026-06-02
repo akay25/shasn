@@ -61,10 +61,15 @@ export const useGameStore = create<GameStore>()(
     {
       name: STORAGE_KEY,
       storage: createJSONStorage(() => localStorage),
-      version: 1,
+      // v2: GameState gained a per-game `board` (generated region map). Saves
+      // from v1 have no board and would crash the renderer, so drop them.
+      version: 2,
       partialize: (s) => ({ state: s.state }),
-      migrate: (persisted, _version) => {
-        // No migrations yet. Stub here so we can evolve schema later.
+      migrate: (persisted, version) => {
+        if (version < 2) {
+          // Pre-board saves are unrenderable — discard rather than migrate.
+          return { state: null };
+        }
         return persisted as { state: GameState | null };
       },
     },

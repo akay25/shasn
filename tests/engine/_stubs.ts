@@ -113,11 +113,26 @@ export function freshState(opts: { players?: number } = {}): GameState {
   for (const z of BOARD.zones) {
     zones[z.id] = { slots: new Array(z.capacity).fill(null), majorityHolder: null };
   }
+  // Tests use the fixed TEMPLATE board (stable adjacency + volatile indices)
+  // rather than a randomly generated one, so engine assertions stay
+  // deterministic. Geometry is irrelevant to the engine, so it's left empty.
+  const board: GameState["board"] = {
+    zones: BOARD.zones,
+    geometry: Object.fromEntries(
+      BOARD.zones.map((z) => [
+        z.id,
+        { cells: [], centroid: { col: 0, row: 0 }, color: "#cccccc" },
+      ]),
+    ),
+    cols: 16,
+    rows: 9,
+  };
   return {
     phase: "handoff",
     players,
     activePlayerIdx: 0,
     turn: 1,
+    board,
     zones,
     decks: {
       ideology:   STUB_IDEOLOGY_CARDS.map((c) => c.id),

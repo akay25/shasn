@@ -11,7 +11,6 @@
 //     evict rule: an evicted voter can be placed in the player's NEXT
 //     turn; failing to place THAT turn discards them.)
 import type { GameState } from "@/engine/types";
-import { BOARD } from "@/data/board";
 import { emptySlotsInZone } from "@/engine/selectors";
 import { logEvent } from "@/engine/reducer";
 
@@ -23,7 +22,7 @@ export function discardUnplaceableBundles(state: GameState): number {
     if (pp.source !== "voterCard") return true;
     // Check whether any zone has enough empty slots for the whole bundle.
     let canFit = false;
-    for (const z of BOARD.zones) {
+    for (const z of state.board.zones) {
       if (emptySlotsInZone(state.zones[z.id]) >= pp.voters.length) {
         canFit = true;
         break;

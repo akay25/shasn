@@ -1,6 +1,5 @@
 // 3x3 board grid of Zone tiles.
 import type { GameState } from "@/engine/types";
-import { BOARD } from "@/data/board";
 import Zone from "./Zone";
 
 interface Props {
@@ -16,7 +15,7 @@ export default function Board({ state, selectableSlotsByZone, onSlotClick }: Pro
   return (
     <div className="grid grid-cols-3 gap-2 w-full">
       {ZONE_ORDER.map((id) => {
-        const zone = BOARD.zones.find((z) => z.id === id)!;
+        const zone = state.board.zones.find((z) => z.id === id)!;
         const zs = state.zones[id];
         const selSlots = selectableSlotsByZone?.[id];
         return (

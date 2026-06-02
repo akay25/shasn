@@ -20,7 +20,7 @@ describe("majorities", () => {
   it("forms a majority when threshold reached", () => {
     const s = freshState();
     const zoneId = "nw"; // capacity 9, threshold 5
-    const threshold = getZone(zoneId).majorityRequirement;
+    const threshold = getZone(s.board, zoneId).majorityRequirement;
     placeVoters(s, zoneId, "p1", threshold);
     recomputeMajorities(s, zoneId);
     expect(s.zones[zoneId].majorityHolder).toBe("p1");
@@ -31,7 +31,7 @@ describe("majorities", () => {
   it("doesn't form when below threshold", () => {
     const s = freshState();
     const zoneId = "nw";
-    const threshold = getZone(zoneId).majorityRequirement;
+    const threshold = getZone(s.board, zoneId).majorityRequirement;
     placeVoters(s, zoneId, "p1", threshold - 1);
     recomputeMajorities(s, zoneId);
     expect(s.zones[zoneId].majorityHolder).toBe(null);
@@ -41,7 +41,7 @@ describe("majorities", () => {
   it("breaks majority when voter count drops below threshold", () => {
     const s = freshState();
     const zoneId = "nw";
-    const threshold = getZone(zoneId).majorityRequirement;
+    const threshold = getZone(s.board, zoneId).majorityRequirement;
     placeVoters(s, zoneId, "p1", threshold);
     recomputeMajorities(s, zoneId);
     expect(s.zones[zoneId].majorityHolder).toBe("p1");
@@ -54,7 +54,7 @@ describe("majorities", () => {
   it("only requirement-many voters flipped; extras remain blank", () => {
     const s = freshState();
     const zoneId = "nw";
-    const threshold = getZone(zoneId).majorityRequirement; // 5
+    const threshold = getZone(s.board, zoneId).majorityRequirement; // 5
     placeVoters(s, zoneId, "p1", threshold + 2); // 7
     recomputeMajorities(s, zoneId);
     expect(s.zones[zoneId].majorityHolder).toBe("p1");

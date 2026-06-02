@@ -16,7 +16,7 @@ import { voterCountInZone } from "@/engine/selectors";
  *    and flip all their voters in the zone back to non-majority.
  */
 export function recomputeMajorities(state: GameState, zoneId: string): void {
-  const zoneDef = getZone(zoneId);
+  const zoneDef = getZone(state.board, zoneId);
   const z = state.zones[zoneId];
   if (!z) return;
 

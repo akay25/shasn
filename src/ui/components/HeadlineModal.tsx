@@ -7,7 +7,6 @@ import type { GameState } from "@/engine/types";
 import { HEADLINE_CARDS } from "@/data/cards/headline";
 import { useDispatch } from "@/ui/hooks/useDispatch";
 import { activePlayer } from "@/engine/selectors";
-import { BOARD } from "@/data/board";
 
 interface Props {
   state: GameState;
@@ -66,7 +65,7 @@ export default function HeadlineModal({ state }: Props) {
                   onChange={(e) => setMoveZone(e.target.value)}
                 >
                   <option value="">—</option>
-                  {BOARD.zones.map((z) => (
+                  {state.board.zones.map((z) => (
                     <option key={z.id} value={z.id}>{z.name}</option>
                   ))}
                 </select>
@@ -89,7 +88,7 @@ export default function HeadlineModal({ state }: Props) {
                   onChange={(e) => setMoveToZone(e.target.value)}
                 >
                   <option value="">—</option>
-                  {BOARD.zones.map((z) => (
+                  {state.board.zones.map((z) => (
                     <option key={z.id} value={z.id}>{z.name}</option>
                   ))}
                 </select>

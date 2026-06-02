@@ -117,7 +117,7 @@ export function applyUseIdeologuePower(
       if (!z) return { ok: false, error: "Unknown zone" };
       const v = z.slots[sidx];
       if (!v) return { ok: false, error: "No voter at slot" };
-      if (isVolatileSlot(zid, sidx)) {
+      if (isVolatileSlot(next, zid, sidx)) {
         return { ok: false, error: "Cannot evict voter in Volatile Area" };
       }
       // Remove from board.
@@ -158,7 +158,7 @@ export function applyUseIdeologuePower(
       const v = z.slots[sidx];
       if (!v) return { ok: false, error: "No voter at slot" };
       if (v.playerId === np.id) return { ok: false, error: "Cannot target own voter" };
-      if (isVolatileSlot(zid, sidx)) return { ok: false, error: "Cannot discard volatile-area voter" };
+      if (isVolatileSlot(next, zid, sidx)) return { ok: false, error: "Cannot discard volatile-area voter" };
       np.resources[payRes] -= 1;
       z.slots[sidx] = null;
       recomputeMajorities(next, zid);
@@ -245,7 +245,7 @@ export function applyUseIdeologuePower(
         const v = z.slots[si];
         if (!v) return { ok: false, error: `No voter at slot ${si}` };
         if (v.playerId !== tpid) return { ok: false, error: "Voter not owned by target" };
-        if (isVolatileSlot(zid, si)) return { ok: false, error: "Cannot convert volatile-area voter" };
+        if (isVolatileSlot(next, zid, si)) return { ok: false, error: "Cannot convert volatile-area voter" };
         z.slots[si] = { playerId: np.id, isMajority: false };
       }
       recomputeMajorities(next, zid);

@@ -6,7 +6,7 @@ import type {
   ZoneState,
   Slot,
 } from "./types";
-import { BOARD } from "@/data/board";
+import { generateBoard } from "@/engine/board/generate";
 import { IDEOLOGY_CARDS } from "@/data/cards/ideology";
 import { VOTER_CARDS } from "@/data/cards/voter";
 import { CONSPIRACY_CARDS } from "@/data/cards/conspiracy";
@@ -31,6 +31,10 @@ export function createInitialState(args: {
   const seed = args.seed ?? (Math.floor(Math.random() * 0xffffffff) || 1);
   const removeSensitive = args.removeSensitive ?? false;
 
+  // Generate this game's region map first; thread its advanced seed into the
+  // deck shuffles so the whole setup stays deterministic from `seed`.
+  const { board, nextSeed: seedAfterBoard } = generateBoard(seed);
+
   // Players + starting resources (P1: 1, P2: 2, ... P5: 5) — but starting
   // resource choice is interactive in the rules; for setup we hand them out
   // as `any` resource tokens via a setup-time auto-distribution that the UI
@@ -52,9 +56,9 @@ export function createInitialState(args: {
     };
   });
 
-  // Zones
+  // Zones — one empty ZoneState per generated zone.
   const zones: Record<string, ZoneState> = {};
-  for (const z of BOARD.zones) {
+  for (const z of board.zones) {
     zones[z.id] = emptyZone(z.capacity);
   }
 
@@ -66,7 +70,7 @@ export function createInitialState(args: {
   const conspiracyPool = CONSPIRACY_CARDS.map((c) => c.id);
   const headlinePool = HEADLINE_CARDS.map((c) => c.id);
 
-  let s = seed;
+  let s = seedAfterBoard;
   const idShuf = shuffle(ideologyPool, s); s = idShuf.nextSeed;
   const voShuf = shuffle(voterPool, s);    s = voShuf.nextSeed;
   const coShuf = shuffle(conspiracyPool, s); s = coShuf.nextSeed;
@@ -84,6 +88,7 @@ export function createInitialState(args: {
     players,
     activePlayerIdx: 0,
     turn: 1,
+    board,
     zones,
     decks: {
       ideology: idShuf.shuffled,           ideologyDiscard: [],

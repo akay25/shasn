@@ -117,7 +117,7 @@ export function resolveHeadlineEffect(
           if (!s) continue;
           if (s.playerId !== np.id) continue;
           if (s.isMajority) continue;
-          if (isVolatileSlot(zid, i)) continue;
+          if (isVolatileSlot(state, zid, i)) continue;
           candidates.push({ zoneId: zid, slotIdx: i });
         }
       }
@@ -144,7 +144,7 @@ export function resolveHeadlineEffect(
       const v = fzSt.slots[fs];
       if (!v) return { ok: false, error: "No voter at source" };
       if (v.playerId !== np.id) return { ok: false, error: "Not your voter" };
-      if (isVolatileSlot(fz, fs)) return { ok: false, error: "Cannot move volatile-area voter" };
+      if (isVolatileSlot(state, fz, fs)) return { ok: false, error: "Cannot move volatile-area voter" };
       if (v.isMajority) return { ok: false, error: "Cannot move majority voter" };
       if (tzSt.slots[ts] !== null) return { ok: false, error: "Target slot occupied" };
       fzSt.slots[fs] = null;

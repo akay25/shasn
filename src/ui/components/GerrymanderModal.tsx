@@ -4,7 +4,7 @@
 import { useMemo, useState } from "react";
 import Modal from "./Modal";
 import type { GameState } from "@/engine/types";
-import { BOARD, getZone } from "@/data/board";
+import { getZone } from "@/data/board";
 import { useDispatch } from "@/ui/hooks/useDispatch";
 import {
   activePlayer,
@@ -26,7 +26,7 @@ export default function GerrymanderModal({ state, onClose }: Props) {
   // Zones where active player has gerrymandering rights.
   const rightsZones = useMemo(
     () =>
-      BOARD.zones.filter((z) => gerrymanderingRightsHolder(state, z.id) === active.id),
+      state.board.zones.filter((z) => gerrymanderingRightsHolder(state, z.id) === active.id),
     [state, active.id],
   );
 
@@ -43,7 +43,7 @@ export default function GerrymanderModal({ state, onClose }: Props) {
     zs.slots.forEach((s, i) => {
       if (!s) return;
       if (s.isMajority) return;
-      if (isVolatileSlot(z.id, i)) return;
+      if (isVolatileSlot(state, z.id, i)) return;
       arr.push({
         slotIdx: i,
         selected: fromZone === z.id && fromSlotIdx === i,
@@ -60,7 +60,7 @@ export default function GerrymanderModal({ state, onClose }: Props) {
       azs.slots.forEach((s, i) => {
         if (!s) return;
         if (s.isMajority) return;
-        if (isVolatileSlot(adj, i)) return;
+        if (isVolatileSlot(state, adj, i)) return;
         aarr.push({
           slotIdx: i,
           selected: fromZone === adj && fromSlotIdx === i,
@@ -73,14 +73,14 @@ export default function GerrymanderModal({ state, onClose }: Props) {
   // Target: any empty, non-volatile slot in a zone adjacent to fromZone (and the fromZone itself excluded).
   const selectableTo: Record<string, { slotIdx: number; selected?: boolean }[]> = {};
   if (step === "pickTo" && fromZone) {
-    const from = getZone(fromZone);
+    const from = getZone(state.board, fromZone);
     const candidateZoneIds = [fromZone, ...from.adjacent];
     for (const zid of candidateZoneIds) {
       const zs = state.zones[zid];
       const arr: { slotIdx: number; selected?: boolean }[] = [];
       zs.slots.forEach((s, i) => {
         if (s) return;
-        if (isVolatileSlot(zid, i)) return;
+        if (isVolatileSlot(state, zid, i)) return;
         if (zid === fromZone && i === fromSlotIdx) return;
         arr.push({ slotIdx: i });
       });
@@ -126,7 +126,7 @@ export default function GerrymanderModal({ state, onClose }: Props) {
         <div className="flex justify-between items-center">
           <div className="text-xs text-neutral-400">
             Empty slots:{" "}
-            {BOARD.zones
+            {state.board.zones
               .map((z) => `${z.id}=${emptySlotsInZone(state.zones[z.id])}`)
               .join(" · ")}
           </div>

@@ -124,7 +124,7 @@ export function applyPlaceVoter(
   if (!pp) return { ok: false, error: `No pending placement at index ${pendingIdx}` };
   if (pp.voters.length === 0) return { ok: false, error: "Pending bundle empty" };
 
-  const zoneDef = getZone(zoneId);
+  const zoneDef = getZone(state.board, zoneId);
   const zone = state.zones[zoneId];
   if (!zone) return { ok: false, error: `Unknown zone ${zoneId}` };
   if (slotIdx < 0 || slotIdx >= zone.slots.length) {
@@ -163,7 +163,7 @@ export function applyPlaceVoter(
   if (npp.source === "voterCard") npp.committedZoneId = zoneId;
 
   // Volatile area → queue a headline.
-  if (isVolatileSlot(zoneId, slotIdx)) {
+  if (isVolatileSlot(next, zoneId, slotIdx)) {
     next.pendingHeadlines += 1;
     logEvent(next, "volatileTriggered", { zoneId, slotIdx });
   }

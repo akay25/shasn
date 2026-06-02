@@ -8,7 +8,7 @@ import type {
   ZoneState,
 } from "./types";
 import { IDEOLOGUE_RESOURCE, RESOURCES } from "./types";
-import { BOARD, getZone } from "@/data/board";
+import { getZone } from "@/data/board";
 import { IDEOLOGY_CARDS } from "@/data/cards/ideology";
 
 // ---------- Players ----------
@@ -94,8 +94,12 @@ export function firstEmptySlot(zoneState: ZoneState): number {
   return zoneState.slots.findIndex((s) => s === null);
 }
 
-export function isVolatileSlot(zoneId: string, slotIdx: number): boolean {
-  return getZone(zoneId).volatileSlotIndices.includes(slotIdx);
+export function isVolatileSlot(
+  state: GameState,
+  zoneId: string,
+  slotIdx: number,
+): boolean {
+  return getZone(state.board, zoneId).volatileSlotIndices.includes(slotIdx);
 }
 
 // ---------- Gerrymandering rights ----------
@@ -167,7 +171,7 @@ export function finalScores(state: GameState): Record<PlayerId, number> {
  * counts as decided regardless of majority outcome.
  */
 export function allMajoritiesDecided(state: GameState): boolean {
-  for (const z of BOARD.zones) {
+  for (const z of state.board.zones) {
     const zs = state.zones[z.id];
     const empty = emptySlotsInZone(zs);
     if (empty === 0) continue; // full zone → decided

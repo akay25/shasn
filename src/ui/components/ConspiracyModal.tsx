@@ -12,7 +12,6 @@ import { RESOURCES } from "@/engine/types";
 import { CONSPIRACY_CARDS } from "@/data/cards/conspiracy";
 import { useDispatch } from "@/ui/hooks/useDispatch";
 import { activePlayer } from "@/engine/selectors";
-import { BOARD } from "@/data/board";
 import { RESOURCE_COLOR, ResourceCoin } from "./ResourceTrack";
 
 interface Props {
@@ -116,6 +115,7 @@ export default function ConspiracyModal({ state, initialCardId, onClose }: Props
         {kind === "discardOpponentVoter" ? (
           <ZoneSlotPicker
             label="Voter to discard"
+            zones={state.board.zones}
             zoneId={params.zoneId}
             slotIdx={params.slotIdx}
             onChange={(zoneId, slotIdx) => setParams((p) => ({ ...p, zoneId, slotIdx }))}
@@ -126,12 +126,14 @@ export default function ConspiracyModal({ state, initialCardId, onClose }: Props
           <>
             <ZoneSlotPicker
               label="Voter A"
+              zones={state.board.zones}
               zoneId={params.zoneA}
               slotIdx={params.slotA}
               onChange={(zoneA, slotA) => setParams((p) => ({ ...p, zoneA, slotA }))}
             />
             <ZoneSlotPicker
               label="Voter B"
+              zones={state.board.zones}
               zoneId={params.zoneB}
               slotIdx={params.slotB}
               onChange={(zoneB, slotB) => setParams((p) => ({ ...p, zoneB, slotB }))}
@@ -231,11 +233,13 @@ export default function ConspiracyModal({ state, initialCardId, onClose }: Props
 
 function ZoneSlotPicker({
   label,
+  zones,
   zoneId,
   slotIdx,
   onChange,
 }: {
   label: string;
+  zones: GameState["board"]["zones"];
   zoneId?: string;
   slotIdx?: number;
   onChange: (zoneId: string, slotIdx: number) => void;
@@ -249,7 +253,7 @@ function ZoneSlotPicker({
         onChange={(e) => onChange(e.target.value, slotIdx ?? 0)}
       >
         <option value="">— zone —</option>
-        {BOARD.zones.map((z) => (
+        {zones.map((z) => (
           <option key={z.id} value={z.id}>
             {z.name}
           </option>

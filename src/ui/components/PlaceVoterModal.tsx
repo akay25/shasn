@@ -4,7 +4,6 @@
 import { useState } from "react";
 import Modal from "./Modal";
 import type { GameState } from "@/engine/types";
-import { BOARD } from "@/data/board";
 import { useDispatch } from "@/ui/hooks/useDispatch";
 import { activePlayer, emptySlotsInZone } from "@/engine/selectors";
 import Board from "./Board";
@@ -43,7 +42,7 @@ export default function PlaceVoterModal({ state, onClose }: Props) {
     string,
     { slotIdx: number; selected?: boolean }[]
   > = {};
-  for (const z of BOARD.zones) {
+  for (const z of state.board.zones) {
     const zs = state.zones[z.id];
     const arr: { slotIdx: number }[] = [];
     zs.slots.forEach((s, i) => {
@@ -98,7 +97,7 @@ export default function PlaceVoterModal({ state, onClose }: Props) {
         </div>
         <div className="text-xs text-neutral-400">
           Empty slots per zone:{" "}
-          {BOARD.zones
+          {state.board.zones
             .map((z) => `${z.id}=${emptySlotsInZone(state.zones[z.id])}`)
             .join(" · ")}
         </div>

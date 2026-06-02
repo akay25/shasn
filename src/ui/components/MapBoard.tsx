@@ -1,139 +1,57 @@
-// Hex-tile map of the SHASN country. Each zone is a connected cluster of
-// pointy-top hexagons; the cluster cells are listed below in offset
-// coordinates (col, row, odd-r horizontal layout). The number of hexes per
-// zone matches `BOARD.zones[i].capacity` so every voter slot in state has
-// exactly one hex on screen.
+// Canvas country-map of the SHASN board. The board geometry is generated
+// per-game (see src/engine/board/generate.ts) and lives on `state.board`: nine
+// organic, contiguous regions carved from a horizontal rhombus of 144 hexes.
 //
-// Layout overview (offset coords, odd rows shifted right by HEX_W/2):
-//   rows 0–2 : nw (cols 0–3), n  (cols 4–9), ne (cols 11–14)
-//   row  3   : w  bridge,    n  tail,        e  top
-//   rows 4–7 : w  (cols 0–4), c  (cols 4–7), e  (cols 8–13)
-//   rows 8–10: sw (cols 0–3), s  (cols 4–10), se (cols 11–14)
-//
-// Tile counts match the published board: 11 / 21 / 11 corner+edge layout,
-// 16 in the centre, totalling 144 hexes with 11 Volatile Areas.
+// Rendering: each region is filled as a single organic blob (no internal hex
+// grid — only region boundaries are stroked), with voter holes/pegs at every
+// cell centre. The map is clickable: a click resolves to the nearest cell and,
+// via `onSlotClick`, drives voter placement. Region labels are an HTML overlay
+// so text stays crisp and styled like the rest of the UI.
 
+import { useEffect, useMemo, useRef } from "react";
 import type { GameState, Player } from "@/engine/types";
-import { BOARD } from "@/data/board";
 import {
   totalVotersInZone,
   voterCountInZone,
   gerrymanderingRightsHolder,
 } from "@/engine/selectors";
 
-// ---- Hex geometry ----------------------------------------------------------
+// ---- Hex geometry (pointy-top, odd-r offset) ------------------------------
 
-const SIZE = 20;                         // hex circumradius
-const HEX_W = Math.sqrt(3) * SIZE;       // horizontal pitch ≈ 34.64
-const HEX_V = 1.5 * SIZE;                // vertical pitch  = 30
-const MARGIN_X = 16;
-const MARGIN_Y = 18;
+const SIZE = 22;                         // hex circumradius (board units)
+const HEX_W = Math.sqrt(3) * SIZE;       // horizontal pitch ≈ 38.1
+const HEX_V = 1.5 * SIZE;                // vertical pitch  = 33
+const MARGIN = 26;
+const SS = 2;                            // supersample factor for crisp canvas
 
-function cellToPixel(col: number, row: number): { x: number; y: number } {
-  // odd-r horizontal layout: odd rows shifted right by HEX_W/2
+function cellPixel(col: number, row: number): { x: number; y: number } {
   return {
-    x: MARGIN_X + HEX_W * (col + 0.5 + (row % 2 === 1 ? 0.5 : 0)),
-    y: MARGIN_Y + SIZE + HEX_V * row,
+    x: MARGIN + HEX_W * (col + 0.5 + (row % 2 === 1 ? 0.5 : 0)),
+    y: MARGIN + SIZE + HEX_V * row,
   };
 }
 
-function hexPath(cx: number, cy: number, size: number = SIZE): string {
-  // Pointy-top hexagon — top vertex straight up.
-  let s = "";
-  for (let i = 0; i < 6; i++) {
-    const a = -Math.PI / 2 + (Math.PI / 3) * i;
-    const x = cx + size * Math.cos(a);
-    const y = cy + size * Math.sin(a);
-    s += (i === 0 ? "M" : "L") + x.toFixed(2) + "," + y.toFixed(2) + " ";
-  }
-  return s + "Z";
+// Inverse of cellPixel — pixel → nearest (col,row).
+function pixelCell(x: number, y: number): { col: number; row: number } {
+  const row = Math.round((y - MARGIN - SIZE) / HEX_V);
+  const col = Math.round((x - MARGIN) / HEX_W - 0.5 - (row % 2 === 1 ? 0.5 : 0));
+  return { col, row };
 }
 
-// ---- Zone hex layouts -----------------------------------------------------
-// Each zone is a list of (col, row) cells. Order matches the zone's slot
-// index in `state.zones[id].slots`, so volatileSlotIndices align with the
-// rendered hexes.
+function hexVertices(cx: number, cy: number, size: number): [number, number][] {
+  const pts: [number, number][] = [];
+  for (let i = 0; i < 6; i++) {
+    const a = -Math.PI / 2 + (Math.PI / 3) * i;
+    pts.push([cx + size * Math.cos(a), cy + size * Math.sin(a)]);
+  }
+  return pts;
+}
 
-type Cell = readonly [number, number];
-
-const ZONE_CELLS: Record<string, Cell[]> = {
-  nw: [
-    [0, 0], [1, 0], [2, 0],
-    [0, 1], [1, 1], [2, 1], [3, 1],
-    [0, 2], [1, 2], [2, 2], [3, 2],
-  ],
-  n: [
-    [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0],
-    [4, 1], [5, 1], [6, 1], [7, 1], [8, 1],
-    [4, 2], [5, 2], [6, 2], [7, 2], [8, 2], [9, 2],
-    [5, 3], [6, 3], [7, 3], [8, 3],
-  ],
-  ne: [
-    [11, 0], [12, 0], [13, 0],
-    [11, 1], [12, 1], [13, 1], [14, 1],
-    [11, 2], [12, 2], [13, 2], [14, 2],
-  ],
-  w: [
-    [0, 3], [1, 3], [2, 3], [3, 3],
-    [0, 4], [1, 4], [2, 4], [3, 4],
-    [0, 5], [1, 5], [2, 5], [3, 5],
-    [0, 6], [1, 6], [2, 6], [3, 6],
-    [0, 7], [1, 7], [2, 7], [3, 7], [4, 7],
-  ],
-  c: [
-    [4, 4], [5, 4], [6, 4], [7, 4],
-    [4, 5], [5, 5], [6, 5], [7, 5],
-    [4, 6], [5, 6], [6, 6], [7, 6],
-    [5, 7], [6, 7], [7, 7], [8, 7],
-  ],
-  e: [
-    [9, 3], [10, 3], [11, 3], [12, 3], [13, 3], [14, 3],
-    [8, 4], [9, 4], [10, 4], [11, 4], [12, 4], [13, 4],
-    [8, 5], [9, 5], [10, 5], [11, 5], [12, 5],
-    [8, 6], [9, 6], [10, 6], [11, 6],
-  ],
-  sw: [
-    [0, 8], [1, 8], [2, 8], [3, 8],
-    [0, 9], [1, 9], [2, 9], [3, 9],
-    [0, 10], [1, 10], [2, 10],
-  ],
-  s: [
-    [4, 8], [5, 8], [6, 8], [7, 8], [8, 8], [9, 8],
-    [4, 9], [5, 9], [6, 9], [7, 9], [8, 9], [9, 9], [10, 9],
-    [3, 10], [4, 10], [5, 10], [6, 10], [7, 10], [8, 10], [9, 10], [10, 10],
-  ],
-  se: [
-    [11, 8], [12, 8], [13, 8], [14, 8],
-    [11, 9], [12, 9], [13, 9], [14, 9],
-    [11, 10], [12, 10], [13, 10],
-  ],
-};
-
-// Pastel terrain colour per zone, matching the photographed board.
-const ZONE_FILL: Record<string, string> = {
-  nw: "#b6d6cf",  // mint
-  n:  "#e4c4d2",  // pink
-  ne: "#e8c8d4",  // blush
-  w:  "#e6d2b4",  // wheat
-  c:  "#f5ecd9",  // light cream
-  e:  "#c2d4e2",  // light blue
-  sw: "#e8c8c0",  // dusty rose
-  s:  "#e6d2b4",  // wheat
-  se: "#bcd0dc",  // pale slate-blue
-};
-
-// Friendly label position (col, row) — picks an interior hex per zone so the
-// name overlays cleanly on the cluster.
-const LABEL_CELL: Record<string, Cell> = {
-  nw: [1, 1],
-  n:  [6, 1],
-  ne: [12, 1],
-  w:  [1, 5],
-  c:  [5, 5],
-  e:  [11, 4],
-  sw: [1, 9],
-  s:  [6, 9],
-  se: [12, 9],
+const COLOR_HEX: Record<string, string> = {
+  capitalist: "#f59e0b",
+  supremo: "#ef4444",
+  showstopper: "#a855f7",
+  idealist: "#10b981",
 };
 
 const COLOR_TEXT: Record<string, string> = {
@@ -143,163 +61,197 @@ const COLOR_TEXT: Record<string, string> = {
   idealist: "text-idealist",
 };
 
-const COLOR_HEX: Record<string, string> = {
-  capitalist: "#f59e0b",
-  supremo: "#ef4444",
-  showstopper: "#a855f7",
-  idealist: "#10b981",
-};
-
 // ---- Component -------------------------------------------------------------
 
 interface Props {
   state: GameState;
+  // zoneId -> empty slot indices to highlight as valid placement targets.
+  selectableSlots?: Record<string, number[]>;
+  onSlotClick?: (zoneId: string, slotIdx: number) => void;
 }
 
-// Computed viewBox derived from the most extreme cell positions plus margin.
-const ALL_CELLS: Cell[] = Object.values(ZONE_CELLS).flat();
-const VB_W = (() => {
-  let max = 0;
-  for (const [c, r] of ALL_CELLS) {
-    const x = cellToPixel(c, r).x + SIZE;
-    if (x > max) max = x;
-  }
-  return Math.ceil(max + MARGIN_X);
-})();
-const VB_H = (() => {
-  let max = 0;
-  for (const [c, r] of ALL_CELLS) {
-    const y = cellToPixel(c, r).y + SIZE;
-    if (y > max) max = y;
-  }
-  return Math.ceil(max + MARGIN_Y);
-})();
+export default function MapBoard({ state, selectableSlots, onSlotClick }: Props) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const board = state.board;
 
-export default function MapBoard({ state }: Props) {
+  // Viewport extent in board units, plus a cell→owner index for hit-testing
+  // and boundary detection. Recomputed only when the geography changes.
+  const layout = useMemo(() => {
+    let maxX = 0;
+    let maxY = 0;
+    const owner = new Map<string, string>();          // "col,row" -> zoneId
+    const slotOf = new Map<string, number>();         // "col,row" -> slot index
+    for (const z of board.zones) {
+      board.geometry[z.id].cells.forEach((cell, idx) => {
+        const key = `${cell.col},${cell.row}`;
+        owner.set(key, z.id);
+        slotOf.set(key, idx);
+        const { x, y } = cellPixel(cell.col, cell.row);
+        maxX = Math.max(maxX, x + SIZE);
+        maxY = Math.max(maxY, y + SIZE);
+      });
+    }
+    return { vbW: Math.ceil(maxX + MARGIN), vbH: Math.ceil(maxY + MARGIN), owner, slotOf };
+  }, [board]);
+
+  // Draw whenever state or highlight changes.
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const { vbW, vbH, owner } = layout;
+    canvas.width = vbW * SS;
+    canvas.height = vbH * SS;
+    ctx.setTransform(SS, 0, 0, SS, 0, 0);
+    ctx.clearRect(0, 0, vbW, vbH);
+
+    // Parchment backdrop.
+    const grad = ctx.createLinearGradient(0, 0, vbW, vbH);
+    grad.addColorStop(0, "#d8c39a");
+    grad.addColorStop(1, "#bfa676");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, vbW, vbH);
+
+    const selectable = selectableSlots ?? {};
+
+    // Pass 1 — fill every region as a solid blob (no internal hex lines). We
+    // also stroke each hex with its own fill colour to hide anti-alias seams
+    // between same-region cells.
+    for (const z of board.zones) {
+      const fill = board.geometry[z.id].color;
+      ctx.fillStyle = fill;
+      ctx.strokeStyle = fill;
+      ctx.lineWidth = 1.5;
+      for (const cell of board.geometry[z.id].cells) {
+        const { x, y } = cellPixel(cell.col, cell.row);
+        traceHex(ctx, x, y, SIZE);
+        ctx.fill();
+        ctx.stroke();
+      }
+    }
+
+    // Pass 2 — region outlines: stroke only edges whose neighbour is a
+    // different region (or off-board).
+    ctx.strokeStyle = "#2c1d10";
+    ctx.lineWidth = 3;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    for (const z of board.zones) {
+      for (const cell of board.geometry[z.id].cells) {
+        const { x, y } = cellPixel(cell.col, cell.row);
+        const verts = hexVertices(x, y, SIZE);
+        for (let k = 0; k < 6; k++) {
+          const a = verts[k];
+          const b = verts[(k + 1) % 6];
+          const mx = (a[0] + b[0]) / 2;
+          const my = (a[1] + b[1]) / 2;
+          // Neighbour centre across this edge = centre + 2*(mid - centre).
+          const nb = pixelCell(x + 2 * (mx - x), y + 2 * (my - y));
+          if (owner.get(`${nb.col},${nb.row}`) !== z.id) {
+            ctx.beginPath();
+            ctx.moveTo(a[0], a[1]);
+            ctx.lineTo(b[0], b[1]);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    // Pass 3 — voter holes / pegs, volatile badges, highlights.
+    for (const z of board.zones) {
+      const zs = state.zones[z.id];
+      const highlights = selectable[z.id];
+      board.geometry[z.id].cells.forEach((cell, idx) => {
+        const { x, y } = cellPixel(cell.col, cell.row);
+        const isVolatile = z.volatileSlotIndices.includes(idx);
+        const slot = zs.slots[idx];
+
+        if (slot) {
+          const owner = state.players.find((p) => p.id === slot.playerId);
+          ctx.beginPath();
+          ctx.arc(x, y, SIZE * 0.46, 0, Math.PI * 2);
+          ctx.fillStyle = owner ? COLOR_HEX[owner.color] : "#777";
+          ctx.fill();
+          ctx.lineWidth = 1.4;
+          ctx.strokeStyle = "#17110b";
+          ctx.stroke();
+          if (slot.isMajority) {
+            ctx.fillStyle = "#fff";
+            ctx.font = `900 ${SIZE * 0.7}px ui-serif, Georgia, serif`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("★", x, y + SIZE * 0.04);
+          }
+        } else {
+          // Empty hole.
+          ctx.beginPath();
+          ctx.arc(x, y, SIZE * 0.34, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(40,28,16,0.30)";
+          ctx.fill();
+          // Highlight valid placement targets.
+          if (highlights && highlights.includes(idx)) {
+            ctx.beginPath();
+            ctx.arc(x, y, SIZE * 0.5, 0, Math.PI * 2);
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = "#fde68a";
+            ctx.stroke();
+          }
+        }
+
+        // Volatile-area marker.
+        if (isVolatile) {
+          ctx.beginPath();
+          ctx.arc(x, y - SIZE * 0.62, SIZE * 0.17, 0, Math.PI * 2);
+          ctx.fillStyle = "#fde68a";
+          ctx.fill();
+          ctx.lineWidth = 0.8;
+          ctx.strokeStyle = "#7c5a1a";
+          ctx.stroke();
+        }
+      });
+    }
+  }, [state, layout, selectableSlots, board]);
+
+  // Click → nearest cell → (zoneId, slotIdx).
+  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!onSlotClick) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    const scale = layout.vbW / rect.width;
+    const bx = (e.clientX - rect.left) * scale;
+    const by = (e.clientY - rect.top) * scale;
+    const { col, row } = pixelCell(bx, by);
+    const key = `${col},${row}`;
+    const zoneId = layout.owner.get(key);
+    const slotIdx = layout.slotOf.get(key);
+    if (zoneId === undefined || slotIdx === undefined) return;
+    // Confirm the click landed inside the hex (not just the bounding cell).
+    const { x, y } = cellPixel(col, row);
+    if (Math.hypot(bx - x, by - y) > SIZE) return;
+    onSlotClick(zoneId, slotIdx);
+  };
+
   return (
-    <div className="relative w-full" style={{ aspectRatio: `${VB_W}/${VB_H}` }}>
-      <svg
-        viewBox={`0 0 ${VB_W} ${VB_H}`}
-        preserveAspectRatio="xMidYMid meet"
-        className="absolute inset-0 w-full h-full block rounded-xl shadow-lg"
+    <div className="relative w-full" style={{ aspectRatio: `${layout.vbW}/${layout.vbH}` }}>
+      <canvas
+        ref={canvasRef}
+        onClick={handleClick}
+        className={`absolute inset-0 w-full h-full block rounded-xl shadow-lg ${
+          onSlotClick ? "cursor-pointer" : ""
+        }`}
         role="img"
-        aria-label="SHASN hex-tile map"
-      >
-        <defs>
-          <linearGradient id="parchment" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#d2bc92" />
-            <stop offset="1" stopColor="#c0a778" />
-          </linearGradient>
-          <pattern id="grit" patternUnits="userSpaceOnUse" width="5" height="5">
-            <circle cx="1" cy="1" r="0.4" fill="rgba(0,0,0,0.06)" />
-            <circle cx="3.5" cy="3" r="0.3" fill="rgba(255,255,255,0.05)" />
-          </pattern>
-        </defs>
+        aria-label="SHASN region map"
+      />
 
-        {/* Parchment backdrop */}
-        <rect x="0" y="0" width={VB_W} height={VB_H} fill="url(#parchment)" />
-        <rect x="0" y="0" width={VB_W} height={VB_H} fill="url(#grit)" />
-
-        {/* All hex tiles */}
-        {BOARD.zones.map((zone) => {
-          const cells = ZONE_CELLS[zone.id] || [];
-          const fill = ZONE_FILL[zone.id];
-          return (
-            <g key={zone.id} aria-label={zone.name}>
-              {cells.map(([col, row], idx) => {
-                const { x, y } = cellToPixel(col, row);
-                const isVolatile = zone.volatileSlotIndices.includes(idx);
-                const slot = state.zones[zone.id].slots[idx];
-                const owner = slot
-                  ? state.players.find((p) => p.id === slot.playerId)
-                  : null;
-                return (
-                  <g key={`${col}-${row}`}>
-                    {/* Hex tile background */}
-                    <path
-                      d={hexPath(x, y)}
-                      fill={fill}
-                      stroke="#3a2818"
-                      strokeWidth={1.2}
-                      strokeLinejoin="round"
-                    />
-                    {/* Volatile marker (small ring with star) */}
-                    {isVolatile ? (
-                      <g pointerEvents="none">
-                        <circle
-                          cx={x}
-                          cy={y - SIZE * 0.45}
-                          r={SIZE * 0.18}
-                          fill="#fde68a"
-                          stroke="#7c5a1a"
-                          strokeWidth={0.8}
-                        />
-                        <text
-                          x={x}
-                          y={y - SIZE * 0.4}
-                          textAnchor="middle"
-                          dominantBaseline="central"
-                          fontSize={SIZE * 0.24}
-                          fill="#7c5a1a"
-                          fontWeight={700}
-                        >
-                          ★
-                        </text>
-                      </g>
-                    ) : null}
-                    {/* Voter peg */}
-                    {owner ? (
-                      <g pointerEvents="none">
-                        <circle
-                          cx={x}
-                          cy={y + (isVolatile ? SIZE * 0.05 : 0)}
-                          r={SIZE * 0.42}
-                          fill={COLOR_HEX[owner.color]}
-                          stroke="#1a1410"
-                          strokeWidth={1.2}
-                        />
-                        {slot?.isMajority ? (
-                          <text
-                            x={x}
-                            y={y + (isVolatile ? SIZE * 0.05 : 0)}
-                            textAnchor="middle"
-                            dominantBaseline="central"
-                            fontSize={SIZE * 0.5}
-                            fill="#fff"
-                            fontWeight={900}
-                          >
-                            ★
-                          </text>
-                        ) : null}
-                      </g>
-                    ) : null}
-                  </g>
-                );
-              })}
-
-              {/* Zone label — band across the centre of the cluster */}
-              <ZoneLabel zoneId={zone.id} />
-            </g>
-          );
-        })}
-
-        {/* Compass */}
-        <g transform={`translate(${VB_W - 50},${VB_H - 50})`} opacity="0.55">
-          <circle r="18" fill="none" stroke="#3a2818" strokeWidth="1" />
-          <text textAnchor="middle" y="-22" fontSize="9" fill="#3a2818" fontFamily="ui-serif, Georgia, serif">N</text>
-          <text textAnchor="middle" y="26" fontSize="9" fill="#3a2818" fontFamily="ui-serif, Georgia, serif">S</text>
-          <text x="22" dy="3" fontSize="9" fill="#3a2818" fontFamily="ui-serif, Georgia, serif">E</text>
-          <text x="-26" dy="3" fontSize="9" fill="#3a2818" fontFamily="ui-serif, Georgia, serif">W</text>
-          <polygon points="0,-12 3,0 0,12 -3,0" fill="#3a2818" />
-        </g>
-      </svg>
-
-      {/* HTML overlay for zone info chips (capacity / majority / holder). */}
-      {BOARD.zones.map((zone) => {
-        const [col, row] = LABEL_CELL[zone.id];
-        const { x, y } = cellToPixel(col, row);
-        const left = (x / VB_W) * 100;
-        const top = (y / VB_H) * 100;
+      {/* HTML overlay: region labels + status chips. */}
+      {board.zones.map((zone) => {
+        const c = board.geometry[zone.id].centroid;
+        const { x, y } = cellPixel(c.col, c.row);
+        const left = (x / layout.vbW) * 100;
+        const top = (y / layout.vbH) * 100;
         const zs = state.zones[zone.id];
         const total = totalVotersInZone(zs);
         const holder = zs.majorityHolder
@@ -338,10 +290,12 @@ export default function MapBoard({ state }: Props) {
   );
 }
 
-function ZoneLabel(_: { zoneId: string }) {
-  // Label rendering moved to the HTML overlay so positioning / colours can
-  // match the rest of the UI. This SVG component is intentionally empty.
-  return null;
+function traceHex(ctx: CanvasRenderingContext2D, cx: number, cy: number, size: number): void {
+  const v = hexVertices(cx, cy, size);
+  ctx.beginPath();
+  ctx.moveTo(v[0][0], v[0][1]);
+  for (let i = 1; i < 6; i++) ctx.lineTo(v[i][0], v[i][1]);
+  ctx.closePath();
 }
 
 function HolderBadge({ p }: { p: Player }) {

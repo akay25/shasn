@@ -1,6 +1,6 @@
 // Main game screen during ideology / actions / headlines. 3-column layout:
 // PlayerSummaries | Board+HQ | PlayerMat. Forced modals overlay as needed.
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useGameStore } from "@/store/gameStore";
 import { useDispatch, useLastError, useClearError } from "@/ui/hooks/useDispatch";
 import {
@@ -60,6 +60,39 @@ export default function Game() {
   const overCap = totalResources(active) > active.resourceCap;
   const inActions = state.phase === "actions";
 
+  // While voters are pending, the map is the primary placement surface: clicking
+  // an empty, valid slot places the next voter of the first pending group. We
+  // compute which empty slots are valid (mirrors PlaceVoterModal: a voter-card
+  // bundle must land wholly in one zone) so the canvas can highlight them.
+  const pendingGroup = state.pendingPlacements[0];
+  const selectableSlots = useMemo(() => {
+    if (!pendingGroup) return undefined;
+    const isCard = pendingGroup.source === "voterCard" && !!pendingGroup.voterCardId;
+    const out: Record<string, number[]> = {};
+    for (const z of state.board.zones) {
+      const empties: number[] = [];
+      state.zones[z.id].slots.forEach((s, i) => {
+        if (s === null) empties.push(i);
+      });
+      if (empties.length === 0) continue;
+      if (isCard) {
+        if (pendingGroup.committedZoneId) {
+          if (pendingGroup.committedZoneId !== z.id) continue;
+        } else if (empties.length < pendingGroup.voters.length) {
+          continue; // whole bundle can't fit here
+        }
+      }
+      out[z.id] = empties;
+    }
+    return out;
+  }, [state, pendingGroup]);
+
+  const onMapSlotClick =
+    pending > 0
+      ? (zoneId: string, slotIdx: number) =>
+          dispatch({ t: "placeVoter", zoneId, slotIdx, pendingIdx: 0 })
+      : undefined;
+
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col">
       {/* Top bar */}
@@ -107,7 +140,11 @@ export default function Game() {
         {/* Centre: the map */}
         <div className="overflow-y-auto flex items-start">
           <div className="w-full">
-            <MapBoard state={state} />
+            <MapBoard
+              state={state}
+              selectableSlots={selectableSlots}
+              onSlotClick={onMapSlotClick}
+            />
           </div>
         </div>
 
