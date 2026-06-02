@@ -283,9 +283,7 @@ export default function Game() {
         onGerrymander={() => setModal({ kind: "gerry" })}
         onTrade={() => setModal({ kind: "trade" })}
         onPlayConspiracy={() => setModal({ kind: "conspiracy" })}
-        onBuyConspiracy={() => dispatch({ t: "buyConspiracy", payment: {} })}
         canPlayConspiracy={active.conspiracyHand.length > 0}
-        canBuyConspiracy={state.decks.conspiracy.length > 0}
         inActionsPhase={inActions}
         trailing={<DeckStats state={state} />}
       />

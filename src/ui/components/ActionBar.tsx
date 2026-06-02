@@ -10,9 +10,7 @@ interface Props {
   onGerrymander: () => void;
   onTrade: () => void;
   onPlayConspiracy: () => void;
-  onBuyConspiracy: () => void;
   canPlayConspiracy: boolean;
-  canBuyConspiracy: boolean;
   inActionsPhase: boolean;
   trailing?: ReactNode;
 }
@@ -21,9 +19,7 @@ export default function ActionBar({
   onGerrymander,
   onTrade,
   onPlayConspiracy,
-  onBuyConspiracy,
   canPlayConspiracy,
-  canBuyConspiracy,
   inActionsPhase,
   trailing,
 }: Props) {
@@ -36,9 +32,6 @@ export default function ActionBar({
       </button>
       <button type="button" onClick={onTrade} disabled={!inActionsPhase} className={btn}>
         Trade
-      </button>
-      <button type="button" onClick={onBuyConspiracy} disabled={!canBuyConspiracy || !inActionsPhase} className={btn}>
-        Buy Conspiracy
       </button>
       <button type="button" onClick={onPlayConspiracy} disabled={!canPlayConspiracy} className={btn}>
         Play Conspiracy
