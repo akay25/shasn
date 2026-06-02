@@ -173,14 +173,12 @@ export default function Game() {
       </div>
 
       <ActionBar
-        onInfluence={() => setModal({ kind: "influence", openIdx: 0 })}
         onGerrymander={() => setModal({ kind: "gerry" })}
         onTrade={() => setModal({ kind: "trade" })}
         onPlayConspiracy={() => setModal({ kind: "conspiracy" })}
         onBuyConspiracy={() => dispatch({ t: "buyConspiracy", payment: {} })}
         onEndTurn={() => dispatch({ t: "endTurn" })}
         canEndTurn={inActions && pending === 0 && !overCap}
-        canInfluence={inActions}
         canPlayConspiracy={active.conspiracyHand.length > 0}
         canBuyConspiracy={state.decks.conspiracy.length > 0}
         inActionsPhase={inActions}
