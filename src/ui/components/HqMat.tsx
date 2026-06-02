@@ -1,7 +1,6 @@
-// HQ Mat: three face-up voter cards plus the voter and ideology deck counts.
-// The conspiracy + headline deck pile indicators were moved out to <DeckPanel>
-// in the left column; the player's own ideology-card collection lives in
-// <IdeologyCollection>, also on the left.
+// HQ Mat: the three face-up voter cards only. Deck-pile counts (voter,
+// ideology, conspiracy, headline) now live in <DeckStats>, a single
+// widget pinned to the bottom-right of the page.
 import type { GameState } from "@/engine/types";
 import { VOTER_CARDS } from "@/data/cards/voter";
 import VoterCardTile from "./VoterCardTile";
@@ -30,42 +29,6 @@ export default function HqMat({ state, onInfluenceClick }: Props) {
             />
           );
         })}
-      </div>
-      <div className="grid grid-cols-2 gap-2 text-[11px] text-neutral-300">
-        <DeckBadge
-          label="Voter"
-          n={state.decks.voter.length}
-          discard={state.decks.voterDiscard.length}
-        />
-        <DeckBadge
-          label="Ideology"
-          n={state.decks.ideology.length}
-          discard={state.decks.ideologyDiscard.length}
-        />
-      </div>
-    </div>
-  );
-}
-
-function DeckBadge({
-  label,
-  n,
-  discard,
-}: {
-  label: string;
-  n: number;
-  discard: number;
-}) {
-  return (
-    <div className="bg-neutral-800/70 border border-neutral-700 rounded px-2 py-1">
-      <div className="font-semibold text-[10px] uppercase tracking-wide text-neutral-400">
-        {label}
-      </div>
-      <div className="text-sm font-bold">
-        {n}{" "}
-        <span className="text-neutral-500 font-normal text-[10px]">
-          / {discard} disc
-        </span>
       </div>
     </div>
   );
