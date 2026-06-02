@@ -1,6 +1,7 @@
 // Compact summary for non-active players. Public info only: resources,
 // ideology card count, conspiracy hand count.
 import type { Player } from "@/engine/types";
+import { availableResourceSlots } from "@/engine/selectors";
 import ResourceTrack from "./ResourceTrack";
 import PlayerColorSwatch from "./PlayerColorSwatch";
 
@@ -11,6 +12,7 @@ interface Props {
 }
 
 export default function PlayerSummary({ player, isActive, isNext }: Props) {
+  const openSlots = availableResourceSlots(player);
   return (
     <div
       className={`bg-neutral-900/60 rounded-lg p-2 border ${
@@ -29,6 +31,13 @@ export default function PlayerSummary({ player, isActive, isNext }: Props) {
         ) : null}
       </div>
       <ResourceTrack resources={player.resources} compact />
+      <div className="text-[10px] text-neutral-400 mt-1">
+        Slots open:{" "}
+        <span className={openSlots === 0 ? "text-amber-300" : "text-neutral-200"}>
+          {openSlots}
+        </span>{" "}
+        / {player.resourceCap}
+      </div>
       <div className="grid grid-cols-2 gap-1 text-[10px] text-neutral-400 mt-1">
         <div>Ideo: {player.ideologyCards.length}</div>
         <div>Consp: {player.conspiracyHand.length}</div>
