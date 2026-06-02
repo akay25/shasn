@@ -14,6 +14,7 @@ import MapBoard from "@/ui/components/MapBoard";
 import HqMat from "@/ui/components/HqMat";
 import PlayerSummary from "@/ui/components/PlayerSummary";
 import IdeologyCollection from "@/ui/components/IdeologyCollection";
+import ConspiracyBuyPanel from "@/ui/components/ConspiracyBuyPanel";
 import DeckStats from "@/ui/components/DeckStats";
 import ActionBar from "@/ui/components/ActionBar";
 import IdeologyCardModal from "@/ui/components/IdeologyCardModal";
@@ -235,6 +236,14 @@ export default function Game() {
               );
             })}
           </div>
+          {/* Bottom-pinned: Buy Conspiracy at its original sidebar spot. */}
+          <div className="p-3 border-t border-neutral-800 bg-neutral-950">
+            <ConspiracyBuyPanel
+              state={state}
+              onBuyConspiracy={() => dispatch({ t: "buyConspiracy", payment: {} })}
+              disabled={!inActions}
+            />
+          </div>
         </aside>
 
         {/* Drag handle */}
@@ -278,13 +287,7 @@ export default function Game() {
         canPlayConspiracy={active.conspiracyHand.length > 0}
         canBuyConspiracy={state.decks.conspiracy.length > 0}
         inActionsPhase={inActions}
-        trailing={
-          <DeckStats
-            state={state}
-            onBuyConspiracy={() => dispatch({ t: "buyConspiracy", payment: {} })}
-            buyConspiracyDisabled={!inActions || state.decks.conspiracy.length === 0}
-          />
-        }
+        trailing={<DeckStats state={state} />}
       />
 
       {/* Error toast */}
