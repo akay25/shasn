@@ -28,6 +28,8 @@ export default function Setup() {
   const [count, setCount] = useState(3);
   const [players, setPlayers] = useState<PlayerDraft[]>(makeDefaults(3));
   const [removeSensitive, setRemoveSensitive] = useState(false);
+  // Default to the original published board; uncheck for a fresh random map.
+  const [useOriginalMap, setUseOriginalMap] = useState(true);
 
   const setCountAndAdjust = (n: number) => {
     setCount(n);
@@ -45,6 +47,7 @@ export default function Setup() {
         color: p.color,
       })),
       removeSensitive,
+      mapMode: useOriginalMap ? "original" : "dynamic",
     });
   };
 
@@ -144,6 +147,26 @@ export default function Setup() {
           />
           Remove sensitive ideology cards (Content Advisory)
         </label>
+
+        <div className="border-t border-neutral-800 pt-3">
+          <div className="text-sm text-neutral-300 mb-1">Map</div>
+          <label className="flex items-start gap-2 text-sm text-neutral-300">
+            <input
+              type="checkbox"
+              className="mt-0.5"
+              checked={useOriginalMap}
+              onChange={(e) => setUseOriginalMap(e.target.checked)}
+            />
+            <span>
+              Original map
+              <span className="block text-xs text-neutral-500">
+                {useOriginalMap
+                  ? "The published SHASN board — same regions every game."
+                  : "Dynamic map — fresh random regions are generated for this game."}
+              </span>
+            </span>
+          </label>
+        </div>
 
         <div className="text-xs text-neutral-500">
           Everyone starts with zero resources. Your colour is just a visual

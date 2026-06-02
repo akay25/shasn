@@ -244,7 +244,7 @@ export interface TradeBundle {
 }
 
 export type Action =
-  | { t: "setupGame"; players: { name: string; color: PlayerColor }[]; seed?: number; removeSensitive?: boolean }
+  | { t: "setupGame"; players: { name: string; color: PlayerColor }[]; seed?: number; removeSensitive?: boolean; mapMode?: "original" | "dynamic" }
   | { t: "acknowledgeHandoff" }
   | { t: "answerIdeology"; side: "left" | "right" }
   | { t: "redrawIdeology" } // pay any 4 resources, draw a new one

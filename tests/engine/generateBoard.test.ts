@@ -3,7 +3,7 @@
 // while the geography itself is randomized and reproducible from the seed.
 
 import { describe, it, expect } from "vitest";
-import { generateBoard } from "@/engine/board/generate";
+import { generateBoard, originalBoard } from "@/engine/board/generate";
 import { ZONE_TEMPLATE } from "@/data/board";
 import type { BoardLayout } from "@/engine/types";
 
@@ -69,9 +69,9 @@ function checkBoard(board: BoardLayout) {
     for (const c of geo.cells) allCells.add(cellKey(c));
   }
 
-  // Full, non-overlapping coverage of all 144 cells, 11 volatile total.
-  expect(totalCells).toBe(144);
-  expect(allCells.size).toBe(144);
+  // Full, non-overlapping coverage of all 129 cells, 11 volatile total.
+  expect(totalCells).toBe(129);
+  expect(allCells.size).toBe(129);
   expect(totalVolatile).toBe(11);
 
   // Adjacency is symmetric and references real zones.
@@ -103,5 +103,26 @@ describe("generateBoard", () => {
     const a = JSON.stringify(generateBoard(1).board.geometry);
     const b = JSON.stringify(generateBoard(2).board.geometry);
     expect(a).not.toBe(b);
+  });
+});
+
+describe("originalBoard", () => {
+  it("is a valid board with the fixed voter counts", () => {
+    checkBoard(originalBoard());
+  });
+
+  it("is fixed — identical every call", () => {
+    expect(JSON.stringify(originalBoard())).toBe(JSON.stringify(originalBoard()));
+  });
+
+  it("places regions in their canonical positions (N above S, E right of W)", () => {
+    const b = originalBoard();
+    const cen = (id: string) => b.geometry[id].centroid;
+    expect(cen("n").row).toBeLessThan(cen("s").row);       // North above South
+    expect(cen("c").row).toBeLessThan(cen("s").row);       // Capital above South
+    expect(cen("c").row).toBeGreaterThan(cen("n").row);    // Capital below North
+    expect(cen("w").col).toBeLessThan(cen("e").col);       // West left of East
+    expect(cen("nw").col).toBeLessThan(cen("ne").col);     // corners ordered
+    expect(cen("sw").col).toBeLessThan(cen("se").col);
   });
 });

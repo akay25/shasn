@@ -115,6 +115,7 @@ export function applyAction(state: GameState, action: Action): ActionResult {
             players: action.players,
             seed: action.seed,
             removeSensitive: action.removeSensitive,
+            mapMode: action.mapMode,
           });
           return { ok: true, state: fresh };
         } catch (e: any) {

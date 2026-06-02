@@ -18,6 +18,7 @@ interface GameStore {
     players: { name: string; color: GameState["players"][number]["color"] }[];
     seed?: number;
     removeSensitive?: boolean;
+    mapMode?: "original" | "dynamic";
   }) => void;
   resume: () => boolean;
   clear: () => void;
@@ -61,13 +62,14 @@ export const useGameStore = create<GameStore>()(
     {
       name: STORAGE_KEY,
       storage: createJSONStorage(() => localStorage),
-      // v2: GameState gained a per-game `board` (generated region map). Saves
-      // from v1 have no board and would crash the renderer, so drop them.
-      version: 2,
+      // v2: GameState gained a per-game `board`. v3: board switched to the
+      // published voter counts (129 slots) + original/dynamic layouts. Older
+      // saves have an incompatible board shape, so drop them rather than migrate.
+      version: 3,
       partialize: (s) => ({ state: s.state }),
       migrate: (persisted, version) => {
-        if (version < 2) {
-          // Pre-board saves are unrenderable — discard rather than migrate.
+        if (version < 3) {
+          // Pre-v3 saves have an incompatible board — discard rather than migrate.
           return { state: null };
         }
         return persisted as { state: GameState | null };

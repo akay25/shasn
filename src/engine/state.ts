@@ -6,7 +6,7 @@ import type {
   ZoneState,
   Slot,
 } from "./types";
-import { generateBoard } from "@/engine/board/generate";
+import { generateBoard, originalBoard } from "@/engine/board/generate";
 import { IDEOLOGY_CARDS } from "@/data/cards/ideology";
 import { VOTER_CARDS } from "@/data/cards/voter";
 import { CONSPIRACY_CARDS } from "@/data/cards/conspiracy";
@@ -20,20 +20,31 @@ function emptyZone(capacity: number): ZoneState {
   return { slots, majorityHolder: null };
 }
 
+export type MapMode = "original" | "dynamic";
+
 export function createInitialState(args: {
   players: { name: string; color: PlayerColor }[];
   seed?: number;
   removeSensitive?: boolean;
+  mapMode?: MapMode;
 }): GameState {
   if (args.players.length < 2 || args.players.length > 5) {
     throw new Error("SHASN supports 2–5 players");
   }
   const seed = args.seed ?? (Math.floor(Math.random() * 0xffffffff) || 1);
   const removeSensitive = args.removeSensitive ?? false;
+  const mapMode: MapMode = args.mapMode ?? "dynamic";
 
-  // Generate this game's region map first; thread its advanced seed into the
-  // deck shuffles so the whole setup stays deterministic from `seed`.
-  const { board, nextSeed: seedAfterBoard } = generateBoard(seed);
+  // Pick this game's region map. "original" is the fixed published layout;
+  // "dynamic" carves fresh random regions. Either way card shuffles continue
+  // from `seedAfterBoard` so setup stays deterministic from `seed`.
+  const { board, seedAfterBoard } =
+    mapMode === "original"
+      ? { board: originalBoard(), seedAfterBoard: seed }
+      : (() => {
+          const g = generateBoard(seed);
+          return { board: g.board, seedAfterBoard: g.nextSeed };
+        })();
 
   // Every player starts with zero resources. The rulebook's staggered
   // P1=1..P5=5 offset is deliberately dropped in favour of a clean start;
