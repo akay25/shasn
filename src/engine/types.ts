@@ -146,6 +146,11 @@ export interface PendingPlacement {
   voters: PlayerId[];        // each entry is the owning player (always active player)
   source: "voterCard" | "evicted" | "chaos" | "donated";
   voterCardId?: string;      // for `voterCard` source — voters must go into one zone
+  // Engine-internal: once a `voterCard` bundle has a voter placed in
+  // a zone, the remaining voters in the bundle are committed to that
+  // same zone (enforced by reducer). Set by `placeVoter` after the
+  // first placement of a voter-card bundle.
+  committedZoneId?: string;
 }
 
 export interface GameEvent {

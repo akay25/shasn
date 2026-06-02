@@ -1,11 +1,31 @@
-// PLACEHOLDER: UI agent replaces this with the full Setup/Handoff/Game/EndGame
-// flow. Kept minimal so `vite dev` and `tsc --noEmit` succeed before the agent
-// finishes.
+// Root component. Reads phase from the zustand store and renders the right
+// screen. If no game exists, shows Setup (the store handles persistence
+// rehydration via `persist` middleware).
+import { useGameStore } from "@/store/gameStore";
+import Setup from "./screens/Setup";
+import Handoff from "./screens/Handoff";
+import Game from "./screens/Game";
+import EndGame from "./screens/EndGame";
+
 export default function App() {
-  return (
-    <div className="p-8 text-neutral-100">
-      <h1 className="text-2xl font-bold">SHASN Online</h1>
-      <p className="opacity-60">Loading…</p>
-    </div>
-  );
+  const state = useGameStore((s) => s.state);
+  if (!state) return <Setup />;
+  switch (state.phase) {
+    case "setup":
+      return <Setup />;
+    case "handoff":
+      return <Handoff />;
+    case "ideology":
+    case "actions":
+    case "headlines":
+      return <Game />;
+    case "ended":
+      return <EndGame />;
+    default: {
+      // Exhaustiveness check — should never happen.
+      const _exhaust: never = state.phase;
+      void _exhaust;
+      return <Setup />;
+    }
+  }
 }
