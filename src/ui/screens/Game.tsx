@@ -36,7 +36,7 @@ type ModalKind =
   | { kind: "power"; ideologue: Ideologue; level: 3 | 5 };
 
 const SIDEBAR_MIN = 220;
-const SIDEBAR_MAX_FRACTION = 0.3;          // 30% of viewport width
+const SIDEBAR_MAX_FRACTION = 0.2;          // 20% of viewport width
 const SIDEBAR_DEFAULT = 280;
 const SIDEBAR_STORAGE_KEY = "shashn-online:sidebarWidth";
 
