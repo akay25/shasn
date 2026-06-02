@@ -1,34 +1,18 @@
-// The active player's full mat: name, colour, resources, cap, ideology cards
-// grouped by ideologue with progress bars to L3/L5, conspiracy hand, unlocked powers.
+// Active player's mat: identity, resources + cap, and conspiracy hand. The
+// per-Ideologue progress + L3/L5 power buttons have moved to
+// <IdeologyCollection> on the left column.
 import type { Player } from "@/engine/types";
-import { IDEOLOGUES, IDEOLOGUE_RESOURCE } from "@/engine/types";
-import {
-  ideologueCardCount,
-  passiveResourcesFor,
-  powerUnlocked,
-} from "@/engine/selectors";
+import { IDEOLOGUE_RESOURCE } from "@/engine/types";
 import ResourceTrack from "./ResourceTrack";
-import Coin, { IDEOLOGUE_LABEL } from "./Coin";
 import PlayerColorSwatch, { PLAYER_COLOR_TEXT, PLAYER_COLOR_LABEL } from "./PlayerColorSwatch";
 import { CONSPIRACY_CARDS } from "@/data/cards/conspiracy";
 
 interface Props {
   player: Player;
   onPlayConspiracy?: (cardId: string) => void;
-  onUsePower?: (ideologue: typeof IDEOLOGUES[number], level: 3 | 5) => void;
 }
 
-// Used for the ideology-card progress bar fills (per Ideologue, not player).
-const IDEO_BG: Record<string, string> = {
-  capitalist: "bg-capitalist",
-  supremo: "bg-supremo",
-  showstopper: "bg-showstopper",
-  idealist: "bg-idealist",
-};
-
-export default function PlayerMat({ player, onPlayConspiracy, onUsePower }: Props) {
-  const passive = passiveResourcesFor(player);
-
+export default function PlayerMat({ player, onPlayConspiracy }: Props) {
   return (
     <div className="flex flex-col gap-3 bg-neutral-900/70 border border-neutral-700 rounded-lg p-3 min-w-[260px]">
       <div className="flex items-center gap-2">
@@ -42,67 +26,6 @@ export default function PlayerMat({ player, onPlayConspiracy, onUsePower }: Prop
       <div>
         <div className="text-[10px] uppercase tracking-wide text-neutral-400 mb-1">Resources</div>
         <ResourceTrack resources={player.resources} cap={player.resourceCap} />
-        {Object.keys(passive).length > 0 ? (
-          <div className="text-[10px] text-neutral-400 mt-1">
-            Passive bonus on next ideology turn:{" "}
-            {Object.entries(passive)
-              .map(([r, n]) => `+${n} ${r}`)
-              .join(", ")}
-          </div>
-        ) : null}
-      </div>
-
-      <div>
-        <div className="text-[10px] uppercase tracking-wide text-neutral-400 mb-1">
-          Ideology Cards
-        </div>
-        <div className="flex flex-col gap-1">
-          {IDEOLOGUES.map((ig) => {
-            const n = ideologueCardCount(player, ig);
-            const pct = Math.min(100, (n / 5) * 100);
-            const l3 = powerUnlocked(player, ig, 3);
-            const l5 = powerUnlocked(player, ig, 5);
-            return (
-              <div key={ig} className="flex items-center gap-2 text-xs">
-                <Coin ideologue={ig} size="sm" />
-                <div className="w-20 truncate">{IDEOLOGUE_LABEL[ig]}</div>
-                <div className="flex-1 h-2 bg-neutral-800 rounded relative overflow-hidden">
-                  <div
-                    className={`h-full ${IDEO_BG[ig]}`}
-                    style={{ width: `${pct}%` }}
-                  />
-                  <div className="absolute top-0 left-[60%] w-px h-full bg-white/60" title="L3" />
-                  <div className="absolute top-0 left-[100%] w-px h-full bg-white/60" title="L5" />
-                </div>
-                <div className="w-6 text-right tabular-nums">{n}</div>
-                <div className="flex gap-1">
-                  <button
-                    type="button"
-                    disabled={!l3}
-                    onClick={() => l3 && onUsePower?.(ig, 3)}
-                    className="text-[10px] px-1 py-0.5 rounded border border-neutral-700 disabled:opacity-30 hover:bg-neutral-800"
-                    title="Level 3 Power"
-                  >
-                    L3
-                  </button>
-                  <button
-                    type="button"
-                    disabled={!l5}
-                    onClick={() => l5 && onUsePower?.(ig, 5)}
-                    className="text-[10px] px-1 py-0.5 rounded border border-neutral-700 disabled:opacity-30 hover:bg-neutral-800"
-                    title="Level 5 Power"
-                  >
-                    L5
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        <div className="text-[10px] text-neutral-500 mt-1">
-          Resource mapping: cap → funds, sup → clout, sho → media, ide → trust.
-          Each pair gives +1 of its resource on ideology turn.
-        </div>
       </div>
 
       <div>

@@ -12,6 +12,8 @@ import MapBoard from "@/ui/components/MapBoard";
 import HqMat from "@/ui/components/HqMat";
 import PlayerMat from "@/ui/components/PlayerMat";
 import PlayerSummary from "@/ui/components/PlayerSummary";
+import IdeologyCollection from "@/ui/components/IdeologyCollection";
+import DeckPanel from "@/ui/components/DeckPanel";
 import ActionBar from "@/ui/components/ActionBar";
 import IdeologyCardModal from "@/ui/components/IdeologyCardModal";
 import InfluenceVoterModal from "@/ui/components/InfluenceVoterModal";
@@ -138,11 +140,13 @@ export default function Game() {
       ) : null}
 
       {/* 3-column main:
-            left  — summaries of non-active players (narrow)
+            left  — player summaries, then active player's ideology
+                    collection, then conspiracy/headline deck pile counts
             centre — the territorial map (dominant, landscape)
-            right — HQ Mat (top) + active PlayerMat (below) */}
-      <div className="flex-1 grid grid-cols-[200px_minmax(0,1fr)_320px] gap-3 p-3 overflow-hidden">
-        {/* Left: summaries */}
+            right — HQ Mat (voter cards + voter/ideology deck) above
+                    PlayerMat (identity + resources + conspiracy hand) */}
+      <div className="flex-1 grid grid-cols-[260px_minmax(0,1fr)_320px] gap-3 p-3 overflow-hidden">
+        {/* Left: summaries, ideology collection, decks */}
         <div className="flex flex-col gap-2 overflow-y-auto">
           {state.players.map((p, i) => (
             <PlayerSummary
@@ -154,6 +158,19 @@ export default function Game() {
               }
             />
           ))}
+          <IdeologyCollection
+            player={active}
+            onUsePower={(ideologue, level) =>
+              setModal({ kind: "power", ideologue, level })
+            }
+          />
+          <DeckPanel
+            state={state}
+            onBuyConspiracy={() =>
+              dispatch({ t: "buyConspiracy", payment: {} })
+            }
+            buyConspiracyDisabled={!inActions || state.decks.conspiracy.length === 0}
+          />
         </div>
 
         {/* Centre: the map */}
@@ -174,18 +191,11 @@ export default function Game() {
             onInfluenceClick={(openIdx) =>
               inActions && setModal({ kind: "influence", openIdx })
             }
-            onBuyConspiracy={() =>
-              dispatch({ t: "buyConspiracy", payment: {} })
-            }
-            buyConspiracyDisabled={!inActions || state.decks.conspiracy.length === 0}
           />
           <PlayerMat
             player={active}
             onPlayConspiracy={(cardId) =>
               setModal({ kind: "conspiracy", cardId })
-            }
-            onUsePower={(ideologue, level) =>
-              setModal({ kind: "power", ideologue, level })
             }
           />
         </div>
