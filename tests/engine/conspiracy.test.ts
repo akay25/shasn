@@ -74,13 +74,13 @@ describe("conspiracy: buy + play", () => {
   it("cannot discard voter in Volatile Area via conspiracy", () => {
     let s = freshState();
     s.phase = "actions";
-    // n has volatile slot index 2.
-    s.zones.n.slots[2] = { playerId: "p2", isMajority: false };
+    // n has volatile slot indices [4, 16].
+    s.zones.n.slots[4] = { playerId: "p2", isMajority: false };
     s.players[0].conspiracyHand.push("c-discard");
     const r = applyAction(s, {
       t: "playConspiracy",
       cardId: "c-discard",
-      params: { targetPlayerId: "p2", zoneId: "n", slotIdx: 2 },
+      params: { targetPlayerId: "p2", zoneId: "n", slotIdx: 4 },
     });
     expect(r.ok).toBe(false);
   });

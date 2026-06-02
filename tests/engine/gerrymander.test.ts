@@ -55,12 +55,12 @@ describe("gerrymander", () => {
   it("rejects moving a majority voter", () => {
     let s = freshState();
     s.phase = "actions";
-    // n: capacity 11, threshold 6. Place 6 of p1.
-    placeVoters(s, "n", "p1", 6);
+    // n: capacity 21, threshold 11. Place threshold-many of p1.
+    placeVoters(s, "n", "p1", 11);
     recomputeMajorities(s, "n");
     // p1 has rights (and majority). Try to move slot 0 (majority voter).
     const r = applyAction(s, {
-      t: "gerrymander", fromZone: "n", fromSlotIdx: 0, toZone: "n", toSlotIdx: 9,
+      t: "gerrymander", fromZone: "n", fromSlotIdx: 0, toZone: "n", toSlotIdx: 15,
     });
     expect(r.ok).toBe(false);
   });
@@ -68,11 +68,11 @@ describe("gerrymander", () => {
   it("rejects moving a voter in a Volatile Area", () => {
     let s = freshState();
     s.phase = "actions";
-    // Place in n's volatile slot index 2.
-    s.zones.n.slots[2] = { playerId: "p1", isMajority: false };
+    // n's volatile slots are [4, 16]. Place a voter in slot 4 (volatile).
+    s.zones.n.slots[4] = { playerId: "p1", isMajority: false };
     s.zones.n.slots[0] = { playerId: "p1", isMajority: false };
     const r = applyAction(s, {
-      t: "gerrymander", fromZone: "n", fromSlotIdx: 2, toZone: "n", toSlotIdx: 5,
+      t: "gerrymander", fromZone: "n", fromSlotIdx: 4, toZone: "n", toSlotIdx: 5,
     });
     expect(r.ok).toBe(false);
   });

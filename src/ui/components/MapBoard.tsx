@@ -1,229 +1,140 @@
-// SVG map of the fictional SHASN country. Nine irregular regions in a
-// landscape (3-wide × 3-tall) layout, each with terrain colour, label, and
-// HTML voter-slot overlay positioned in SVG-space and projected onto the
-// container via percentage coords so it scales with width.
+// Hex-tile map of the SHASN country. Each zone is a connected cluster of
+// pointy-top hexagons; the cluster cells are listed below in offset
+// coordinates (col, row, odd-r horizontal layout). The number of hexes per
+// zone matches `BOARD.zones[i].capacity` so every voter slot in state has
+// exactly one hex on screen.
 //
-// This component replaces the plain 3×3 box grid (Board.tsx) on the main
-// game screen. Modals (gerrymander, placement) still use the simpler
-// rectangular Board for clarity.
+// Layout overview (offset coords, odd rows shifted right by HEX_W/2):
+//   rows 0–2 : nw (cols 0–3), n  (cols 4–9), ne (cols 11–14)
+//   row  3   : w  bridge,    n  tail,        e  top
+//   rows 4–7 : w  (cols 0–4), c  (cols 4–7), e  (cols 8–13)
+//   rows 8–10: sw (cols 0–3), s  (cols 4–10), se (cols 11–14)
+//
+// Tile counts match the published board: 11 / 21 / 11 corner+edge layout,
+// 16 in the centre, totalling 144 hexes with 11 Volatile Areas.
 
 import type { GameState, Player } from "@/engine/types";
 import { BOARD } from "@/data/board";
-import VoterSlot from "./VoterSlot";
 import {
   totalVotersInZone,
   voterCountInZone,
   gerrymanderingRightsHolder,
 } from "@/engine/selectors";
 
-const VB_W = 1200;
-const VB_H = 540;
+// ---- Hex geometry ----------------------------------------------------------
 
-// 4×4 grid of shared vertices used to build the 9 zone polygons. Slight
-// asymmetry on the inner verts gives an organic, map-like feel.
-const V = {
-  // top row
-  A: [0, 0],     B: [395, 0],    C: [805, 0],    D: [1200, 0],
-  // upper inner
-  E: [0, 190],   F: [385, 180],  G: [820, 198],  H: [1200, 175],
-  // lower inner
-  I: [0, 360],   J: [410, 355],  K: [820, 372],  L: [1200, 350],
-  // bottom row
-  M: [0, 540],   N: [385, 540],  O: [815, 540],  P: [1200, 540],
-} as const;
+const SIZE = 20;                         // hex circumradius
+const HEX_W = Math.sqrt(3) * SIZE;       // horizontal pitch ≈ 34.64
+const HEX_V = 1.5 * SIZE;                // vertical pitch  = 30
+const MARGIN_X = 16;
+const MARGIN_Y = 18;
 
-type Pt = readonly [number, number];
-
-interface ZoneGeom {
-  id: string;
-  polygon: Pt[];        // closed polygon points
-  terrain: string;      // tailwind/inline color
-  // Inner rectangle used to layout the voter slots, in SVG coords.
-  slotBox: { x: number; y: number; w: number; h: number };
-  // Where to anchor the zone-name label.
-  label: Pt;
+function cellToPixel(col: number, row: number): { x: number; y: number } {
+  // odd-r horizontal layout: odd rows shifted right by HEX_W/2
+  return {
+    x: MARGIN_X + HEX_W * (col + 0.5 + (row % 2 === 1 ? 0.5 : 0)),
+    y: MARGIN_Y + SIZE + HEX_V * row,
+  };
 }
 
-const ZONES: ZoneGeom[] = [
-  { id: "nw", polygon: [V.A, V.B, V.F, V.E],     terrain: "#4d5d4a", slotBox: { x: 30, y: 30, w: 320, h: 130 }, label: [190, 22] },
-  { id: "n",  polygon: [V.B, V.C, V.G, V.F],     terrain: "#5a6e58", slotBox: { x: 415, y: 28, w: 380, h: 130 }, label: [600, 18] },
-  { id: "ne", polygon: [V.C, V.D, V.H, V.G],     terrain: "#6c4a3e", slotBox: { x: 830, y: 25, w: 340, h: 135 }, label: [1000, 18] },
-  { id: "w",  polygon: [V.E, V.F, V.J, V.I],     terrain: "#8c7250", slotBox: { x: 25, y: 205, w: 340, h: 130 }, label: [190, 200] },
-  { id: "c",  polygon: [V.F, V.G, V.K, V.J],     terrain: "#9a813a", slotBox: { x: 405, y: 200, w: 400, h: 150 }, label: [600, 200] },
-  { id: "e",  polygon: [V.G, V.H, V.L, V.K],     terrain: "#3c5b6e", slotBox: { x: 835, y: 200, w: 340, h: 150 }, label: [1000, 200] },
-  { id: "sw", polygon: [V.I, V.J, V.N, V.M],     terrain: "#7d7740", slotBox: { x: 25, y: 380, w: 340, h: 135 }, label: [190, 372] },
-  { id: "s",  polygon: [V.J, V.K, V.O, V.N],     terrain: "#5d7a48", slotBox: { x: 415, y: 388, w: 380, h: 130 }, label: [600, 380] },
-  { id: "se", polygon: [V.K, V.L, V.P, V.O],     terrain: "#3e6b6b", slotBox: { x: 835, y: 380, w: 340, h: 130 }, label: [1000, 380] },
-];
-
-function polyPath(points: Pt[]): string {
-  return points.map((p, i) => (i === 0 ? "M" : "L") + p[0] + "," + p[1]).join(" ") + " Z";
-}
-
-// Lay out N slots in a centred grid inside the given box. Returns slot
-// centre coordinates in SVG units.
-function layoutSlots(n: number, box: { x: number; y: number; w: number; h: number }): Pt[] {
-  // Pick columns to roughly match box aspect.
-  const aspect = box.w / box.h;
-  const cols = Math.max(1, Math.round(Math.sqrt(n * aspect)));
-  const rows = Math.ceil(n / cols);
-  const cellW = box.w / cols;
-  const cellH = box.h / rows;
-  const pts: Pt[] = [];
-  for (let i = 0; i < n; i++) {
-    const r = Math.floor(i / cols);
-    const c = i % cols;
-    // Centre the last (potentially short) row by offsetting it.
-    const itemsInRow = r === rows - 1 ? n - r * cols : cols;
-    const rowOffset = ((cols - itemsInRow) * cellW) / 2;
-    pts.push([
-      box.x + rowOffset + cellW * (c + 0.5),
-      box.y + cellH * (r + 0.5),
-    ]);
+function hexPath(cx: number, cy: number, size: number = SIZE): string {
+  // Pointy-top hexagon — top vertex straight up.
+  let s = "";
+  for (let i = 0; i < 6; i++) {
+    const a = -Math.PI / 2 + (Math.PI / 3) * i;
+    const x = cx + size * Math.cos(a);
+    const y = cy + size * Math.sin(a);
+    s += (i === 0 ? "M" : "L") + x.toFixed(2) + "," + y.toFixed(2) + " ";
   }
-  return pts;
+  return s + "Z";
 }
 
-interface Props {
-  state: GameState;
-}
+// ---- Zone hex layouts -----------------------------------------------------
+// Each zone is a list of (col, row) cells. Order matches the zone's slot
+// index in `state.zones[id].slots`, so volatileSlotIndices align with the
+// rendered hexes.
 
-export default function MapBoard({ state }: Props) {
-  // Pre-compute slot positions for each zone.
-  const slotPositions: Record<string, Pt[]> = {};
-  for (const g of ZONES) {
-    const data = BOARD.zones.find((z) => z.id === g.id)!;
-    slotPositions[g.id] = layoutSlots(data.capacity, g.slotBox);
-  }
+type Cell = readonly [number, number];
 
-  return (
-    <div className="relative w-full" style={{ aspectRatio: `${VB_W}/${VB_H}` }}>
-      {/* Map background (SVG) — terrain regions, borders, labels. */}
-      <svg
-        viewBox={`0 0 ${VB_W} ${VB_H}`}
-        preserveAspectRatio="none"
-        className="absolute inset-0 w-full h-full block rounded-xl"
-        role="img"
-        aria-label="SHASN territorial map"
-      >
-        {/* Sea/parchment backdrop */}
-        <defs>
-          <linearGradient id="seaGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stopColor="#1c2733" />
-            <stop offset="1" stopColor="#0d1620" />
-          </linearGradient>
-          <pattern id="grain" patternUnits="userSpaceOnUse" width="6" height="6">
-            <rect width="6" height="6" fill="transparent" />
-            <circle cx="1" cy="1" r="0.5" fill="rgba(255,255,255,0.04)" />
-            <circle cx="4" cy="3" r="0.4" fill="rgba(0,0,0,0.06)" />
-          </pattern>
-        </defs>
-        <rect x="0" y="0" width={VB_W} height={VB_H} fill="url(#seaGrad)" />
+const ZONE_CELLS: Record<string, Cell[]> = {
+  nw: [
+    [0, 0], [1, 0], [2, 0],
+    [0, 1], [1, 1], [2, 1], [3, 1],
+    [0, 2], [1, 2], [2, 2], [3, 2],
+  ],
+  n: [
+    [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0],
+    [4, 1], [5, 1], [6, 1], [7, 1], [8, 1],
+    [4, 2], [5, 2], [6, 2], [7, 2], [8, 2], [9, 2],
+    [5, 3], [6, 3], [7, 3], [8, 3],
+  ],
+  ne: [
+    [11, 0], [12, 0], [13, 0],
+    [11, 1], [12, 1], [13, 1], [14, 1],
+    [11, 2], [12, 2], [13, 2], [14, 2],
+  ],
+  w: [
+    [0, 3], [1, 3], [2, 3], [3, 3],
+    [0, 4], [1, 4], [2, 4], [3, 4],
+    [0, 5], [1, 5], [2, 5], [3, 5],
+    [0, 6], [1, 6], [2, 6], [3, 6],
+    [0, 7], [1, 7], [2, 7], [3, 7], [4, 7],
+  ],
+  c: [
+    [4, 4], [5, 4], [6, 4], [7, 4],
+    [4, 5], [5, 5], [6, 5], [7, 5],
+    [4, 6], [5, 6], [6, 6], [7, 6],
+    [5, 7], [6, 7], [7, 7], [8, 7],
+  ],
+  e: [
+    [9, 3], [10, 3], [11, 3], [12, 3], [13, 3], [14, 3],
+    [8, 4], [9, 4], [10, 4], [11, 4], [12, 4], [13, 4],
+    [8, 5], [9, 5], [10, 5], [11, 5], [12, 5],
+    [8, 6], [9, 6], [10, 6], [11, 6],
+  ],
+  sw: [
+    [0, 8], [1, 8], [2, 8], [3, 8],
+    [0, 9], [1, 9], [2, 9], [3, 9],
+    [0, 10], [1, 10], [2, 10],
+  ],
+  s: [
+    [4, 8], [5, 8], [6, 8], [7, 8], [8, 8], [9, 8],
+    [4, 9], [5, 9], [6, 9], [7, 9], [8, 9], [9, 9], [10, 9],
+    [3, 10], [4, 10], [5, 10], [6, 10], [7, 10], [8, 10], [9, 10], [10, 10],
+  ],
+  se: [
+    [11, 8], [12, 8], [13, 8], [14, 8],
+    [11, 9], [12, 9], [13, 9], [14, 9],
+    [11, 10], [12, 10], [13, 10],
+  ],
+};
 
-        {/* Land regions */}
-        {ZONES.map((g) => (
-          <g key={g.id}>
-            <path
-              d={polyPath(g.polygon)}
-              fill={g.terrain}
-              stroke="#0a0f15"
-              strokeWidth={3}
-              strokeLinejoin="round"
-            />
-            {/* Subtle texture overlay on land */}
-            <path d={polyPath(g.polygon)} fill="url(#grain)" />
-          </g>
-        ))}
+// Pastel terrain colour per zone, matching the photographed board.
+const ZONE_FILL: Record<string, string> = {
+  nw: "#b6d6cf",  // mint
+  n:  "#e4c4d2",  // pink
+  ne: "#e8c8d4",  // blush
+  w:  "#e6d2b4",  // wheat
+  c:  "#f5ecd9",  // light cream
+  e:  "#c2d4e2",  // light blue
+  sw: "#e8c8c0",  // dusty rose
+  s:  "#e6d2b4",  // wheat
+  se: "#bcd0dc",  // pale slate-blue
+};
 
-        {/* Zone name labels */}
-        {ZONES.map((g) => {
-          const data = BOARD.zones.find((z) => z.id === g.id)!;
-          return (
-            <g key={`label-${g.id}`}>
-              <text
-                x={g.label[0]}
-                y={g.label[1]}
-                textAnchor="middle"
-                fontFamily="ui-serif, Georgia, serif"
-                fontSize={16}
-                fontWeight={700}
-                fill="#f5e9c8"
-                style={{ letterSpacing: "0.08em" }}
-              >
-                {data.name.toUpperCase()}
-              </text>
-            </g>
-          );
-        })}
-
-        {/* Map decoration: compass */}
-        <g transform="translate(60,490)" opacity="0.5">
-          <circle r="22" fill="none" stroke="#f5e9c8" strokeWidth="1" />
-          <text textAnchor="middle" y="-26" fontSize="9" fill="#f5e9c8" fontFamily="ui-serif, Georgia, serif">N</text>
-          <text textAnchor="middle" y="32" fontSize="9" fill="#f5e9c8" fontFamily="ui-serif, Georgia, serif">S</text>
-          <text x="28" dy="3" fontSize="9" fill="#f5e9c8" fontFamily="ui-serif, Georgia, serif">E</text>
-          <text x="-32" dy="3" fontSize="9" fill="#f5e9c8" fontFamily="ui-serif, Georgia, serif">W</text>
-          <polygon points="0,-15 4,0 0,15 -4,0" fill="#f5e9c8" />
-        </g>
-      </svg>
-
-      {/* Voter slot + info overlay (HTML, positioned in % of container). */}
-      {ZONES.map((g) => {
-        const data = BOARD.zones.find((z) => z.id === g.id)!;
-        const zs = state.zones[g.id];
-        const positions = slotPositions[g.id];
-        const total = totalVotersInZone(zs);
-        const holder = zs.majorityHolder
-          ? state.players.find((p) => p.id === zs.majorityHolder)
-          : null;
-        const gerryHolderId = gerrymanderingRightsHolder(state, g.id);
-        const gerryHolder = gerryHolderId
-          ? state.players.find((p) => p.id === gerryHolderId)
-          : null;
-
-        // Place the info chip near the top of the zone (just above the label).
-        const chipX = (g.label[0] / VB_W) * 100;
-        const chipY = ((g.label[1] + 6) / VB_H) * 100;
-
-        return (
-          <div key={`overlay-${g.id}`}>
-            {/* Voter slots */}
-            {zs.slots.map((slot, idx) => {
-              const [sx, sy] = positions[idx];
-              const left = (sx / VB_W) * 100;
-              const top = (sy / VB_H) * 100;
-              const volatile = data.volatileSlotIndices.includes(idx);
-              return (
-                <div
-                  key={idx}
-                  className="absolute -translate-x-1/2 -translate-y-1/2"
-                  style={{ left: `${left}%`, top: `${top}%` }}
-                >
-                  <VoterSlot
-                    slot={slot}
-                    volatile={volatile}
-                    players={state.players}
-                  />
-                </div>
-              );
-            })}
-            {/* Info chip — capacity / majority / holder */}
-            <div
-              className="absolute -translate-x-1/2 px-1.5 py-0.5 rounded text-[10px] font-medium tracking-wide bg-black/55 text-amber-50 border border-amber-50/15 whitespace-nowrap pointer-events-none"
-              style={{ left: `${chipX}%`, top: `${chipY}%` }}
-            >
-              <span className="opacity-75">{total}/{data.capacity}</span>
-              <span className="opacity-50"> · </span>
-              <span className="opacity-75">maj {data.majorityRequirement}</span>
-              {holder ? <HolderBadge p={holder} /> : null}
-              {!holder && gerryHolder ? <GerryBadge p={gerryHolder} count={voterCountInZone(zs, gerryHolder.id)} /> : null}
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
+// Friendly label position (col, row) — picks an interior hex per zone so the
+// name overlays cleanly on the cluster.
+const LABEL_CELL: Record<string, Cell> = {
+  nw: [1, 1],
+  n:  [6, 1],
+  ne: [12, 1],
+  w:  [1, 5],
+  c:  [5, 5],
+  e:  [11, 4],
+  sw: [1, 9],
+  s:  [6, 9],
+  se: [12, 9],
+};
 
 const COLOR_TEXT: Record<string, string> = {
   capitalist: "text-capitalist",
@@ -232,10 +143,211 @@ const COLOR_TEXT: Record<string, string> = {
   idealist: "text-idealist",
 };
 
+const COLOR_HEX: Record<string, string> = {
+  capitalist: "#f59e0b",
+  supremo: "#ef4444",
+  showstopper: "#a855f7",
+  idealist: "#10b981",
+};
+
+// ---- Component -------------------------------------------------------------
+
+interface Props {
+  state: GameState;
+}
+
+// Computed viewBox derived from the most extreme cell positions plus margin.
+const ALL_CELLS: Cell[] = Object.values(ZONE_CELLS).flat();
+const VB_W = (() => {
+  let max = 0;
+  for (const [c, r] of ALL_CELLS) {
+    const x = cellToPixel(c, r).x + SIZE;
+    if (x > max) max = x;
+  }
+  return Math.ceil(max + MARGIN_X);
+})();
+const VB_H = (() => {
+  let max = 0;
+  for (const [c, r] of ALL_CELLS) {
+    const y = cellToPixel(c, r).y + SIZE;
+    if (y > max) max = y;
+  }
+  return Math.ceil(max + MARGIN_Y);
+})();
+
+export default function MapBoard({ state }: Props) {
+  return (
+    <div className="relative w-full" style={{ aspectRatio: `${VB_W}/${VB_H}` }}>
+      <svg
+        viewBox={`0 0 ${VB_W} ${VB_H}`}
+        preserveAspectRatio="xMidYMid meet"
+        className="absolute inset-0 w-full h-full block rounded-xl shadow-lg"
+        role="img"
+        aria-label="SHASN hex-tile map"
+      >
+        <defs>
+          <linearGradient id="parchment" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#d2bc92" />
+            <stop offset="1" stopColor="#c0a778" />
+          </linearGradient>
+          <pattern id="grit" patternUnits="userSpaceOnUse" width="5" height="5">
+            <circle cx="1" cy="1" r="0.4" fill="rgba(0,0,0,0.06)" />
+            <circle cx="3.5" cy="3" r="0.3" fill="rgba(255,255,255,0.05)" />
+          </pattern>
+        </defs>
+
+        {/* Parchment backdrop */}
+        <rect x="0" y="0" width={VB_W} height={VB_H} fill="url(#parchment)" />
+        <rect x="0" y="0" width={VB_W} height={VB_H} fill="url(#grit)" />
+
+        {/* All hex tiles */}
+        {BOARD.zones.map((zone) => {
+          const cells = ZONE_CELLS[zone.id] || [];
+          const fill = ZONE_FILL[zone.id];
+          return (
+            <g key={zone.id} aria-label={zone.name}>
+              {cells.map(([col, row], idx) => {
+                const { x, y } = cellToPixel(col, row);
+                const isVolatile = zone.volatileSlotIndices.includes(idx);
+                const slot = state.zones[zone.id].slots[idx];
+                const owner = slot
+                  ? state.players.find((p) => p.id === slot.playerId)
+                  : null;
+                return (
+                  <g key={`${col}-${row}`}>
+                    {/* Hex tile background */}
+                    <path
+                      d={hexPath(x, y)}
+                      fill={fill}
+                      stroke="#3a2818"
+                      strokeWidth={1.2}
+                      strokeLinejoin="round"
+                    />
+                    {/* Volatile marker (small ring with star) */}
+                    {isVolatile ? (
+                      <g pointerEvents="none">
+                        <circle
+                          cx={x}
+                          cy={y - SIZE * 0.45}
+                          r={SIZE * 0.18}
+                          fill="#fde68a"
+                          stroke="#7c5a1a"
+                          strokeWidth={0.8}
+                        />
+                        <text
+                          x={x}
+                          y={y - SIZE * 0.4}
+                          textAnchor="middle"
+                          dominantBaseline="central"
+                          fontSize={SIZE * 0.24}
+                          fill="#7c5a1a"
+                          fontWeight={700}
+                        >
+                          ★
+                        </text>
+                      </g>
+                    ) : null}
+                    {/* Voter peg */}
+                    {owner ? (
+                      <g pointerEvents="none">
+                        <circle
+                          cx={x}
+                          cy={y + (isVolatile ? SIZE * 0.05 : 0)}
+                          r={SIZE * 0.42}
+                          fill={COLOR_HEX[owner.color]}
+                          stroke="#1a1410"
+                          strokeWidth={1.2}
+                        />
+                        {slot?.isMajority ? (
+                          <text
+                            x={x}
+                            y={y + (isVolatile ? SIZE * 0.05 : 0)}
+                            textAnchor="middle"
+                            dominantBaseline="central"
+                            fontSize={SIZE * 0.5}
+                            fill="#fff"
+                            fontWeight={900}
+                          >
+                            ★
+                          </text>
+                        ) : null}
+                      </g>
+                    ) : null}
+                  </g>
+                );
+              })}
+
+              {/* Zone label — band across the centre of the cluster */}
+              <ZoneLabel zoneId={zone.id} />
+            </g>
+          );
+        })}
+
+        {/* Compass */}
+        <g transform={`translate(${VB_W - 50},${VB_H - 50})`} opacity="0.55">
+          <circle r="18" fill="none" stroke="#3a2818" strokeWidth="1" />
+          <text textAnchor="middle" y="-22" fontSize="9" fill="#3a2818" fontFamily="ui-serif, Georgia, serif">N</text>
+          <text textAnchor="middle" y="26" fontSize="9" fill="#3a2818" fontFamily="ui-serif, Georgia, serif">S</text>
+          <text x="22" dy="3" fontSize="9" fill="#3a2818" fontFamily="ui-serif, Georgia, serif">E</text>
+          <text x="-26" dy="3" fontSize="9" fill="#3a2818" fontFamily="ui-serif, Georgia, serif">W</text>
+          <polygon points="0,-12 3,0 0,12 -3,0" fill="#3a2818" />
+        </g>
+      </svg>
+
+      {/* HTML overlay for zone info chips (capacity / majority / holder). */}
+      {BOARD.zones.map((zone) => {
+        const [col, row] = LABEL_CELL[zone.id];
+        const { x, y } = cellToPixel(col, row);
+        const left = (x / VB_W) * 100;
+        const top = (y / VB_H) * 100;
+        const zs = state.zones[zone.id];
+        const total = totalVotersInZone(zs);
+        const holder = zs.majorityHolder
+          ? state.players.find((p) => p.id === zs.majorityHolder)
+          : null;
+        const gerryHolderId = gerrymanderingRightsHolder(state, zone.id);
+        const gerryHolder = gerryHolderId
+          ? state.players.find((p) => p.id === gerryHolderId)
+          : null;
+        return (
+          <div
+            key={`chip-${zone.id}`}
+            className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none flex flex-col items-center gap-0.5"
+            style={{ left: `${left}%`, top: `${top}%` }}
+          >
+            <div
+              className="px-1.5 py-0.5 rounded text-[10px] font-bold tracking-widest uppercase bg-black/65 text-amber-50 border border-amber-100/25 whitespace-nowrap"
+              style={{ fontFamily: "ui-serif, Georgia, serif" }}
+            >
+              {zone.name}
+            </div>
+            <div className="px-1.5 py-0 rounded bg-black/55 text-amber-50 border border-amber-100/15 text-[10px] whitespace-nowrap">
+              <span className="opacity-80">{zone.majorityRequirement}/{zone.capacity}</span>
+              {holder ? <HolderBadge p={holder} /> : null}
+              {!holder && gerryHolder ? (
+                <GerryBadge p={gerryHolder} count={voterCountInZone(zs, gerryHolder.id)} />
+              ) : null}
+              {!holder && !gerryHolder ? (
+                <span className="opacity-50"> · {total}</span>
+              ) : null}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function ZoneLabel(_: { zoneId: string }) {
+  // Label rendering moved to the HTML overlay so positioning / colours can
+  // match the rest of the UI. This SVG component is intentionally empty.
+  return null;
+}
+
 function HolderBadge({ p }: { p: Player }) {
   return (
     <span className="ml-1">
-      <span className="opacity-60">· MAJ </span>
+      <span className="opacity-60">· maj </span>
       <span className={`font-bold ${COLOR_TEXT[p.color]}`}>{p.name}</span>
     </span>
   );

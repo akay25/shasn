@@ -18,14 +18,15 @@ describe("headlines", () => {
   it("placing a voter in a Volatile Area queues a headline", () => {
     let s = freshState();
     s.phase = "actions";
-    // Influence v1-a (cost 1 funds). Then place into n's volatile slot 2.
+    // Influence v1-a (cost 1 funds). Then place into n's volatile slot 4
+    // (n's volatile slot indices are [4, 16]).
     const inf = applyAction(s, {
       t: "influenceVoterCard", openIdx: 0, payment: { funds: 1 },
     });
     if (!inf.ok) throw new Error(inf.error);
     expect(inf.state.pendingPlacements.length).toBe(1);
     const pl = applyAction(inf.state, {
-      t: "placeVoter", zoneId: "n", slotIdx: 2, pendingIdx: 0,
+      t: "placeVoter", zoneId: "n", slotIdx: 4, pendingIdx: 0,
     });
     if (!pl.ok) throw new Error(pl.error);
     expect(pl.state.pendingHeadlines).toBe(1);

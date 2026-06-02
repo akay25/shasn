@@ -1,26 +1,25 @@
 import type { Zone } from "@/engine/types";
 
-// 9-zone 3x3 grid used as a stand-in for the physical SHASN board until the
-// retail board is photographed. Capacities are tuned so that:
+// 9-zone hex-tile board, matching the published SHASN board:
 //
-//   - the four corner zones hold 9 voters,
-//   - the four edge zones hold 11 voters,
-//   - the central zone holds 13 voters,
+//   - Four corner zones (nw, ne, sw, se): 11 hex tiles each.
+//     The northern corners are open (majority = 6 of 11), the southern
+//     corners are harder to lock down (majority = 8 of 11).
+//   - Four edge zones (n, w, e, s): 21 hex tiles each, majority 11.
+//   - One central zone (c): 16 hex tiles, majority 8.
 //
-// for a total of 93 voter slots — close to the ~90 slot count implied by the
-// rulebook. Each majority requirement is `floor(capacity / 2) + 1`, matching
-// the rulebook's "more than half" rule (e.g. 6 of 11).
+// Total = 4*11 + 4*21 + 16 = 144 hex tiles. 11 Volatile Areas distributed
+// across the 9 zones per the rulebook.
 //
-// Adjacency is 4-connected on the grid:
+// Adjacency is the natural 8-neighbour on the 3x3 zone arrangement
+// reduced to orthogonal: nw-n, n-ne, nw-w, n-c, ne-e, w-c, c-e, w-sw,
+// c-s, e-se, sw-s, s-se.
+//
 //   nw - n - ne
 //   |    |    |
 //   w  - c -  e
 //   |    |    |
 //   sw - s - se
-//
-// 11 Volatile Areas are distributed across the 9 zones (the rulebook count),
-// at varied slot indices so that the volatile positions are not all clustered
-// at the same offset within each zone.
 
 export interface Board {
   zones: Zone[];
@@ -31,74 +30,74 @@ export const BOARD: Board = {
     {
       id: "nw",
       name: "Northern Hills",
-      capacity: 9,
-      majorityRequirement: 5,
+      capacity: 11,
+      majorityRequirement: 6,
       adjacent: ["n", "w"],
-      volatileSlotIndices: [4],
+      volatileSlotIndices: [5],
     },
     {
       id: "n",
       name: "The Northlands",
-      capacity: 11,
-      majorityRequirement: 6,
+      capacity: 21,
+      majorityRequirement: 11,
       adjacent: ["nw", "ne", "c"],
-      volatileSlotIndices: [2, 8],
+      volatileSlotIndices: [4, 16],
     },
     {
       id: "ne",
       name: "Borderwatch",
-      capacity: 9,
-      majorityRequirement: 5,
+      capacity: 11,
+      majorityRequirement: 6,
       adjacent: ["n", "e"],
-      volatileSlotIndices: [5],
+      volatileSlotIndices: [6],
     },
     {
       id: "w",
       name: "Western Reach",
-      capacity: 11,
-      majorityRequirement: 6,
+      capacity: 21,
+      majorityRequirement: 11,
       adjacent: ["nw", "sw", "c"],
-      volatileSlotIndices: [3],
+      volatileSlotIndices: [9],
     },
     {
       id: "c",
       name: "The Capital",
-      capacity: 13,
-      majorityRequirement: 7,
+      capacity: 16,
+      majorityRequirement: 8,
       adjacent: ["n", "s", "w", "e"],
-      volatileSlotIndices: [6, 9],
+      volatileSlotIndices: [5],
     },
     {
       id: "e",
       name: "Eastern Ports",
-      capacity: 11,
-      majorityRequirement: 6,
+      capacity: 21,
+      majorityRequirement: 11,
       adjacent: ["ne", "se", "c"],
-      volatileSlotIndices: [7],
+      volatileSlotIndices: [3, 14],
     },
     {
       id: "sw",
       name: "Southern Plains",
-      capacity: 9,
-      majorityRequirement: 5,
+      capacity: 11,
+      majorityRequirement: 8,
       adjacent: ["w", "s"],
       volatileSlotIndices: [4],
     },
     {
       id: "s",
       name: "The Heartland",
-      capacity: 11,
-      majorityRequirement: 6,
+      capacity: 21,
+      majorityRequirement: 11,
       adjacent: ["sw", "se", "c"],
       volatileSlotIndices: [10],
     },
     {
       id: "se",
       name: "Coastal Delta",
-      capacity: 9,
-      majorityRequirement: 5,
+      capacity: 11,
+      majorityRequirement: 8,
       adjacent: ["s", "e"],
-      volatileSlotIndices: [3],
+      volatileSlotIndices: [6],
     },
   ],
 };

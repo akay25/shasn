@@ -17,11 +17,12 @@ function dispatch(state: GameState, action: Action): GameState {
 }
 
 describe("integration: smoke flow", () => {
-  it("board has 9 zones, ~90 slots, 11 volatile areas", () => {
+  it("board has 9 zones, ~144 slots, 11 volatile areas", () => {
     expect(BOARD.zones).toHaveLength(9);
     const totalSlots = BOARD.zones.reduce((s, z) => s + z.capacity, 0);
-    expect(totalSlots).toBeGreaterThanOrEqual(80);
-    expect(totalSlots).toBeLessThanOrEqual(100);
+    // Published SHASN board: 4×11 + 4×21 + 16 = 144 hex tiles.
+    expect(totalSlots).toBeGreaterThanOrEqual(120);
+    expect(totalSlots).toBeLessThanOrEqual(160);
     const totalVolatile = BOARD.zones.reduce((s, z) => s + z.volatileSlotIndices.length, 0);
     expect(totalVolatile).toBe(11);
     // Adjacency is symmetric

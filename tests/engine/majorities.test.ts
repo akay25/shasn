@@ -64,11 +64,11 @@ describe("majorities", () => {
 
   it("majority breaks if voters drop; another player below threshold doesn't take over", () => {
     const s = freshState();
-    const zoneId = "c"; // capacity 13, threshold 7
-    placeVoters(s, zoneId, "p1", 7);
+    const zoneId = "c"; // capacity 16, threshold 8
+    placeVoters(s, zoneId, "p1", 8);
     recomputeMajorities(s, zoneId);
     expect(s.zones[zoneId].majorityHolder).toBe("p1");
-    placeVoters(s, zoneId, "p2", 6);
+    placeVoters(s, zoneId, "p2", 7);
     recomputeMajorities(s, zoneId);
     expect(s.zones[zoneId].majorityHolder).toBe("p1");
     // Remove 2 of p1.
@@ -80,7 +80,7 @@ describe("majorities", () => {
       }
     }
     recomputeMajorities(s, zoneId);
-    // p1 now has 5 (< 7), p2 has 6 (< 7). No majority.
+    // p1 now has 6 (< 8), p2 has 7 (< 8). No majority.
     expect(s.zones[zoneId].majorityHolder).toBe(null);
   });
 });
