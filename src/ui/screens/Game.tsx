@@ -36,16 +36,27 @@ type ModalKind =
   | { kind: "power"; ideologue: Ideologue; level: 3 | 5 };
 
 const SIDEBAR_MIN = 220;
-const SIDEBAR_MAX = 560;
+const SIDEBAR_MAX_FRACTION = 0.3;          // 30% of viewport width
 const SIDEBAR_DEFAULT = 280;
 const SIDEBAR_STORAGE_KEY = "shashn-online:sidebarWidth";
+
+function sidebarMaxWidth(): number {
+  // SSR/test guard — fall back to a sensible upper bound when there's no
+  // window. The real cap is recomputed on every drag tick and on resize.
+  if (typeof window === "undefined") return 560;
+  return Math.floor(window.innerWidth * SIDEBAR_MAX_FRACTION);
+}
+
+function clampSidebar(n: number): number {
+  return Math.max(SIDEBAR_MIN, Math.min(sidebarMaxWidth(), n));
+}
 
 function readSidebarWidth(): number {
   if (typeof window === "undefined") return SIDEBAR_DEFAULT;
   const raw = window.localStorage.getItem(SIDEBAR_STORAGE_KEY);
   const n = raw ? Number(raw) : NaN;
   if (!Number.isFinite(n)) return SIDEBAR_DEFAULT;
-  return Math.max(SIDEBAR_MIN, Math.min(SIDEBAR_MAX, n));
+  return clampSidebar(n);
 }
 
 export default function Game() {
@@ -76,7 +87,7 @@ export default function Game() {
       const onMove = (ev: MouseEvent) => {
         if (!dragRef.current) return;
         const next = dragRef.current.startW + (ev.clientX - dragRef.current.startX);
-        setSidebarWidth(Math.max(SIDEBAR_MIN, Math.min(SIDEBAR_MAX, next)));
+        setSidebarWidth(clampSidebar(next));
       };
       const onUp = () => {
         dragRef.current = null;
@@ -92,6 +103,13 @@ export default function Game() {
     },
     [sidebarWidth],
   );
+
+  // If the viewport shrinks, re-clamp the sidebar so the 30% cap still holds.
+  useEffect(() => {
+    const onResize = () => setSidebarWidth((w) => clampSidebar(w));
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   // Auto-toast clear after 3.5s.
   useEffect(() => {
