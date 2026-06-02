@@ -278,13 +278,13 @@ export default function Game() {
         canPlayConspiracy={active.conspiracyHand.length > 0}
         canBuyConspiracy={state.decks.conspiracy.length > 0}
         inActionsPhase={inActions}
-      />
-
-      {/* Deck pile stats — pinned to the bottom-right, above ActionBar. */}
-      <DeckStats
-        state={state}
-        onBuyConspiracy={() => dispatch({ t: "buyConspiracy", payment: {} })}
-        buyConspiracyDisabled={!inActions || state.decks.conspiracy.length === 0}
+        trailing={
+          <DeckStats
+            state={state}
+            onBuyConspiracy={() => dispatch({ t: "buyConspiracy", payment: {} })}
+            buyConspiracyDisabled={!inActions || state.decks.conspiracy.length === 0}
+          />
+        }
       />
 
       {/* Error toast */}

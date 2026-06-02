@@ -1,7 +1,6 @@
-// Single bottom-right widget that surfaces all four deck-pile stats —
-// voter, ideology, conspiracy, headline — so the rest of the screen
-// (HQ Mat, sidebar, etc.) doesn't have to repeat them. Conspiracy keeps
-// its Buy action + current price here.
+// All four deck-pile stats — voter, ideology, conspiracy, headline —
+// rendered as a compact inline strip. Hosted by the ActionBar on the
+// right-hand side of the bottom bar.
 import type { GameState } from "@/engine/types";
 import { conspiracyPrice } from "@/engine/selectors";
 
@@ -19,39 +18,34 @@ export default function DeckStats({
   const price = conspiracyPrice(state);
   return (
     <div
-      className="fixed right-3 bottom-[64px] z-30 bg-neutral-900/95 border border-neutral-700 rounded-lg shadow-xl p-2 backdrop-blur"
+      className="flex items-stretch gap-1"
       role="region"
       aria-label="Deck piles"
     >
-      <div className="text-[10px] uppercase tracking-wide text-neutral-400 mb-1 px-1">
-        Decks
-      </div>
-      <div className="flex items-stretch gap-1">
-        <Stat
-          label="Voter"
-          n={state.decks.voter.length}
-          discard={state.decks.voterDiscard.length}
-        />
-        <Stat
-          label="Ideology"
-          n={state.decks.ideology.length}
-          discard={state.decks.ideologyDiscard.length}
-        />
-        <Stat
-          label="Conspiracy"
-          n={state.decks.conspiracy.length}
-          discard={state.decks.conspiracyDiscard.length}
-          price={price}
-          onAction={onBuyConspiracy}
-          actionLabel="Buy"
-          actionDisabled={buyConspiracyDisabled}
-        />
-        <Stat
-          label="Headline"
-          n={state.decks.headline.length}
-          discard={state.decks.headlineDiscard.length}
-        />
-      </div>
+      <Stat
+        label="Voter"
+        n={state.decks.voter.length}
+        discard={state.decks.voterDiscard.length}
+      />
+      <Stat
+        label="Ideology"
+        n={state.decks.ideology.length}
+        discard={state.decks.ideologyDiscard.length}
+      />
+      <Stat
+        label="Conspiracy"
+        n={state.decks.conspiracy.length}
+        discard={state.decks.conspiracyDiscard.length}
+        price={price}
+        onAction={onBuyConspiracy}
+        actionLabel="Buy"
+        actionDisabled={buyConspiracyDisabled}
+      />
+      <Stat
+        label="Headline"
+        n={state.decks.headline.length}
+        discard={state.decks.headlineDiscard.length}
+      />
     </div>
   );
 }
