@@ -41,7 +41,7 @@ export default function VoterCardTile({ card, onClick, disabled, label }: Props)
       disabled={disabled}
       onClick={onClick}
       title={label}
-      className="group relative aspect-[2/3] w-full overflow-hidden rounded-lg bg-black p-1.5 text-left shadow-lg ring-1 ring-black/60 transition hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-white disabled:opacity-50 disabled:cursor-not-allowed"
+      className="group relative aspect-[2/3] w-full overflow-hidden rounded-lg border-2 border-white bg-black p-1.5 text-left shadow-lg transition hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-white disabled:opacity-50 disabled:cursor-not-allowed"
       style={{ backgroundImage: LATTICE, backgroundColor: "#0b0b0d" }}
     >
       {/* thin light inner frame, like the printed card border */}
