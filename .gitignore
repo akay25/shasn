@@ -6,3 +6,6 @@ dist
 .vscode
 .idea
 coverage
+
+# Claude Code worktree scratch
+.claude/
