@@ -144,10 +144,10 @@ const COLOR_TEXT: Record<string, string> = {
 };
 
 const COLOR_HEX: Record<string, string> = {
-  capitalist: "#f59e0b",
-  supremo: "#ef4444",
-  showstopper: "#a855f7",
-  idealist: "#10b981",
+  capitalist: "#10b981",  // green
+  supremo: "#ef4444",     // red
+  showstopper: "#3b82f6", // blue
+  idealist: "#eab308",    // yellow
 };
 
 // ---- Component -------------------------------------------------------------

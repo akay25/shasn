@@ -34,7 +34,16 @@ export default function VoterCardTile({ card, onClick, disabled, label }: Props)
       className={`group rounded-md border border-neutral-600 bg-neutral-800 p-2 text-left h-24 flex flex-col justify-between hover:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-white disabled:opacity-50 disabled:cursor-not-allowed`}
     >
       <div className="flex items-center justify-between">
-        <div className="text-2xl font-bold leading-none">{card.voters}</div>
+        {/* N round voter pegs (neutral colour — voters become tinted once
+            placed by a player). */}
+        <div className="flex items-center gap-1">
+          {Array.from({ length: card.voters }).map((_, i) => (
+            <span
+              key={i}
+              className="inline-block w-4 h-4 rounded-full bg-neutral-100 border border-neutral-700 shadow-inner"
+            />
+          ))}
+        </div>
         <div className="text-[10px] uppercase tracking-wide text-neutral-400">
           voter{card.voters > 1 ? "s" : ""}
         </div>
