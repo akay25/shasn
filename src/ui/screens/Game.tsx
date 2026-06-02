@@ -1,6 +1,8 @@
-// Main game screen during ideology / actions / headlines. 3-column layout:
-// PlayerSummaries | Board+HQ | PlayerMat. Forced modals overlay as needed.
-import { useEffect, useMemo, useState } from "react";
+// Main game screen during ideology / actions / headlines. Layout:
+//   [ resizable left sidebar | map | HQ Mat ]
+//   sidebar holds player summaries + active player's ideology collection,
+//   with the Conspiracy/Headline deck panel pinned to the bottom.
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useGameStore } from "@/store/gameStore";
 import { useDispatch, useLastError, useClearError } from "@/ui/hooks/useDispatch";
 import {
@@ -10,7 +12,6 @@ import {
 } from "@/engine/selectors";
 import MapBoard from "@/ui/components/MapBoard";
 import HqMat from "@/ui/components/HqMat";
-import PlayerMat from "@/ui/components/PlayerMat";
 import PlayerSummary from "@/ui/components/PlayerSummary";
 import IdeologyCollection from "@/ui/components/IdeologyCollection";
 import DeckPanel from "@/ui/components/DeckPanel";
@@ -29,11 +30,23 @@ import type { Ideologue } from "@/engine/types";
 type ModalKind =
   | null
   | { kind: "influence"; openIdx: 0 | 1 | 2 }
-  | { kind: "place" }
   | { kind: "gerry" }
   | { kind: "trade" }
   | { kind: "conspiracy"; cardId?: string }
   | { kind: "power"; ideologue: Ideologue; level: 3 | 5 };
+
+const SIDEBAR_MIN = 220;
+const SIDEBAR_MAX = 560;
+const SIDEBAR_DEFAULT = 280;
+const SIDEBAR_STORAGE_KEY = "shashn-online:sidebarWidth";
+
+function readSidebarWidth(): number {
+  if (typeof window === "undefined") return SIDEBAR_DEFAULT;
+  const raw = window.localStorage.getItem(SIDEBAR_STORAGE_KEY);
+  const n = raw ? Number(raw) : NaN;
+  if (!Number.isFinite(n)) return SIDEBAR_DEFAULT;
+  return Math.max(SIDEBAR_MIN, Math.min(SIDEBAR_MAX, n));
+}
 
 export default function Game() {
   const state = useGameStore((s) => s.state)!;
@@ -43,6 +56,42 @@ export default function Game() {
 
   const [modal, setModal] = useState<ModalKind>(null);
   const [placeOpen, setPlaceOpen] = useState(false);
+
+  // Resizable sidebar width, persisted across reloads.
+  const [sidebarWidth, setSidebarWidth] = useState<number>(readSidebarWidth);
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(SIDEBAR_STORAGE_KEY, String(sidebarWidth));
+    } catch {
+      /* ignore quota / private-mode errors */
+    }
+  }, [sidebarWidth]);
+
+  // Drag-to-resize handle.
+  const dragRef = useRef<{ startX: number; startW: number } | null>(null);
+  const onResizeStart = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      dragRef.current = { startX: e.clientX, startW: sidebarWidth };
+      const onMove = (ev: MouseEvent) => {
+        if (!dragRef.current) return;
+        const next = dragRef.current.startW + (ev.clientX - dragRef.current.startX);
+        setSidebarWidth(Math.max(SIDEBAR_MIN, Math.min(SIDEBAR_MAX, next)));
+      };
+      const onUp = () => {
+        dragRef.current = null;
+        window.removeEventListener("mousemove", onMove);
+        window.removeEventListener("mouseup", onUp);
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+      };
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+      window.addEventListener("mousemove", onMove);
+      window.addEventListener("mouseup", onUp);
+    },
+    [sidebarWidth],
+  );
 
   // Auto-toast clear after 3.5s.
   useEffect(() => {
@@ -62,10 +111,7 @@ export default function Game() {
   const overCap = totalResources(active) > active.resourceCap;
   const inActions = state.phase === "actions";
 
-  // While voters are pending, the map is the primary placement surface: clicking
-  // an empty, valid slot places the next voter of the first pending group. We
-  // compute which empty slots are valid (mirrors PlaceVoterModal: a voter-card
-  // bundle must land wholly in one zone) so the canvas can highlight them.
+  // While voters are pending, the map is the primary placement surface.
   const pendingGroup = state.pendingPlacements[0];
   const selectableSlots = useMemo(() => {
     if (!pendingGroup) return undefined;
@@ -81,7 +127,7 @@ export default function Game() {
         if (pendingGroup.committedZoneId) {
           if (pendingGroup.committedZoneId !== z.id) continue;
         } else if (empties.length < pendingGroup.voters.length) {
-          continue; // whole bundle can't fit here
+          continue;
         }
       }
       out[z.id] = empties;
@@ -139,65 +185,73 @@ export default function Game() {
         </button>
       ) : null}
 
-      {/* 3-column main:
-            left  — player summaries, then active player's ideology
-                    collection, then conspiracy/headline deck pile counts
-            centre — the territorial map (dominant, landscape)
-            right — HQ Mat (voter cards + voter/ideology deck) above
-                    PlayerMat (identity + resources + conspiracy hand) */}
-      <div className="flex-1 grid grid-cols-[260px_minmax(0,1fr)_320px] gap-3 p-3 overflow-hidden">
-        {/* Left: summaries, ideology collection, decks */}
-        <div className="flex flex-col gap-2 overflow-y-auto">
-          {state.players.map((p, i) => (
-            <PlayerSummary
-              key={p.id}
-              player={p}
-              isActive={i === state.activePlayerIdx}
-              isNext={
-                i === (state.activePlayerIdx + 1) % state.players.length
+      {/* Main:
+              [ resizable sidebar | resize handle | map | HQ Mat ]
+            The sidebar uses flex-col with the DeckPanel pinned at the bottom
+            via mt-auto inside the inner flex container. */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Resizable sidebar */}
+        <aside
+          style={{ width: sidebarWidth }}
+          className="flex flex-col bg-neutral-950 border-r border-neutral-800 shrink-0 overflow-hidden"
+        >
+          {/* Scrollable upper region */}
+          <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2">
+            {state.players.map((p, i) => (
+              <PlayerSummary
+                key={p.id}
+                player={p}
+                isActive={i === state.activePlayerIdx}
+                isNext={i === (state.activePlayerIdx + 1) % state.players.length}
+              />
+            ))}
+            <IdeologyCollection
+              player={active}
+              onUsePower={(ideologue, level) =>
+                setModal({ kind: "power", ideologue, level })
               }
             />
-          ))}
-          <IdeologyCollection
-            player={active}
-            onUsePower={(ideologue, level) =>
-              setModal({ kind: "power", ideologue, level })
-            }
-          />
-          <DeckPanel
-            state={state}
-            onBuyConspiracy={() =>
-              dispatch({ t: "buyConspiracy", payment: {} })
-            }
-            buyConspiracyDisabled={!inActions || state.decks.conspiracy.length === 0}
-          />
-        </div>
-
-        {/* Centre: the map */}
-        <div className="overflow-y-auto flex items-start">
-          <div className="w-full">
-            <MapBoard
+          </div>
+          {/* Pinned bottom */}
+          <div className="p-3 border-t border-neutral-800 bg-neutral-950">
+            <DeckPanel
               state={state}
-              selectableSlots={selectableSlots}
-              onSlotClick={onMapSlotClick}
+              onBuyConspiracy={() => dispatch({ t: "buyConspiracy", payment: {} })}
+              buyConspiracyDisabled={!inActions || state.decks.conspiracy.length === 0}
             />
           </div>
-        </div>
+        </aside>
 
-        {/* Right: HQ Mat on top, active PlayerMat below */}
-        <div className="flex flex-col gap-3 overflow-y-auto">
-          <HqMat
-            state={state}
-            onInfluenceClick={(openIdx) =>
-              inActions && setModal({ kind: "influence", openIdx })
-            }
-          />
-          <PlayerMat
-            player={active}
-            onPlayConspiracy={(cardId) =>
-              setModal({ kind: "conspiracy", cardId })
-            }
-          />
+        {/* Drag handle */}
+        <div
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize sidebar"
+          onMouseDown={onResizeStart}
+          onDoubleClick={() => setSidebarWidth(SIDEBAR_DEFAULT)}
+          title="Drag to resize · double-click to reset"
+          className="w-1.5 shrink-0 cursor-col-resize bg-neutral-800 hover:bg-blue-500/70 active:bg-blue-500 transition-colors"
+        />
+
+        {/* Map + HQ */}
+        <div className="flex-1 grid grid-cols-[minmax(0,1fr)_320px] gap-3 p-3 overflow-hidden">
+          <div className="overflow-y-auto flex items-start">
+            <div className="w-full">
+              <MapBoard
+                state={state}
+                selectableSlots={selectableSlots}
+                onSlotClick={onMapSlotClick}
+              />
+            </div>
+          </div>
+          <div className="overflow-y-auto">
+            <HqMat
+              state={state}
+              onInfluenceClick={(openIdx) =>
+                inActions && setModal({ kind: "influence", openIdx })
+              }
+            />
+          </div>
         </div>
       </div>
 
