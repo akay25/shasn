@@ -1,41 +1,25 @@
-// Setup screen: 2–5 players, names, ideologue color picker, sensitive toggle.
+// Setup screen: 2–5 players, names, player-colour picker, sensitive toggle.
+// The colour a player picks here becomes their voter-peg colour on the board.
+// It is purely visual — Ideologue powers attach to ideology cards, not to
+// the player's colour pick.
 import { useState } from "react";
-import type { Ideologue } from "@/engine/types";
-import { IDEOLOGUES } from "@/engine/types";
+import type { PlayerColor } from "@/engine/types";
+import { PLAYER_COLORS } from "@/engine/types";
 import { useGameStore } from "@/store/gameStore";
-
-const COLOR_BG: Record<Ideologue, string> = {
-  capitalist: "bg-capitalist",
-  supremo: "bg-supremo",
-  showstopper: "bg-showstopper",
-  idealist: "bg-idealist",
-};
-
-const COLOR_LABEL: Record<Ideologue, string> = {
-  capitalist: "Capitalist",
-  supremo: "Supremo",
-  showstopper: "Showstopper",
-  idealist: "Idealist",
-};
+import PlayerColorSwatch, { PLAYER_COLOR_LABEL } from "@/ui/components/PlayerColorSwatch";
 
 interface PlayerDraft {
   name: string;
-  color: Ideologue;
+  color: PlayerColor;
 }
 
 const DEFAULT_NAMES = ["Player 1", "Player 2", "Player 3", "Player 4", "Player 5"];
-const DEFAULT_COLORS: Ideologue[] = [
-  "capitalist",
-  "supremo",
-  "showstopper",
-  "idealist",
-  "capitalist",
-];
+const DEFAULT_COLORS: PlayerColor[] = ["red", "blue", "yellow", "green", "purple"];
 
 function makeDefaults(n: number): PlayerDraft[] {
   return new Array(n).fill(null).map((_, i) => ({
     name: DEFAULT_NAMES[i] ?? `Player ${i + 1}`,
-    color: DEFAULT_COLORS[i] ?? "capitalist",
+    color: DEFAULT_COLORS[i] ?? "pink",
   }));
 }
 
@@ -56,10 +40,20 @@ export default function Setup() {
 
   const start = () => {
     newGame({
-      players: players.map((p) => ({ name: p.name.trim() || "Player", color: p.color })),
+      players: players.map((p) => ({
+        name: p.name.trim() || "Player",
+        color: p.color,
+      })),
       removeSensitive,
     });
   };
+
+  // Highlight collisions: two players can't share the same colour.
+  const colorCounts = players.reduce<Record<string, number>>((acc, p) => {
+    acc[p.color] = (acc[p.color] ?? 0) + 1;
+    return acc;
+  }, {});
+  const hasCollision = Object.values(colorCounts).some((n) => n > 1);
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100 p-6 flex flex-col items-center">
@@ -108,30 +102,39 @@ export default function Setup() {
                 placeholder={DEFAULT_NAMES[i]}
               />
               <div className="flex gap-1">
-                {IDEOLOGUES.map((ig) => (
+                {PLAYER_COLORS.map((c) => (
                   <button
-                    key={ig}
+                    key={c}
                     type="button"
                     onClick={() =>
                       setPlayers((prev) => {
                         const out = [...prev];
-                        out[i] = { ...out[i], color: ig };
+                        out[i] = { ...out[i], color: c };
                         return out;
                       })
                     }
-                    title={COLOR_LABEL[ig]}
-                    className={`w-6 h-6 rounded-full ${COLOR_BG[ig]} ${
-                      p.color === ig
+                    title={PLAYER_COLOR_LABEL[c]}
+                    className={`rounded-full p-0.5 transition ${
+                      p.color === c
                         ? "ring-2 ring-white"
                         : "opacity-60 hover:opacity-100"
                     }`}
-                    aria-label={`${p.name} color ${COLOR_LABEL[ig]}`}
-                  />
+                    aria-label={`${p.name} colour ${PLAYER_COLOR_LABEL[c]}`}
+                  >
+                    <PlayerColorSwatch color={c} size="md" ring={false} />
+                  </button>
                 ))}
               </div>
             </div>
           ))}
         </div>
+
+        {hasCollision ? (
+          <div className="text-xs text-amber-300 bg-amber-700/20 border border-amber-700/40 rounded px-2 py-1">
+            Two players share the same colour — give each player a different
+            colour before starting.
+          </div>
+        ) : null}
 
         <label className="flex items-center gap-2 text-sm text-neutral-300">
           <input
@@ -143,14 +146,15 @@ export default function Setup() {
         </label>
 
         <div className="text-xs text-neutral-500">
-          Player N starts with N resources (P1=1, P5=5). Color is your Ideologue
-          theme; you collect Ideology Cards of any ideologue regardless.
+          Everyone starts with zero resources. Your colour is just a visual
+          theme — voter pegs on the board will be in your chosen colour.
         </div>
 
         <button
           type="button"
           onClick={start}
-          className="w-full px-3 py-2 rounded bg-blue-700 hover:bg-blue-600 font-semibold focus:outline-none focus:ring-2 focus:ring-white"
+          disabled={hasCollision}
+          className="w-full px-3 py-2 rounded bg-blue-700 hover:bg-blue-600 disabled:opacity-40 disabled:cursor-not-allowed font-semibold focus:outline-none focus:ring-2 focus:ring-white"
         >
           Start game
         </button>

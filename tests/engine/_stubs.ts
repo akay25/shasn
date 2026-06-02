@@ -5,6 +5,7 @@ import type {
   Player,
   ZoneState,
   Ideologue,
+  PlayerColor,
   IdeologyCard,
   VoterCard,
   ConspiracyCard,
@@ -93,7 +94,7 @@ export const STUB_HEADLINE_CARDS: HeadlineCard[] = [
 export function freshState(opts: { players?: number } = {}): GameState {
   const nPlayers = opts.players ?? 2;
   const names = ["Alice", "Bob", "Cara", "Dan", "Eve"];
-  const colors: Ideologue[] = ["capitalist", "supremo", "showstopper", "idealist", "capitalist"];
+  const colors: PlayerColor[] = ["red", "blue", "yellow", "green", "purple"];
   const players: Player[] = [];
   for (let i = 0; i < nPlayers; i++) {
     players.push({

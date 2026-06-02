@@ -1,4 +1,4 @@
-// The active player's full mat: name, color, resources, cap, ideology cards
+// The active player's full mat: name, colour, resources, cap, ideology cards
 // grouped by ideologue with progress bars to L3/L5, conspiracy hand, unlocked powers.
 import type { Player } from "@/engine/types";
 import { IDEOLOGUES, IDEOLOGUE_RESOURCE } from "@/engine/types";
@@ -8,6 +8,8 @@ import {
   powerUnlocked,
 } from "@/engine/selectors";
 import ResourceTrack from "./ResourceTrack";
+import Coin, { IDEOLOGUE_LABEL } from "./Coin";
+import PlayerColorSwatch, { PLAYER_COLOR_TEXT, PLAYER_COLOR_LABEL } from "./PlayerColorSwatch";
 import { CONSPIRACY_CARDS } from "@/data/cards/conspiracy";
 
 interface Props {
@@ -16,24 +18,12 @@ interface Props {
   onUsePower?: (ideologue: typeof IDEOLOGUES[number], level: 3 | 5) => void;
 }
 
-const COLOR_BG: Record<string, string> = {
+// Used for the ideology-card progress bar fills (per Ideologue, not player).
+const IDEO_BG: Record<string, string> = {
   capitalist: "bg-capitalist",
   supremo: "bg-supremo",
   showstopper: "bg-showstopper",
   idealist: "bg-idealist",
-};
-const COLOR_TEXT: Record<string, string> = {
-  capitalist: "text-capitalist",
-  supremo: "text-supremo",
-  showstopper: "text-showstopper",
-  idealist: "text-idealist",
-};
-
-const IDEOLOGUE_LABEL: Record<string, string> = {
-  capitalist: "Capitalist",
-  supremo: "Supremo",
-  showstopper: "Showstopper",
-  idealist: "Idealist",
 };
 
 export default function PlayerMat({ player, onPlayConspiracy, onUsePower }: Props) {
@@ -42,10 +32,10 @@ export default function PlayerMat({ player, onPlayConspiracy, onUsePower }: Prop
   return (
     <div className="flex flex-col gap-3 bg-neutral-900/70 border border-neutral-700 rounded-lg p-3 min-w-[260px]">
       <div className="flex items-center gap-2">
-        <div className={`w-4 h-4 rounded-full ${COLOR_BG[player.color]}`} />
+        <PlayerColorSwatch color={player.color} size="lg" />
         <div className="font-bold text-lg">{player.name}</div>
-        <div className={`text-xs uppercase ${COLOR_TEXT[player.color]}`}>
-          {IDEOLOGUE_LABEL[player.color]}
+        <div className={`text-xs uppercase ${PLAYER_COLOR_TEXT[player.color]}`}>
+          {PLAYER_COLOR_LABEL[player.color]}
         </div>
       </div>
 
@@ -74,11 +64,11 @@ export default function PlayerMat({ player, onPlayConspiracy, onUsePower }: Prop
             const l5 = powerUnlocked(player, ig, 5);
             return (
               <div key={ig} className="flex items-center gap-2 text-xs">
-                <div className={`w-2 h-2 rounded-full ${COLOR_BG[ig]}`} />
+                <Coin ideologue={ig} size="sm" />
                 <div className="w-20 truncate">{IDEOLOGUE_LABEL[ig]}</div>
                 <div className="flex-1 h-2 bg-neutral-800 rounded relative overflow-hidden">
                   <div
-                    className={`h-full ${COLOR_BG[ig]}`}
+                    className={`h-full ${IDEO_BG[ig]}`}
                     style={{ width: `${pct}%` }}
                   />
                   <div className="absolute top-0 left-[60%] w-px h-full bg-white/60" title="L3" />

@@ -4,19 +4,7 @@
 import { useGameStore } from "@/store/gameStore";
 import { useDispatch } from "@/ui/hooks/useDispatch";
 import { activePlayer } from "@/engine/selectors";
-
-const COLOR_BG: Record<string, string> = {
-  capitalist: "bg-capitalist",
-  supremo: "bg-supremo",
-  showstopper: "bg-showstopper",
-  idealist: "bg-idealist",
-};
-const COLOR_TEXT: Record<string, string> = {
-  capitalist: "text-capitalist",
-  supremo: "text-supremo",
-  showstopper: "text-showstopper",
-  idealist: "text-idealist",
-};
+import PlayerColorSwatch, { PLAYER_COLOR_TEXT } from "@/ui/components/PlayerColorSwatch";
 
 export default function Handoff() {
   const state = useGameStore((s) => s.state)!;
@@ -31,11 +19,11 @@ export default function Handoff() {
 
   return (
     <div className="fixed inset-0 bg-black text-white flex flex-col items-center justify-center p-8 text-center">
-      <div className={`w-24 h-24 rounded-full ${COLOR_BG[next.color]} mb-6`} />
+      <PlayerColorSwatch color={next.color} size="xxl" className="mb-6 shadow-xl" />
       <div className="text-sm uppercase tracking-widest text-neutral-400 mb-2">
         Pass the device to
       </div>
-      <div className={`text-6xl font-extrabold mb-6 ${COLOR_TEXT[next.color]}`}>
+      <div className={`text-6xl font-extrabold mb-6 ${PLAYER_COLOR_TEXT[next.color]}`}>
         {next.name}
       </div>
       <div className="max-w-lg text-neutral-300 mb-8">

@@ -18,6 +18,25 @@ export const IDEOLOGUE_RESOURCE: Record<Ideologue, Resource> = {
 
 export type PlayerId = string; // "p1" .. "p5"
 
+// Visual identity colour chosen at setup — independent of the four Ideologues.
+// Voter pegs on the board use this colour; the Ideologue concept is reserved
+// for ideology cards / resources / powers.
+export type PlayerColor =
+  | "red"
+  | "blue"
+  | "yellow"
+  | "green"
+  | "purple"
+  | "pink";
+export const PLAYER_COLORS: PlayerColor[] = [
+  "red",
+  "blue",
+  "yellow",
+  "green",
+  "purple",
+  "pink",
+];
+
 // ---------- Board ----------
 
 export interface Zone {
@@ -149,7 +168,8 @@ export interface HeadlineCard {
 export interface Player {
   id: PlayerId;
   name: string;
-  color: Ideologue;                        // visual color theme (chosen at setup)
+  color: PlayerColor;                      // visual identity, chosen at setup;
+                                           // voter pegs on the board use this colour.
   resources: Record<Resource, number>;
   resourceCap: number;                     // default 12
   ideologyCards: IdeologyCardChoice[];     // cards collected (chosen sides face-up)
@@ -224,7 +244,7 @@ export interface TradeBundle {
 }
 
 export type Action =
-  | { t: "setupGame"; players: { name: string; color: Ideologue }[]; seed?: number; removeSensitive?: boolean }
+  | { t: "setupGame"; players: { name: string; color: PlayerColor }[]; seed?: number; removeSensitive?: boolean }
   | { t: "acknowledgeHandoff" }
   | { t: "answerIdeology"; side: "left" | "right" }
   | { t: "redrawIdeology" } // pay any 4 resources, draw a new one

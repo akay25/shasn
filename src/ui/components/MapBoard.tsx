@@ -15,6 +15,7 @@ import {
   voterCountInZone,
   gerrymanderingRightsHolder,
 } from "@/engine/selectors";
+import { PLAYER_COLOR_HEX, PLAYER_COLOR_TEXT } from "./PlayerColorSwatch";
 
 // ---- Hex geometry (pointy-top, odd-r offset) ------------------------------
 
@@ -46,20 +47,6 @@ function hexVertices(cx: number, cy: number, size: number): [number, number][] {
   }
   return pts;
 }
-
-const COLOR_HEX: Record<string, string> = {
-  capitalist: "#f59e0b",
-  supremo: "#ef4444",
-  showstopper: "#a855f7",
-  idealist: "#10b981",
-};
-
-const COLOR_TEXT: Record<string, string> = {
-  capitalist: "text-capitalist",
-  supremo: "text-supremo",
-  showstopper: "text-showstopper",
-  idealist: "text-idealist",
-};
 
 // ---- Component -------------------------------------------------------------
 
@@ -172,7 +159,7 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
           const owner = state.players.find((p) => p.id === slot.playerId);
           ctx.beginPath();
           ctx.arc(x, y, SIZE * 0.46, 0, Math.PI * 2);
-          ctx.fillStyle = owner ? COLOR_HEX[owner.color] : "#777";
+          ctx.fillStyle = owner ? PLAYER_COLOR_HEX[owner.color] : "#777";
           ctx.fill();
           ctx.lineWidth = 1.4;
           ctx.strokeStyle = "#17110b";
@@ -302,7 +289,7 @@ function HolderBadge({ p }: { p: Player }) {
   return (
     <span className="ml-1">
       <span className="opacity-60">· maj </span>
-      <span className={`font-bold ${COLOR_TEXT[p.color]}`}>{p.name}</span>
+      <span className={`font-bold ${PLAYER_COLOR_TEXT[p.color]}`}>{p.name}</span>
     </span>
   );
 }
@@ -311,7 +298,7 @@ function GerryBadge({ p, count }: { p: Player; count: number }) {
   return (
     <span className="ml-1">
       <span className="opacity-60">· gerry </span>
-      <span className={COLOR_TEXT[p.color]}>{p.name}</span>
+      <span className={PLAYER_COLOR_TEXT[p.color]}>{p.name}</span>
       <span className="opacity-60"> ({count})</span>
     </span>
   );

@@ -1,7 +1,7 @@
 import type {
   GameState,
   Player,
-  Ideologue,
+  PlayerColor,
   Resource,
   ZoneState,
   Slot,
@@ -21,7 +21,7 @@ function emptyZone(capacity: number): ZoneState {
 }
 
 export function createInitialState(args: {
-  players: { name: string; color: Ideologue }[];
+  players: { name: string; color: PlayerColor }[];
   seed?: number;
   removeSensitive?: boolean;
 }): GameState {
@@ -35,26 +35,19 @@ export function createInitialState(args: {
   // deck shuffles so the whole setup stays deterministic from `seed`.
   const { board, nextSeed: seedAfterBoard } = generateBoard(seed);
 
-  // Players + starting resources (P1: 1, P2: 2, ... P5: 5) — but starting
-  // resource choice is interactive in the rules; for setup we hand them out
-  // as `any` resource tokens via a setup-time auto-distribution that the UI
-  // can override. For v1 we just default to funds.
-  const players: Player[] = args.players.map((p, i) => {
-    const startingCount = i + 1;
-    return {
-      id: `p${i + 1}`,
-      name: p.name,
-      color: p.color,
-      // Default: all starting resources as `funds`. The UI can immediately
-      // dispatch a `chooseAnyResource`-style mutation if a richer setup flow
-      // is desired; the rulebook only requires that totals equal startingCount.
-      resources: { ...ZERO_RES, funds: startingCount },
-      resourceCap: 12,
-      ideologyCards: [],
-      conspiracyHand: [],
-      iouOwed: 0,
-    };
-  });
+  // Every player starts with zero resources. The rulebook's staggered
+  // P1=1..P5=5 offset is deliberately dropped in favour of a clean start;
+  // first-player advantage is small enough at this scope.
+  const players: Player[] = args.players.map((p, i) => ({
+    id: `p${i + 1}`,
+    name: p.name,
+    color: p.color,
+    resources: { ...ZERO_RES },
+    resourceCap: 12,
+    ideologyCards: [],
+    conspiracyHand: [],
+    iouOwed: 0,
+  }));
 
   // Zones — one empty ZoneState per generated zone.
   const zones: Record<string, ZoneState> = {};

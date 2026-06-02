@@ -5,19 +5,7 @@ import {
   finalScores,
   totalVotersForPlayer,
 } from "@/engine/selectors";
-
-const COLOR_BG: Record<string, string> = {
-  capitalist: "bg-capitalist",
-  supremo: "bg-supremo",
-  showstopper: "bg-showstopper",
-  idealist: "bg-idealist",
-};
-const COLOR_TEXT: Record<string, string> = {
-  capitalist: "text-capitalist",
-  supremo: "text-supremo",
-  showstopper: "text-showstopper",
-  idealist: "text-idealist",
-};
+import PlayerColorSwatch, { PLAYER_COLOR_TEXT } from "@/ui/components/PlayerColorSwatch";
 
 export default function EndGame() {
   const state = useGameStore((s) => s.state)!;
@@ -45,8 +33,8 @@ export default function EndGame() {
         Game over
       </div>
       <div className="text-5xl font-extrabold mb-2 flex items-center gap-3">
-        <div className={`w-8 h-8 rounded-full ${COLOR_BG[winner.color]}`} />
-        <span className={COLOR_TEXT[winner.color]}>{winner.name}</span>
+        <PlayerColorSwatch color={winner.color} size="xl" />
+        <span className={PLAYER_COLOR_TEXT[winner.color]}>{winner.name}</span>
         <span className="text-neutral-100">wins</span>
       </div>
       <div className="text-neutral-400 mb-8">
@@ -69,8 +57,8 @@ export default function EndGame() {
               <tr key={p.id} className="border-t border-neutral-800">
                 <td className="py-1">{i + 1}</td>
                 <td className="flex items-center gap-2 py-1">
-                  <div className={`w-3 h-3 rounded-full ${COLOR_BG[p.color]}`} />
-                  <span className={COLOR_TEXT[p.color]}>{p.name}</span>
+                  <PlayerColorSwatch color={p.color} size="sm" />
+                  <span className={PLAYER_COLOR_TEXT[p.color]}>{p.name}</span>
                 </td>
                 <td className="text-right tabular-nums">{p.score}</td>
                 <td className="text-right tabular-nums">{p.total}</td>
