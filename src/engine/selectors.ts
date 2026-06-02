@@ -32,6 +32,15 @@ export function totalResources(p: Player): number {
   return RESOURCES.reduce((sum, r) => sum + (p.resources[r] ?? 0), 0);
 }
 
+/**
+ * Open resource slots: how much more a player can hold before hitting their
+ * resource cap. Floored at 0 — a player temporarily over the cap (who must
+ * discard) has no available room.
+ */
+export function availableResourceSlots(p: Player): number {
+  return Math.max(0, p.resourceCap - totalResources(p));
+}
+
 // ---------- Ideologue counts ----------
 
 export function ideologueCardCount(p: Player, ideologue: Ideologue): number {
