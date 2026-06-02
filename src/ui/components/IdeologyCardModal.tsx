@@ -1,18 +1,21 @@
-// Shown during the "ideology" phase. Reveals the drawn ideology card so the
-// player to the active player's RIGHT can read both options aloud, then the
-// active player chooses left or right. Also allows a paid redraw (4 of any).
+// Shown during the "ideology" phase. The player to the active player's RIGHT
+// reads the question and both answer texts aloud; the active player then picks
+// left or right WITHOUT seeing which ideologue (and reward) each side grants.
+// Only after picking is the chosen side's ideology revealed, after which the
+// player confirms to bank the payout. A paid redraw (4 of any) is available
+// before a choice is made.
 //
-// The two sides are rendered as physical-style cards (dark question header with
-// a chevron notch, cream body with the answer, a payout coin row, and a colored
+// Sides are rendered as physical-style cards (dark question header with a
+// chevron notch, cream body with the answer, a payout coin row, and a colored
 // ideologue ribbon badge) to match the printed Ideology cards.
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Modal from "./Modal";
 import type { GameState, IdeologyCardSide, Ideologue, Resource } from "@/engine/types";
 import { RESOURCES } from "@/engine/types";
 import { IDEOLOGY_CARDS } from "@/data/cards/ideology";
 import { useDispatch } from "@/ui/hooks/useDispatch";
 import { activePlayer } from "@/engine/selectors";
-import { RESOURCE_LABEL, ResourceCoin } from "./ResourceTrack";
+import { ResourceCoin } from "./ResourceTrack";
 import { IDEOLOGUE_LABEL } from "./Coin";
 
 interface Props {
@@ -42,6 +45,15 @@ export default function IdeologyCardModal({ state }: Props) {
     return IDEOLOGY_CARDS.find((c) => c.id === state.currentIdeologyCard) ?? null;
   }, [state.currentIdeologyCard]);
 
+  // Which side the player has committed to. The ideology stays hidden until
+  // this is set; afterwards the chosen card is revealed and they confirm.
+  const [picked, setPicked] = useState<"left" | "right" | null>(null);
+
+  // A fresh card (initial draw or redraw) resets the choice back to hidden.
+  useEffect(() => {
+    setPicked(null);
+  }, [state.currentIdeologyCard]);
+
   const totalRes = RESOURCES.reduce((s, r) => s + active.resources[r], 0);
 
   if (!card) {
@@ -54,6 +66,34 @@ export default function IdeologyCardModal({ state }: Props) {
     );
   }
 
+  // Reveal step: show the chosen side in full, then confirm to bank it.
+  if (picked) {
+    const chosen = picked === "left" ? card.left : card.right;
+    return (
+      <Modal title="Ideology Card — your answer" closable={false} wide>
+        <div className="space-y-4">
+          <div className="text-sm text-neutral-300">
+            You chose this answer. It is the{" "}
+            <span className="font-semibold">{IDEOLOGUE_LABEL[chosen.ideologue]}</span>.
+          </div>
+          <div className="mx-auto max-w-xs">
+            <SideCard id={card.id} prompt={card.prompt} data={chosen} revealed />
+          </div>
+          <div className="flex justify-end pt-2 border-t border-neutral-700">
+            <button
+              type="button"
+              onClick={() => dispatch({ t: "answerIdeology", side: picked })}
+              className="text-sm px-4 py-1.5 rounded bg-white text-neutral-900 font-semibold hover:bg-neutral-200 focus:outline-none focus:ring-2 focus:ring-white"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      </Modal>
+    );
+  }
+
+  // Choice step: ideology hidden, player picks based on the answer text alone.
   return (
     <Modal
       title={
@@ -73,18 +113,21 @@ export default function IdeologyCardModal({ state }: Props) {
             Content advisory: {card.advisory}
           </div>
         ) : null}
+        <div className="text-xs text-neutral-400">
+          Pick an answer — the ideology it grants stays hidden until you choose.
+        </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <SideCard
             id={card.id}
             prompt={card.prompt}
             data={card.left}
-            onPick={() => dispatch({ t: "answerIdeology", side: "left" })}
+            onPick={() => setPicked("left")}
           />
           <SideCard
             id={card.id}
             prompt={card.prompt}
             data={card.right}
-            onPick={() => dispatch({ t: "answerIdeology", side: "right" })}
+            onPick={() => setPicked("right")}
           />
         </div>
         <div className="flex items-center justify-between pt-2 border-t border-neutral-700">
@@ -126,11 +169,15 @@ function SideCard({
   prompt,
   data,
   onPick,
+  revealed = false,
 }: {
   id: string;
   prompt: string;
   data: IdeologyCardSide;
-  onPick: () => void;
+  onPick?: () => void;
+  // When false (the choice step) the ideologue and reward are masked so the
+  // player decides on the policy alone.
+  revealed?: boolean;
 }) {
   const ideologue = data.ideologue;
   const accent = IDEOLOGUE_HEX[ideologue];
@@ -140,11 +187,18 @@ function SideCard({
   const bannerClip =
     "polygon(0 0, 100% 0, calc(100% - 12px) 50%, 100% 100%, 0 100%, 12px 50%)";
 
+  const ringClass = revealed ? "" : IDEOLOGUE_RING[ideologue];
+  const flourish = revealed ? accent : "#a3a3a3"; // neutral-400 when hidden
+
+  const Tag = onPick ? "button" : "div";
+
   return (
-    <button
-      type="button"
+    <Tag
+      type={onPick ? "button" : undefined}
       onClick={onPick}
-      className={`group flex flex-col overflow-hidden rounded-xl bg-neutral-900 text-left shadow-lg ring-2 ring-transparent transition hover:-translate-y-0.5 hover:shadow-xl focus:outline-none ${IDEOLOGUE_RING[ideologue]}`}
+      className={`group flex flex-col overflow-hidden rounded-xl bg-neutral-900 text-left shadow-lg ring-2 ring-transparent transition focus:outline-none ${
+        onPick ? `hover:-translate-y-0.5 hover:shadow-xl ${ringClass}` : ""
+      }`}
     >
       {/* Dark question header with a downward chevron notch. */}
       <div className="relative px-4 pt-4 pb-5">
@@ -163,12 +217,17 @@ function SideCard({
           {data.text}
         </p>
 
-        {/* Payout coin strip, flanked by chevron flourishes. */}
+        {/* Payout coin strip, flanked by chevron flourishes. Masked until the
+            side is revealed. */}
         <div className="mb-4 flex items-center justify-center gap-1.5">
-          <span style={{ color: accent }} className="text-base font-bold leading-none">
+          <span style={{ color: flourish }} className="text-base font-bold leading-none">
             «
           </span>
-          {coins.length === 0 ? (
+          {!revealed ? (
+            <span className="text-[11px] uppercase tracking-wide text-neutral-400">
+              Reward hidden
+            </span>
+          ) : coins.length === 0 ? (
             <span className="text-xs text-neutral-400">—</span>
           ) : (
             coins.map((c) =>
@@ -185,26 +244,37 @@ function SideCard({
               ),
             )
           )}
-          <span style={{ color: accent }} className="text-base font-bold leading-none">
+          <span style={{ color: flourish }} className="text-base font-bold leading-none">
             »
           </span>
         </div>
 
-        {/* Ideologue name plate. */}
+        {/* Ideologue name plate. Masked until the side is revealed. */}
         <div className="relative">
-          <div
-            className="mx-auto flex w-full max-w-[200px] items-center justify-center px-6 py-1.5"
-            style={{ backgroundColor: accent, clipPath: bannerClip }}
-          >
-            <span className="text-xs font-bold uppercase tracking-[0.15em] text-white">
-              {IDEOLOGUE_LABEL[ideologue]}
-            </span>
-          </div>
+          {revealed ? (
+            <div
+              className="mx-auto flex w-full max-w-[200px] items-center justify-center px-6 py-1.5"
+              style={{ backgroundColor: accent, clipPath: bannerClip }}
+            >
+              <span className="text-xs font-bold uppercase tracking-[0.15em] text-white">
+                {IDEOLOGUE_LABEL[ideologue]}
+              </span>
+            </div>
+          ) : (
+            <div
+              className="mx-auto flex w-full max-w-[200px] items-center justify-center bg-neutral-300 px-6 py-1.5"
+              style={{ clipPath: bannerClip }}
+            >
+              <span className="text-xs font-bold uppercase tracking-[0.3em] text-neutral-500">
+                ? ? ?
+              </span>
+            </div>
+          )}
           <span className="absolute right-0 bottom-0 translate-y-1 text-[8px] uppercase tracking-wide text-neutral-400">
             ID {id}
           </span>
         </div>
       </div>
-    </button>
+    </Tag>
   );
 }
