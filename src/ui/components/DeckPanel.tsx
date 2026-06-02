@@ -3,6 +3,7 @@
 // conspiracy badge is clickable (Buy top of deck); headlines are drawn by
 // the engine, never by the player, so their badge is informational only.
 import type { GameState } from "@/engine/types";
+import { conspiracyPrice } from "@/engine/selectors";
 
 interface Props {
   state: GameState;
@@ -15,6 +16,7 @@ export default function DeckPanel({
   onBuyConspiracy,
   buyConspiracyDisabled,
 }: Props) {
+  const price = conspiracyPrice(state);
   return (
     <div className="bg-neutral-900/60 border border-neutral-700 rounded-lg p-3 flex flex-col gap-2">
       <div className="text-[10px] uppercase tracking-wide text-neutral-400">
@@ -25,6 +27,7 @@ export default function DeckPanel({
           label="Conspiracy"
           n={state.decks.conspiracy.length}
           discard={state.decks.conspiracyDiscard.length}
+          price={price}
           onClick={onBuyConspiracy}
           actionLabel="Buy"
           actionDisabled={buyConspiracyDisabled}
@@ -43,6 +46,7 @@ function DeckBadge({
   label,
   n,
   discard,
+  price,
   onClick,
   actionLabel,
   actionDisabled,
@@ -50,6 +54,7 @@ function DeckBadge({
   label: string;
   n: number;
   discard: number;
+  price?: number | null;
   onClick?: () => void;
   actionLabel?: string;
   actionDisabled?: boolean;
@@ -65,6 +70,11 @@ function DeckBadge({
           / {discard} disc
         </span>
       </div>
+      {price != null ? (
+        <div className="text-[10px] text-amber-300">
+          Price: {price} <span className="text-neutral-500">any res</span>
+        </div>
+      ) : null}
       {onClick ? (
         <button
           type="button"

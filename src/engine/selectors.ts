@@ -10,6 +10,7 @@ import type {
 import { IDEOLOGUE_RESOURCE, RESOURCES } from "./types";
 import { getZone } from "@/data/board";
 import { IDEOLOGY_CARDS } from "@/data/cards/ideology";
+import { CONSPIRACY_CARDS } from "@/data/cards/conspiracy";
 
 // ---------- Players ----------
 
@@ -196,6 +197,23 @@ export function boardFullyFilled(state: GameState): boolean {
     if (emptySlotsInZone(z) > 0) return false;
   }
   return true;
+}
+
+// ---------- Conspiracy ----------
+
+/**
+ * Current price the active player would pay to buy the top conspiracy card:
+ * the top card's cost minus any pending Idealist L3 discount (floored at 0).
+ * Returns null when the deck is empty (the next card would be reshuffled from
+ * the discard pile, so its price is not yet knowable) or the id is unknown.
+ */
+export function conspiracyPrice(state: GameState): number | null {
+  const topId = state.decks.conspiracy[0] ?? null;
+  if (!topId) return null;
+  const card = CONSPIRACY_CARDS.find((c) => c.id === topId);
+  if (!card) return null;
+  const discount = state.powerUsage["idealist.3.discountPending"] ?? 0;
+  return Math.max(0, card.cost - discount);
 }
 
 // ---------- Pending placement helpers ----------
