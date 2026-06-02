@@ -1,6 +1,7 @@
 // One voter slot in a zone. Empty, occupied (non-majority), or majority.
 // Volatile slots are highlighted with a thick warning ring.
 import type { Player, Slot } from "@/engine/types";
+import { PLAYER_COLOR_BG } from "./PlayerColorSwatch";
 
 interface Props {
   slot: Slot;
@@ -11,13 +12,6 @@ interface Props {
   selected?: boolean;
 }
 
-const COLOR_BG: Record<string, string> = {
-  capitalist: "bg-capitalist",
-  supremo: "bg-supremo",
-  showstopper: "bg-showstopper",
-  idealist: "bg-idealist",
-};
-
 export default function VoterSlot({
   slot,
   volatile,
@@ -27,7 +21,7 @@ export default function VoterSlot({
   selected,
 }: Props) {
   const owner = slot ? players.find((p) => p.id === slot.playerId) : null;
-  const colorBg = owner ? COLOR_BG[owner.color] ?? "bg-neutral-500" : "";
+  const colorBg = owner ? PLAYER_COLOR_BG[owner.color] ?? "bg-neutral-500" : "";
 
   const base =
     "w-5 h-5 rounded-full border flex items-center justify-center text-[8px] font-bold transition";

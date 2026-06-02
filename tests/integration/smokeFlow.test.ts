@@ -38,19 +38,19 @@ describe("integration: smoke flow", () => {
   it("starts a 3-player game and exposes an ideology card to draw", () => {
     let state = createInitialState({
       players: [
-        { name: "Alice", color: "capitalist" },
-        { name: "Bob", color: "supremo" },
-        { name: "Carol", color: "idealist" },
+        { name: "Alice", color: "red" },
+        { name: "Bob", color: "blue" },
+        { name: "Carol", color: "yellow" },
       ],
       seed: 42,
     });
     expect(state.players).toHaveLength(3);
     expect(state.phase).toBe("handoff");
-    // P1 starts with 1 resource, P2 with 2, P3 with 3 (rulebook setup).
+    // Every player starts with zero resources.
     const totals = state.players.map((p) =>
       Object.values(p.resources).reduce((a, b) => a + b, 0)
     );
-    expect(totals).toEqual([1, 2, 3]);
+    expect(totals).toEqual([0, 0, 0]);
     // Three face-up voter cards are dealt.
     expect(state.openVoterCards.filter((c) => c !== null)).toHaveLength(3);
     expect(state.decks.ideology.length).toBeGreaterThan(0);
@@ -77,8 +77,8 @@ describe("integration: smoke flow", () => {
   it("influences a 1-voter card and places the voter in a zone", () => {
     let state = createInitialState({
       players: [
-        { name: "Alice", color: "capitalist" },
-        { name: "Bob", color: "supremo" },
+        { name: "Alice", color: "red" },
+        { name: "Bob", color: "blue" },
       ],
       seed: 7,
     });

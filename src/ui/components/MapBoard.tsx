@@ -15,7 +15,7 @@
 
 import type { GameState, Player } from "@/engine/types";
 import { BOARD } from "@/data/board";
-import { COIN_SRC } from "./Coin";
+import { PLAYER_COLOR_HEX, PLAYER_COLOR_TEXT } from "./PlayerColorSwatch";
 import {
   totalVotersInZone,
   voterCountInZone,
@@ -137,13 +137,6 @@ const LABEL_CELL: Record<string, Cell> = {
   se: [12, 9],
 };
 
-const COLOR_TEXT: Record<string, string> = {
-  capitalist: "text-capitalist",
-  supremo: "text-supremo",
-  showstopper: "text-showstopper",
-  idealist: "text-idealist",
-};
-
 // ---- Component -------------------------------------------------------------
 
 interface Props {
@@ -241,32 +234,23 @@ export default function MapBoard({ state }: Props) {
                         </text>
                       </g>
                     ) : null}
-                    {/* Voter peg — the coin image of the owner's ideologue. */}
+                    {/* Voter peg — coloured circle in the owner's player colour. */}
                     {owner ? (
                       <g pointerEvents="none">
-                        <image
-                          href={COIN_SRC[owner.color]}
-                          x={x - SIZE * 0.5}
-                          y={y - SIZE * 0.5 + (isVolatile ? SIZE * 0.05 : 0)}
-                          width={SIZE}
-                          height={SIZE}
-                          preserveAspectRatio="xMidYMid slice"
-                          style={{ clipPath: "circle(50% at 50% 50%)" }}
-                        />
                         <circle
                           cx={x}
                           cy={y + (isVolatile ? SIZE * 0.05 : 0)}
-                          r={SIZE * 0.5}
-                          fill="none"
+                          r={SIZE * 0.42}
+                          fill={PLAYER_COLOR_HEX[owner.color]}
                           stroke="#1a1410"
-                          strokeWidth={1.4}
+                          strokeWidth={1.2}
                         />
                         {slot?.isMajority ? (
                           <g>
                             <circle
                               cx={x}
                               cy={y + (isVolatile ? SIZE * 0.05 : 0)}
-                              r={SIZE * 0.5}
+                              r={SIZE * 0.42}
                               fill="none"
                               stroke="#ffffff"
                               strokeWidth={1.8}
@@ -364,7 +348,7 @@ function HolderBadge({ p }: { p: Player }) {
   return (
     <span className="ml-1">
       <span className="opacity-60">· maj </span>
-      <span className={`font-bold ${COLOR_TEXT[p.color]}`}>{p.name}</span>
+      <span className={`font-bold ${PLAYER_COLOR_TEXT[p.color]}`}>{p.name}</span>
     </span>
   );
 }
@@ -373,7 +357,7 @@ function GerryBadge({ p, count }: { p: Player; count: number }) {
   return (
     <span className="ml-1">
       <span className="opacity-60">· gerry </span>
-      <span className={COLOR_TEXT[p.color]}>{p.name}</span>
+      <span className={PLAYER_COLOR_TEXT[p.color]}>{p.name}</span>
       <span className="opacity-60"> ({count})</span>
     </span>
   );

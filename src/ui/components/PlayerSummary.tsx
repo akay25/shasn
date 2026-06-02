@@ -2,7 +2,7 @@
 // ideology card count, conspiracy hand count.
 import type { Player } from "@/engine/types";
 import ResourceTrack from "./ResourceTrack";
-import Coin from "./Coin";
+import PlayerColorSwatch from "./PlayerColorSwatch";
 
 interface Props {
   player: Player;
@@ -22,7 +22,7 @@ export default function PlayerSummary({ player, isActive, isNext }: Props) {
       }`}
     >
       <div className="flex items-center gap-2 mb-1">
-        <Coin ideologue={player.color} size="sm" />
+        <PlayerColorSwatch color={player.color} size="sm" />
         <div className="font-semibold text-sm truncate flex-1">{player.name}</div>
         {isActive ? (
           <div className="text-[10px] uppercase text-white/80">Active</div>
