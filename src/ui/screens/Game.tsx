@@ -213,22 +213,27 @@ export default function Game() {
           style={{ width: sidebarWidth }}
           className="flex flex-col bg-neutral-950 border-r border-neutral-800 shrink-0 overflow-hidden"
         >
-          {/* Scrollable upper region */}
+          {/* Scrollable upper region — each player's summary row, with the
+              active player's IdeologyCollection expanded directly beneath
+              their own row (accordion-style: open for whoever's turn it is). */}
           <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2">
-            {state.players.map((p, i) => (
-              <PlayerSummary
-                key={p.id}
-                player={p}
-                isActive={i === state.activePlayerIdx}
-                isNext={i === (state.activePlayerIdx + 1) % state.players.length}
-              />
-            ))}
-            <IdeologyCollection
-              player={active}
-              onUsePower={(ideologue, level) =>
-                setModal({ kind: "power", ideologue, level })
-              }
-            />
+            {state.players.map((p, i) => {
+              const isActive = i === state.activePlayerIdx;
+              const isNext = i === (state.activePlayerIdx + 1) % state.players.length;
+              return (
+                <div key={p.id} className="flex flex-col gap-2">
+                  <PlayerSummary player={p} isActive={isActive} isNext={isNext} />
+                  {isActive ? (
+                    <IdeologyCollection
+                      player={p}
+                      onUsePower={(ideologue, level) =>
+                        setModal({ kind: "power", ideologue, level })
+                      }
+                    />
+                  ) : null}
+                </div>
+              );
+            })}
           </div>
           {/* Pinned bottom */}
           <div className="p-3 border-t border-neutral-800 bg-neutral-950">
