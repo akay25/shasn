@@ -46,11 +46,12 @@ describe("integration: smoke flow", () => {
     });
     expect(state.players).toHaveLength(3);
     expect(state.phase).toBe("handoff");
-    // Every player starts with zero resources.
+    // Rulebook (Objective & Setup): P1 starts with 1 resource, P2 with 2,
+    // P3 with 3, ... — to offset first-player advantage.
     const totals = state.players.map((p) =>
       Object.values(p.resources).reduce((a, b) => a + b, 0)
     );
-    expect(totals).toEqual([0, 0, 0]);
+    expect(totals).toEqual([1, 2, 3]);
     // Three face-up voter cards are dealt.
     expect(state.openVoterCards.filter((c) => c !== null)).toHaveLength(3);
     expect(state.decks.ideology.length).toBeGreaterThan(0);

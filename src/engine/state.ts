@@ -46,19 +46,31 @@ export function createInitialState(args: {
           return { board: g.board, seedAfterBoard: g.nextSeed };
         })();
 
-  // Every player starts with zero resources. The rulebook's staggered
-  // P1=1..P5=5 offset is deliberately dropped in favour of a clean start;
-  // first-player advantage is small enough at this scope.
-  const players: Player[] = args.players.map((p, i) => ({
-    id: `p${i + 1}`,
-    name: p.name,
-    color: p.color,
-    resources: { ...ZERO_RES },
-    resourceCap: 12,
-    ideologyCards: [],
-    conspiracyHand: [],
-    iouOwed: 0,
-  }));
+  // Staggered starting resources from the rulebook (Objective & Setup):
+  // P1 gets 1 resource, P2 gets 2, …, P5 gets 5 — to offset first-player
+  // advantage. The rulebook lets each player CHOOSE which resources to
+  // take; we default to a cyclic distribution across funds/clout/media/
+  // trust so no one starts loaded in a single type. A future Setup UX can
+  // expose a per-player picker.
+  const STARTING_RESOURCE_ORDER: Resource[] = ["funds", "clout", "media", "trust"];
+  const players: Player[] = args.players.map((p, i) => {
+    const startingCount = i + 1;
+    const resources: Record<Resource, number> = { ...ZERO_RES };
+    for (let k = 0; k < startingCount; k++) {
+      const r = STARTING_RESOURCE_ORDER[k % STARTING_RESOURCE_ORDER.length];
+      resources[r] += 1;
+    }
+    return {
+      id: `p${i + 1}`,
+      name: p.name,
+      color: p.color,
+      resources,
+      resourceCap: 12,
+      ideologyCards: [],
+      conspiracyHand: [],
+      iouOwed: 0,
+    };
+  });
 
   // Zones — one empty ZoneState per generated zone.
   const zones: Record<string, ZoneState> = {};

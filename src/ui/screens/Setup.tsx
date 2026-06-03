@@ -169,8 +169,10 @@ export default function Setup() {
         </div>
 
         <div className="text-xs text-neutral-500">
-          Everyone starts with zero resources. Your colour is just a visual
-          theme — voter pegs on the board will be in your chosen colour.
+          Player N starts with N resources (P1 = 1, P5 = 5) to offset
+          first-player advantage, distributed across the four resource
+          types. Your colour is just a visual theme — voter pegs on the
+          board will be in your chosen colour.
         </div>
 
         <button
