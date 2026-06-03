@@ -1,10 +1,10 @@
 // All four deck-pile stats — voter, ideology, conspiracy, headline —
-// rendered as a compact floating HUD that overlays the bottom-right of the
-// map canvas. Counts only on the tile; hovering each tile reveals a
-// screen-edge-aware popover showing what's left (draw size, discard
-// breakdown / names) so the active player can plan turn actions. The
-// Rules link to the bundled rulebook PDF sits at the end of the strip.
-// The Conspiracy Buy button lives in the sidebar (see <ConspiracyBuyPanel>).
+// rendered as a compact inline strip. Hosted by the ActionBar's trailing
+// slot. Counts only on each tile; hovering reveals a screen-edge-aware
+// popover showing what's left (draw size, discard breakdown / names) so
+// the active player can plan turn actions. The Rules link to the bundled
+// rulebook PDF sits at the end of the strip. The Conspiracy Buy button
+// lives in the sidebar (see <ConspiracyBuyPanel>).
 import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { GameState } from "@/engine/types";
@@ -21,7 +21,7 @@ interface Props {
 export default function DeckStats({ state }: Props) {
   return (
     <div
-      className="flex items-stretch gap-1 rounded-lg border border-neutral-700 bg-neutral-900/85 px-1.5 py-1.5 shadow-xl backdrop-blur"
+      className="flex items-stretch gap-1"
       role="region"
       aria-label="Deck piles"
     >

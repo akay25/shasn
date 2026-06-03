@@ -255,8 +255,8 @@ export default function Game() {
         />
 
         {/* Map fills the whole right side; the HQ Mat (voters container)
-            floats over it in the top-right, and the DeckStats HUD (with the
-            Rules link at the end) floats over its bottom-right. */}
+            floats over it in the top-right. The DeckStats strip lives in
+            the bottom ActionBar's trailing slot. */}
         <div className="flex-1 relative overflow-hidden">
           <MapBoard
             state={state}
@@ -271,9 +271,6 @@ export default function Game() {
               }
             />
           </div>
-          <div className="absolute bottom-3 right-3 z-10 max-w-[calc(100%-1.5rem)] overflow-x-auto">
-            <DeckStats state={state} />
-          </div>
         </div>
       </div>
 
@@ -283,6 +280,7 @@ export default function Game() {
         onPlayConspiracy={() => setModal({ kind: "conspiracy" })}
         canPlayConspiracy={active.conspiracyHand.length > 0}
         inActionsPhase={inActions}
+        trailing={<DeckStats state={state} />}
       />
 
       {/* Error toast */}

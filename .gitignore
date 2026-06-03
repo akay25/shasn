@@ -9,3 +9,4 @@ coverage
 
 # Claude Code worktree scratch
 .claude/
+.rough-data/
