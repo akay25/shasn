@@ -4,7 +4,7 @@
 import type { Player } from "@/engine/types";
 import { IDEOLOGUE_RESOURCE } from "@/engine/types";
 import ResourceTrack from "./ResourceTrack";
-import PlayerColorSwatch, { PLAYER_COLOR_TEXT, PLAYER_COLOR_LABEL } from "./PlayerColorSwatch";
+import PlayerColorSwatch, { PLAYER_COLOR_HEX, PLAYER_COLOR_LABEL } from "./PlayerColorSwatch";
 import { CONSPIRACY_CARDS } from "@/data/cards/conspiracy";
 
 interface Props {
@@ -18,7 +18,10 @@ export default function PlayerMat({ player, onPlayConspiracy }: Props) {
       <div className="flex items-center gap-2">
         <PlayerColorSwatch color={player.color} size="lg" />
         <div className="font-bold text-lg">{player.name}</div>
-        <div className={`text-xs uppercase ${PLAYER_COLOR_TEXT[player.color]}`}>
+        <div
+          className="text-xs uppercase"
+          style={{ color: PLAYER_COLOR_HEX[player.color] }}
+        >
           {PLAYER_COLOR_LABEL[player.color]}
         </div>
       </div>

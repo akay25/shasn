@@ -4,7 +4,7 @@
 import { useGameStore } from "@/store/gameStore";
 import { useDispatch } from "@/ui/hooks/useDispatch";
 import { activePlayer } from "@/engine/selectors";
-import PlayerColorSwatch, { PLAYER_COLOR_TEXT } from "@/ui/components/PlayerColorSwatch";
+import PlayerColorSwatch, { PLAYER_COLOR_HEX } from "@/ui/components/PlayerColorSwatch";
 
 export default function Handoff() {
   const state = useGameStore((s) => s.state)!;
@@ -23,7 +23,10 @@ export default function Handoff() {
       <div className="text-sm uppercase tracking-widest text-neutral-400 mb-2">
         Pass the device to
       </div>
-      <div className={`text-6xl font-extrabold mb-6 ${PLAYER_COLOR_TEXT[next.color]}`}>
+      <div
+        className="text-6xl font-extrabold mb-6"
+        style={{ color: PLAYER_COLOR_HEX[next.color] }}
+      >
         {next.name}
       </div>
       <div className="max-w-lg text-neutral-300 mb-8">

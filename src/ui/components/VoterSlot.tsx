@@ -1,7 +1,9 @@
 // One voter slot in a zone. Empty, occupied (non-majority), or majority.
-// Volatile slots are highlighted with a thick warning ring.
+// Volatile slots are highlighted with a thick warning ring. Player-owned
+// pegs read their fill colour directly from PLAYER_COLOR_HEX (inline style)
+// so they always match the canvas pegs and the swatches.
 import type { Player, Slot } from "@/engine/types";
-import { PLAYER_COLOR_BG } from "./PlayerColorSwatch";
+import { PLAYER_COLOR_HEX } from "./PlayerColorSwatch";
 
 interface Props {
   slot: Slot;
@@ -21,7 +23,7 @@ export default function VoterSlot({
   selected,
 }: Props) {
   const owner = slot ? players.find((p) => p.id === slot.playerId) : null;
-  const colorBg = owner ? PLAYER_COLOR_BG[owner.color] ?? "bg-neutral-500" : "";
+  const colorHex = owner ? PLAYER_COLOR_HEX[owner.color] ?? "#737373" : undefined;
 
   const base =
     "w-5 h-5 rounded-full border flex items-center justify-center text-[8px] font-bold transition";
@@ -48,9 +50,10 @@ export default function VoterSlot({
       type="button"
       disabled={!selectable}
       onClick={onClick}
-      className={`${base} ${ring} ${interact} ${sel} ${colorBg} ${
+      className={`${base} ${ring} ${interact} ${sel} ${
         slot.isMajority ? "border-white text-white" : "border-black/40 text-transparent"
       }`}
+      style={{ backgroundColor: colorHex }}
       title={`${owner?.name ?? "?"}${slot.isMajority ? " (majority)" : ""}${
         volatile ? " · Volatile" : ""
       }`}

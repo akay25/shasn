@@ -2,8 +2,11 @@
 // belongs to (the player's own setup choice). Distinct from <Coin>, which
 // belongs to the Ideologue concept (resources, ideology cards).
 //
-// Voter pegs on the board are also rendered in this colour palette via the
-// PLAYER_COLOR_HEX map, so a player's pegs match their swatch.
+// PLAYER_COLOR_HEX is the SINGLE source of truth for player identity colours.
+// Swatches, voter slot fills, voter pegs on the canvas map, and coloured
+// player-name text all read from this map (via inline style), so the
+// "Oxblood Noir" theme's Tailwind ramp remap (which turns `bg-blue-500`
+// into deep red, etc.) can never drift the player palette.
 
 import type { PlayerColor } from "@/engine/types";
 
@@ -14,24 +17,6 @@ export const PLAYER_COLOR_HEX: Record<PlayerColor, string> = {
   green:  "#10b981",
   purple: "#a855f7",
   pink:   "#ec4899",
-};
-
-export const PLAYER_COLOR_BG: Record<PlayerColor, string> = {
-  red:    "bg-red-500",
-  blue:   "bg-blue-500",
-  yellow: "bg-yellow-400",
-  green:  "bg-emerald-500",
-  purple: "bg-purple-500",
-  pink:   "bg-pink-500",
-};
-
-export const PLAYER_COLOR_TEXT: Record<PlayerColor, string> = {
-  red:    "text-red-400",
-  blue:   "text-blue-400",
-  yellow: "text-yellow-400",
-  green:  "text-emerald-400",
-  purple: "text-purple-400",
-  pink:   "text-pink-400",
 };
 
 export const PLAYER_COLOR_LABEL: Record<PlayerColor, string> = {
@@ -65,10 +50,14 @@ export default function PlayerColorSwatch({
   const px = SWATCH_PX[size];
   return (
     <span
-      className={`inline-block rounded-full align-middle ${PLAYER_COLOR_BG[color]} ${
+      className={`inline-block rounded-full align-middle ${
         ring ? "ring-1 ring-black/40" : ""
       } ${className}`}
-      style={{ width: px, height: px }}
+      style={{
+        width: px,
+        height: px,
+        backgroundColor: PLAYER_COLOR_HEX[color],
+      }}
       title={PLAYER_COLOR_LABEL[color]}
       aria-label={`${PLAYER_COLOR_LABEL[color]} swatch`}
     />
