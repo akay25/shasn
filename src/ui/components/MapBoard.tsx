@@ -27,9 +27,10 @@ const SS = 2;                            // supersample factor for crisp canvas
 const MAX_ZOOM = 6;                       // max magnification over fit-to-frame
 const ZOOM_STEP = 1.25;
 
-// Temporarily hide the on-map voter holes / pegs so the board reads as a plain
-// geographic map you can drag and zoom. Flip back to `true` to restore them.
-const SHOW_VOTERS = false;
+// Toggle for the on-map voter holes / pegs. With it off the board reads as a
+// plain geographic map you can drag and zoom; with it on every cell gets an
+// empty-slot dimple and placed voters render in their owner's colour.
+const SHOW_VOTERS = true;
 
 // Scale at which the whole cw×ch board just fits inside the vw×vh viewport.
 function fitScale(vw: number, vh: number, cw: number, ch: number): number {
