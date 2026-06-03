@@ -6,6 +6,7 @@
 // Rules link to the bundled rulebook PDF sits at the end of the strip.
 // The Conspiracy Buy button lives in the sidebar (see <ConspiracyBuyPanel>).
 import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
 import type { GameState } from "@/engine/types";
 import { VOTER_CARDS } from "@/data/cards/voter";
 import { CONSPIRACY_CARDS } from "@/data/cards/conspiracy";
@@ -125,24 +126,31 @@ function Stat({
           / {discard}
         </span>
       </div>
-      {details && open ? (
-        <div
-          ref={popRef}
-          role="tooltip"
-          style={{
-            position: "fixed",
-            left: pos.left,
-            top: pos.top,
-            zIndex: 50,
-          }}
-          className="pointer-events-none rounded-md border border-neutral-700 bg-neutral-900/95 px-3 py-2 shadow-xl text-left min-w-[180px] max-w-[260px]"
-        >
-          <div className="text-[9px] uppercase tracking-widest text-neutral-400 mb-1">
-            {label} deck
-          </div>
-          {details}
-        </div>
-      ) : null}
+      {details && open
+        ? // The DeckStats container uses backdrop-filter, which creates a
+          // containing block for position:fixed descendants — that's why we
+          // portal the popover to document.body, so the fixed coords land in
+          // viewport space and the tooltip isn't clipped by the strip.
+          createPortal(
+            <div
+              ref={popRef}
+              role="tooltip"
+              style={{
+                position: "fixed",
+                left: pos.left,
+                top: pos.top,
+                zIndex: 50,
+              }}
+              className="pointer-events-none rounded-md border border-neutral-700 bg-neutral-900/95 px-3 py-2 shadow-xl text-left min-w-[180px] max-w-[260px]"
+            >
+              <div className="text-[9px] uppercase tracking-widest text-neutral-400 mb-1">
+                {label} deck
+              </div>
+              {details}
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }
