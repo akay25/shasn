@@ -5,3 +5,33 @@
 html, body, #root {
   height: 100%;
 }
+
+/* Theme pack: Oxblood Noir */
+body {
+  background-color: #000000; /* ink */
+  color: #ebe7dd;            /* warm off-white (neutral-100) */
+}
+
+::selection {
+  background-color: #6A0003; /* oxblood */
+  color: #ebe7dd;
+}
+
+/* Themed scrollbars */
+* {
+  scrollbar-color: #4B4843 transparent; /* stone thumb */
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #4B4843; /* stone */
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #5c5851;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
