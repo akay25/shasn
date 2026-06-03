@@ -17,7 +17,6 @@ import IdeologyCollection from "@/ui/components/IdeologyCollection";
 import ConspiracyBuyPanel from "@/ui/components/ConspiracyBuyPanel";
 import DeckStats from "@/ui/components/DeckStats";
 import ActionBar from "@/ui/components/ActionBar";
-import HelpButton from "@/ui/components/HelpButton";
 import IdeologyCardModal from "@/ui/components/IdeologyCardModal";
 import InfluenceVoterModal from "@/ui/components/InfluenceVoterModal";
 import PlaceVoterModal from "@/ui/components/PlaceVoterModal";
@@ -255,8 +254,9 @@ export default function Game() {
           className="w-1.5 shrink-0 cursor-col-resize bg-neutral-800 hover:bg-blue-500/70 active:bg-blue-500 transition-colors"
         />
 
-        {/* Map fills the whole right side; the HQ Mat (voters container) floats
-            over it in the top-right corner. */}
+        {/* Map fills the whole right side; the HQ Mat (voters container)
+            floats over it in the top-right, and the DeckStats HUD (with the
+            Rules link at the end) floats over its bottom-right. */}
         <div className="flex-1 relative overflow-hidden">
           <MapBoard
             state={state}
@@ -271,6 +271,9 @@ export default function Game() {
               }
             />
           </div>
+          <div className="absolute bottom-3 right-3 z-10 max-w-[calc(100%-1.5rem)] overflow-x-auto">
+            <DeckStats state={state} />
+          </div>
         </div>
       </div>
 
@@ -280,10 +283,7 @@ export default function Game() {
         onPlayConspiracy={() => setModal({ kind: "conspiracy" })}
         canPlayConspiracy={active.conspiracyHand.length > 0}
         inActionsPhase={inActions}
-        trailing={<DeckStats state={state} />}
       />
-
-      <HelpButton />
 
       {/* Error toast */}
       {lastError ? (

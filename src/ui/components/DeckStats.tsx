@@ -1,15 +1,17 @@
 // All four deck-pile stats — voter, ideology, conspiracy, headline —
-// rendered as a compact inline strip. Counts only on the tile; hovering
-// each tile reveals a screen-edge-aware popover showing what's left (draw
-// size, discard breakdown / names) so the active player can plan turn
-// actions. The Conspiracy Buy button lives in the sidebar (see
-// <ConspiracyBuyPanel>).
+// rendered as a compact floating HUD that overlays the bottom-right of the
+// map canvas. Counts only on the tile; hovering each tile reveals a
+// screen-edge-aware popover showing what's left (draw size, discard
+// breakdown / names) so the active player can plan turn actions. The
+// Rules link to the bundled rulebook PDF sits at the end of the strip.
+// The Conspiracy Buy button lives in the sidebar (see <ConspiracyBuyPanel>).
 import type { ReactNode } from "react";
 import type { GameState } from "@/engine/types";
 import { VOTER_CARDS } from "@/data/cards/voter";
 import { CONSPIRACY_CARDS } from "@/data/cards/conspiracy";
 import { HEADLINE_CARDS } from "@/data/cards/headline";
 import { useEdgeAwarePopover } from "@/ui/hooks/useEdgeAwarePopover";
+import rulebookUrl from "@/assets/rulebook.pdf";
 
 interface Props {
   state: GameState;
@@ -18,7 +20,7 @@ interface Props {
 export default function DeckStats({ state }: Props) {
   return (
     <div
-      className="flex items-stretch gap-1"
+      className="flex items-stretch gap-1 rounded-lg border border-neutral-700 bg-neutral-900/85 px-1.5 py-1.5 shadow-xl backdrop-blur"
       role="region"
       aria-label="Deck piles"
     >
@@ -62,6 +64,30 @@ export default function DeckStats({ state }: Props) {
           />
         }
       />
+
+      {/* Rules — at the end of the strip. Opens the bundled rulebook PDF
+          in a new tab. */}
+      <a
+        href={rulebookUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Open the SHASN rulebook (PDF)"
+        aria-label="Open the SHASN rulebook (PDF) in a new tab"
+        className="group flex flex-col items-stretch justify-between rounded border border-neutral-700 bg-neutral-800/70 px-2 py-1 min-w-[68px] hover:bg-neutral-700 transition focus:outline-none focus:ring-2 focus:ring-white"
+      >
+        <div className="font-semibold text-[10px] uppercase tracking-wide text-neutral-400 group-hover:text-neutral-200">
+          Rules
+        </div>
+        <div className="flex items-center gap-1 text-sm font-bold leading-tight">
+          <span
+            aria-hidden
+            className="inline-flex h-4 w-4 items-center justify-center rounded-full border border-neutral-600 bg-neutral-900 text-[10px]"
+          >
+            ?
+          </span>
+          <span className="text-[10px] text-neutral-500 font-normal">PDF</span>
+        </div>
+      </a>
     </div>
   );
 }
