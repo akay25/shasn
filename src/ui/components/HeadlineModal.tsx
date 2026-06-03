@@ -3,6 +3,7 @@
 // per resolveHeadline action; this modal stays open until pendingHeadlines = 0.
 import { useState } from "react";
 import Modal from "./Modal";
+import HeadlinePopCard from "./HeadlinePopCard";
 import type { GameState } from "@/engine/types";
 import { HEADLINE_CARDS } from "@/data/cards/headline";
 import { useDispatch } from "@/ui/hooks/useDispatch";
@@ -45,8 +46,7 @@ export default function HeadlineModal({ state }: Props) {
         </div>
         {card ? (
           <>
-            <div className="text-base font-semibold">{card.name}</div>
-            <div className="text-sm text-neutral-300">{card.description}</div>
+            <HeadlinePopCard card={card} />
             <div className="text-[10px] text-neutral-500">effect: {card.effect.kind}</div>
           </>
         ) : (
