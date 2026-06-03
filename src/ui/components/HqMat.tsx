@@ -13,7 +13,7 @@ interface Props {
 export default function HqMat({ state, onInfluenceClick }: Props) {
   return (
     <div className="bg-neutral-900/60 border border-neutral-700 rounded-lg p-3 flex flex-col gap-2">
-      <div className="text-xs uppercase tracking-wide text-neutral-400">HQ Mat</div>
+      <div className="text-xs uppercase tracking-wide text-neutral-400">Voters deck</div>
       <div className="grid grid-cols-3 gap-2">
         {(state.openVoterCards as (string | null)[]).map((id, idx) => {
           const card = id ? VOTER_CARDS.find((c) => c.id === id) ?? null : null;
