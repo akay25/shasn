@@ -1,13 +1,15 @@
 // All four deck-pile stats — voter, ideology, conspiracy, headline —
 // rendered as a compact inline strip. Counts only on the tile; hovering
-// each tile reveals a popover showing what's left (draw size, discard
-// breakdown / names) so the active player can plan turn actions.
-// The Conspiracy Buy button lives in the sidebar (see <ConspiracyBuyPanel>).
+// each tile reveals a screen-edge-aware popover showing what's left (draw
+// size, discard breakdown / names) so the active player can plan turn
+// actions. The Conspiracy Buy button lives in the sidebar (see
+// <ConspiracyBuyPanel>).
 import type { ReactNode } from "react";
 import type { GameState } from "@/engine/types";
 import { VOTER_CARDS } from "@/data/cards/voter";
 import { CONSPIRACY_CARDS } from "@/data/cards/conspiracy";
 import { HEADLINE_CARDS } from "@/data/cards/headline";
+import { useEdgeAwarePopover } from "@/ui/hooks/useEdgeAwarePopover";
 
 interface Props {
   state: GameState;
@@ -75,8 +77,19 @@ function Stat({
   discard: number;
   details?: ReactNode;
 }) {
+  const { triggerRef, popRef, open, setOpen, pos } =
+    useEdgeAwarePopover<HTMLDivElement>({ preferredSide: "top" });
+
   return (
-    <div className="group relative bg-neutral-800/70 border border-neutral-700 rounded px-2 py-1 min-w-[68px]">
+    <div
+      ref={triggerRef}
+      className="relative bg-neutral-800/70 border border-neutral-700 rounded px-2 py-1 min-w-[68px]"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      onFocus={() => setOpen(true)}
+      onBlur={() => setOpen(false)}
+      tabIndex={details ? 0 : undefined}
+    >
       <div className="font-semibold text-[10px] uppercase tracking-wide text-neutral-400">
         {label}
       </div>
@@ -86,12 +99,17 @@ function Stat({
           / {discard}
         </span>
       </div>
-      {details ? (
-        // Popover rises from the bottom bar; right-anchored so the right-most
-        // tile (Headline) doesn't push past the viewport.
+      {details && open ? (
         <div
+          ref={popRef}
           role="tooltip"
-          className="invisible group-hover:visible absolute bottom-full right-0 z-40 mb-2 pointer-events-none rounded-md border border-neutral-700 bg-neutral-900/95 px-3 py-2 shadow-xl min-w-[180px] max-w-[260px] text-left"
+          style={{
+            position: "fixed",
+            left: pos.left,
+            top: pos.top,
+            zIndex: 50,
+          }}
+          className="pointer-events-none rounded-md border border-neutral-700 bg-neutral-900/95 px-3 py-2 shadow-xl text-left min-w-[180px] max-w-[260px]"
         >
           <div className="text-[9px] uppercase tracking-widest text-neutral-400 mb-1">
             {label} deck
