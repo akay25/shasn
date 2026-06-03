@@ -187,7 +187,6 @@ function SideCard({
   const bannerClip =
     "polygon(0 0, 100% 0, calc(100% - 12px) 50%, 100% 100%, 0 100%, 12px 50%)";
 
-  const ringClass = revealed ? "" : IDEOLOGUE_RING[ideologue];
   const flourish = revealed ? accent : "#a3a3a3"; // neutral-400 when hidden
 
   const Tag = onPick ? "button" : "div";
@@ -196,9 +195,8 @@ function SideCard({
     <Tag
       type={onPick ? "button" : undefined}
       onClick={onPick}
-      className={`group flex flex-col overflow-hidden rounded-xl bg-neutral-900 text-left shadow-lg ring-2 ring-transparent transition focus:outline-none ${
-        onPick ? `hover:-translate-y-0.5 hover:shadow-xl ${ringClass}` : ""
-      }`}
+      className={`group flex flex-col overflow-hidden rounded-xl bg-neutral-900 text-left shadow-lg ring-2 ring-transparent transition focus:outline-none ${onPick ? `hover:-translate-y-0.5 hover:shadow-xl` : ""
+        }`}
     >
       {/* Dark question header with a downward chevron notch. */}
       <div className="relative px-4 pt-4 pb-5">
