@@ -4,18 +4,15 @@
 //
 // Rendering: each region is filled as a single organic blob (no internal hex
 // grid — only region boundaries are stroked), with voter holes/pegs at every
-// cell centre. The map is clickable: a click resolves to the nearest cell and,
-// via `onSlotClick`, drives voter placement. Region labels are an HTML overlay
-// so text stays crisp and styled like the rest of the UI.
+// cell centre when SHOW_VOTERS is on. The map is clickable: a click resolves
+// to the nearest cell and, via `onSlotClick`, drives voter placement. The
+// only on-map text is a subtle majority/capacity ratio centred on each
+// region. Hovering a region highlights just its outline in amber (no panel
+// or popover) so borders are easy to pick out at a glance.
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { GameState, Player } from "@/engine/types";
-import {
-  totalVotersInZone,
-  voterCountInZone,
-  gerrymanderingRightsHolder,
-} from "@/engine/selectors";
-import { PLAYER_COLOR_HEX, PLAYER_COLOR_TEXT } from "./PlayerColorSwatch";
+import type { GameState } from "@/engine/types";
+import { PLAYER_COLOR_HEX } from "./PlayerColorSwatch";
 
 // ---- Hex geometry (pointy-top, odd-r offset) ------------------------------
 
@@ -92,6 +89,7 @@ interface Props {
 export default function MapBoard({ state, selectableSlots, onSlotClick }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const board = state.board;
+  const [hoveredZone, setHoveredZone] = useState<string | null>(null);
 
   // Viewport extent in board units, plus a cell→owner index for hit-testing
   // and boundary detection. Recomputed only when the geography changes.
@@ -113,7 +111,7 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
     return { vbW: Math.ceil(maxX + MARGIN), vbH: Math.ceil(maxY + MARGIN), owner, slotOf };
   }, [board]);
 
-  // Draw whenever state or highlight changes.
+  // Draw whenever state, highlight, or hover changes.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -151,31 +149,26 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
       }
     }
 
-    // Pass 2 — region outlines: stroke only edges whose neighbour is a
-    // different region (or off-board).
+    // Pass 2 — default region outlines: stroke only edges whose neighbour is
+    // a different region (or off-board).
     ctx.strokeStyle = "#2c1d10";
     ctx.lineWidth = 3;
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
     for (const z of board.zones) {
-      for (const cell of board.geometry[z.id].cells) {
-        const { x, y } = cellPixel(cell.col, cell.row);
-        const verts = hexVertices(x, y, SIZE);
-        for (let k = 0; k < 6; k++) {
-          const a = verts[k];
-          const b = verts[(k + 1) % 6];
-          const mx = (a[0] + b[0]) / 2;
-          const my = (a[1] + b[1]) / 2;
-          // Neighbour centre across this edge = centre + 2*(mid - centre).
-          const nb = pixelCell(x + 2 * (mx - x), y + 2 * (my - y));
-          if (owner.get(`${nb.col},${nb.row}`) !== z.id) {
-            ctx.beginPath();
-            ctx.moveTo(a[0], a[1]);
-            ctx.lineTo(b[0], b[1]);
-            ctx.stroke();
-          }
-        }
-      }
+      strokeRegionBorder(ctx, board, z.id, owner);
+    }
+
+    // Pass 2b — hover outline, drawn last so it sits above any neighbour's
+    // default outline. Wide translucent halo first, then a brighter core line
+    // for visibility against either pastel terrain or the dark default stroke.
+    if (hoveredZone && board.geometry[hoveredZone]) {
+      ctx.strokeStyle = "rgba(253, 230, 138, 0.45)"; // amber-200 halo
+      ctx.lineWidth = 9;
+      strokeRegionBorder(ctx, board, hoveredZone, owner);
+      ctx.strokeStyle = "#fde68a"; // amber-200 core
+      ctx.lineWidth = 4.5;
+      strokeRegionBorder(ctx, board, hoveredZone, owner);
     }
 
     // Pass 3 — voter holes / pegs, volatile badges, highlights.
@@ -188,10 +181,10 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
         const slot = zs.slots[idx];
 
         if (slot) {
-          const owner = state.players.find((p) => p.id === slot.playerId);
+          const ownerP = state.players.find((p) => p.id === slot.playerId);
           ctx.beginPath();
           ctx.arc(x, y, SIZE * 0.46, 0, Math.PI * 2);
-          ctx.fillStyle = owner ? PLAYER_COLOR_HEX[owner.color] : "#777";
+          ctx.fillStyle = ownerP ? PLAYER_COLOR_HEX[ownerP.color] : "#777";
           ctx.fill();
           ctx.lineWidth = 1.4;
           ctx.strokeStyle = "#17110b";
@@ -231,7 +224,7 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
         }
       });
     }
-  }, [state, layout, selectableSlots, board]);
+  }, [state, layout, selectableSlots, board, hoveredZone]);
 
   // ---- Pan / zoom ----------------------------------------------------------
   // The board is laid out at its natural vbW×vbH board-pixel size and then
@@ -283,6 +276,25 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
     return () => vp.removeEventListener("wheel", onWheel);
   }, [vbW, vbH]);
 
+  // Resolve a pointer event's viewport position to a zoneId, or null if the
+  // pointer isn't over any region (off-board, or it's near the outer edge of
+  // the bounding cell rather than inside the hex itself).
+  const zoneIdAtPointer = (clientX: number, clientY: number): string | null => {
+    const canvas = canvasRef.current;
+    if (!canvas) return null;
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0) return null;
+    const scale = layout.vbW / rect.width;
+    const bx = (clientX - rect.left) * scale;
+    const by = (clientY - rect.top) * scale;
+    const { col, row } = pixelCell(bx, by);
+    const zoneId = layout.owner.get(`${col},${row}`);
+    if (!zoneId) return null;
+    const { x, y } = cellPixel(col, row);
+    if (Math.hypot(bx - x, by - y) > SIZE) return null;
+    return zoneId;
+  };
+
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.button !== 0) return;
     dragRef.current = { sx: e.clientX, sy: e.clientY, px: view.x, py: view.y };
@@ -292,16 +304,27 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
   const onPointerMove = (e: React.PointerEvent) => {
     const d = dragRef.current;
     const vp = viewportRef.current;
-    if (!d || !vp) return;
-    const dx = e.clientX - d.sx;
-    const dy = e.clientY - d.sy;
-    if (Math.abs(dx) + Math.abs(dy) > 4) movedRef.current = true;
-    const rect = vp.getBoundingClientRect();
-    setView((v) => clampView(v.s, d.px + dx, d.py + dy, rect.width, rect.height, vbW, vbH));
+    if (!vp) return;
+    if (d) {
+      // Active drag — pan, and don't update the hover outline while panning.
+      const dx = e.clientX - d.sx;
+      const dy = e.clientY - d.sy;
+      if (Math.abs(dx) + Math.abs(dy) > 4) movedRef.current = true;
+      const rect = vp.getBoundingClientRect();
+      setView((v) => clampView(v.s, d.px + dx, d.py + dy, rect.width, rect.height, vbW, vbH));
+      return;
+    }
+    // Hover — outline whichever region the pointer is over.
+    const next = zoneIdAtPointer(e.clientX, e.clientY);
+    setHoveredZone((cur) => (cur === next ? cur : next));
   };
   const onPointerUp = (e: React.PointerEvent) => {
     dragRef.current = null;
     viewportRef.current?.releasePointerCapture?.(e.pointerId);
+  };
+  const onPointerLeave = (e: React.PointerEvent) => {
+    onPointerUp(e);
+    setHoveredZone(null);
   };
 
   // Zoom buttons (centred on the frame) and reset-to-fit.
@@ -355,7 +378,7 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
-      onPointerLeave={onPointerUp}
+      onPointerLeave={onPointerLeave}
     >
       {/* Pan / zoom layer — laid out at the board's natural size and transformed
           as a unit so the canvas and the HTML overlay labels stay locked
@@ -378,45 +401,28 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
           aria-label="SHASN region map"
         />
 
-        {/* HTML overlay: region labels + status chips. */}
+        {/* HTML overlay: a subtle majority/capacity label centred on each
+            region. Region names are off; everything else has been stripped to
+            keep the map readable as a plain country map. */}
         {board.zones.map((zone) => {
-        const c = board.geometry[zone.id].centroid;
-        const { x, y } = cellPixel(c.col, c.row);
-        const left = (x / layout.vbW) * 100;
-        const top = (y / layout.vbH) * 100;
-        const zs = state.zones[zone.id];
-        const total = totalVotersInZone(zs);
-        const holder = zs.majorityHolder
-          ? state.players.find((p) => p.id === zs.majorityHolder)
-          : null;
-        const gerryHolderId = gerrymanderingRightsHolder(state, zone.id);
-        const gerryHolder = gerryHolderId
-          ? state.players.find((p) => p.id === gerryHolderId)
-          : null;
-        return (
-          <div
-            key={`chip-${zone.id}`}
-            className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none flex flex-col items-center gap-0.5"
-            style={{ left: `${left}%`, top: `${top}%` }}
-          >
+          const c = board.geometry[zone.id].centroid;
+          const { x, y } = cellPixel(c.col, c.row);
+          const left = (x / layout.vbW) * 100;
+          const top = (y / layout.vbH) * 100;
+          return (
             <div
-              className="px-1.5 py-0.5 rounded text-[10px] font-bold tracking-widest uppercase bg-black/65 text-amber-50 border border-amber-100/25 whitespace-nowrap"
-              style={{ fontFamily: "ui-serif, Georgia, serif" }}
+              key={`chip-${zone.id}`}
+              className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-none text-[10px] font-semibold tabular-nums whitespace-nowrap text-amber-50/75"
+              style={{
+                left: `${left}%`,
+                top: `${top}%`,
+                textShadow:
+                  "0 1px 2px rgba(0,0,0,0.65), 0 0 2px rgba(0,0,0,0.55)",
+              }}
             >
-              {zone.name}
+              {zone.majorityRequirement}/{zone.capacity}
             </div>
-            <div className="px-1.5 py-0 rounded bg-black/55 text-amber-50 border border-amber-100/15 text-[10px] whitespace-nowrap">
-              <span className="opacity-80">{zone.majorityRequirement}/{zone.capacity}</span>
-              {holder ? <HolderBadge p={holder} /> : null}
-              {!holder && gerryHolder ? (
-                <GerryBadge p={gerryHolder} count={voterCountInZone(zs, gerryHolder.id)} />
-              ) : null}
-              {!holder && !gerryHolder ? (
-                <span className="opacity-50"> · {total}</span>
-              ) : null}
-            </div>
-          </div>
-        );
+          );
         })}
       </div>
 
@@ -454,29 +460,41 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
   );
 }
 
+// Stroke just the outer edges of `zoneId` — hex edges whose neighbour
+// belongs to a different region (or off-board). Uses the current
+// ctx.strokeStyle / lineWidth so callers control the look.
+function strokeRegionBorder(
+  ctx: CanvasRenderingContext2D,
+  board: GameState["board"],
+  zoneId: string,
+  owner: Map<string, string>,
+): void {
+  const geom = board.geometry[zoneId];
+  if (!geom) return;
+  for (const cell of geom.cells) {
+    const { x, y } = cellPixel(cell.col, cell.row);
+    const verts = hexVertices(x, y, SIZE);
+    for (let k = 0; k < 6; k++) {
+      const a = verts[k];
+      const b = verts[(k + 1) % 6];
+      const mx = (a[0] + b[0]) / 2;
+      const my = (a[1] + b[1]) / 2;
+      // Neighbour centre across this edge = centre + 2*(mid - centre).
+      const nb = pixelCell(x + 2 * (mx - x), y + 2 * (my - y));
+      if (owner.get(`${nb.col},${nb.row}`) !== zoneId) {
+        ctx.beginPath();
+        ctx.moveTo(a[0], a[1]);
+        ctx.lineTo(b[0], b[1]);
+        ctx.stroke();
+      }
+    }
+  }
+}
+
 function traceHex(ctx: CanvasRenderingContext2D, cx: number, cy: number, size: number): void {
   const v = hexVertices(cx, cy, size);
   ctx.beginPath();
   ctx.moveTo(v[0][0], v[0][1]);
   for (let i = 1; i < 6; i++) ctx.lineTo(v[i][0], v[i][1]);
   ctx.closePath();
-}
-
-function HolderBadge({ p }: { p: Player }) {
-  return (
-    <span className="ml-1">
-      <span className="opacity-60">· maj </span>
-      <span className={`font-bold ${PLAYER_COLOR_TEXT[p.color]}`}>{p.name}</span>
-    </span>
-  );
-}
-
-function GerryBadge({ p, count }: { p: Player; count: number }) {
-  return (
-    <span className="ml-1">
-      <span className="opacity-60">· gerry </span>
-      <span className={PLAYER_COLOR_TEXT[p.color]}>{p.name}</span>
-      <span className="opacity-60"> ({count})</span>
-    </span>
-  );
 }
