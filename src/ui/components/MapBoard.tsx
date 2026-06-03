@@ -187,8 +187,11 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
           ctx.arc(x, y, SIZE * 0.46, 0, Math.PI * 2);
           ctx.fillStyle = ownerP ? PLAYER_COLOR_HEX[ownerP.color] : "#777";
           ctx.fill();
-          ctx.lineWidth = 1.4;
-          ctx.strokeStyle = "#17110b";
+          // Volatile cells get a thicker pure-black ring so the volatility
+          // marker stays visible once a peg is placed (replacing the old
+          // gold dot above the cell).
+          ctx.lineWidth = isVolatile ? 2.5 : 1.4;
+          ctx.strokeStyle = isVolatile ? "#000" : "#17110b";
           ctx.stroke();
           if (slot.isMajority) {
             ctx.fillStyle = "#fff";
@@ -203,6 +206,13 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
           ctx.arc(x, y, SIZE * 0.34, 0, Math.PI * 2);
           ctx.fillStyle = "rgba(40,28,16,0.30)";
           ctx.fill();
+          // Volatile placeholders get a thick black border instead of the old
+          // gold dot floating above the cell.
+          if (isVolatile) {
+            ctx.lineWidth = 2.5;
+            ctx.strokeStyle = "#000";
+            ctx.stroke();
+          }
           // Highlight valid placement targets.
           if (highlights && highlights.includes(idx)) {
             ctx.beginPath();
@@ -211,17 +221,6 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
             ctx.strokeStyle = "#fde68a";
             ctx.stroke();
           }
-        }
-
-        // Volatile-area marker.
-        if (isVolatile) {
-          ctx.beginPath();
-          ctx.arc(x, y - SIZE * 0.62, SIZE * 0.17, 0, Math.PI * 2);
-          ctx.fillStyle = "#fde68a";
-          ctx.fill();
-          ctx.lineWidth = 0.8;
-          ctx.strokeStyle = "#7c5a1a";
-          ctx.stroke();
         }
       });
     }
