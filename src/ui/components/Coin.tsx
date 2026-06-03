@@ -12,10 +12,10 @@
 
 import type { Ideologue, Resource } from "@/engine/types";
 
-import coinCapitalist from "@/assets/coins/coin_capitalist.png";
-import coinSupremo from "@/assets/coins/coin_supremo.png";
-import coinShowstopper from "@/assets/coins/coin_showstopper.png";
-import coinIdealist from "@/assets/coins/coin_idealist.png";
+import coinCapitalist from "@/assets/coins/capitalist.png";
+import coinSupremo from "@/assets/coins/supremo.png";
+import coinShowstopper from "@/assets/coins/showstopper.png";
+import coinIdealist from "@/assets/coins/idealist.png";
 
 export const COIN_SRC: Record<Ideologue, string> = {
   capitalist: coinCapitalist,

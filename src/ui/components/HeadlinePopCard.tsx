@@ -10,7 +10,7 @@
 // headline. Pass `children` to add an action row (e.g. a Resolve button).
 import type { ReactNode } from "react";
 import type { HeadlineCard } from "@/engine/types";
-import headlineArt from "@/assets/art/headline.jpg";
+import headlineArt from "@/assets/art/headline.png";
 
 interface Props {
   card: HeadlineCard;
