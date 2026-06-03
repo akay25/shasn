@@ -2,6 +2,7 @@
 // (depending on its effect kind) supplies additional params before dispatching.
 import { useState } from "react";
 import Modal from "./Modal";
+import ArtPopCard from "./ArtPopCard";
 import type {
   ConspiracyEffectKind,
   GameState,
@@ -13,6 +14,7 @@ import { CONSPIRACY_CARDS } from "@/data/cards/conspiracy";
 import { useDispatch } from "@/ui/hooks/useDispatch";
 import { activePlayer } from "@/engine/selectors";
 import { RESOURCE_COLOR, ResourceCoin } from "./ResourceTrack";
+import conspiracyArt from "@/assets/art/conspiracy.png";
 
 interface Props {
   state: GameState;
@@ -83,13 +85,16 @@ export default function ConspiracyModal({ state, initialCardId, onClose }: Props
         </div>
 
         {card ? (
-          <div className="text-xs text-neutral-400 bg-neutral-900/70 border border-neutral-700 rounded p-2">
-            <div className="font-semibold text-neutral-200 text-sm">{card.name}</div>
-            <div>{card.description}</div>
-            <div className="text-neutral-500 mt-1">
+          <ArtPopCard
+            image={conspiracyArt}
+            eyebrow="Conspiracy"
+            name={card.name}
+            description={card.description}
+          >
+            <div className="text-[10px] text-neutral-300/90 drop-shadow">
               Effect: {card.effect.kind} · Cost: {card.cost} (already paid when bought)
             </div>
-          </div>
+          </ArtPopCard>
         ) : null}
 
         {kind === "discardOpponentVoter" || kind === "peekConspiracy" ? (
