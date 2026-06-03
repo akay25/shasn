@@ -164,13 +164,10 @@ export default function Game() {
     <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col">
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-neutral-800 bg-neutral-900/60">
-        <div className="font-bold">
-          SHASN — Turn {state.turn} ·{" "}
-          <span className="text-neutral-300">{state.phase}</span>
-        </div>
+        <div className="font-bold">SHASN</div>
         <div className="flex items-center gap-3">
           <div className="text-xs text-neutral-400">
-            {state.players.length} players · {active.name}'s turn
+            Turn {state.turn} · {active.name}'s turn
           </div>
           <button
             type="button"

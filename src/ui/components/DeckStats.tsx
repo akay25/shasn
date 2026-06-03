@@ -1,7 +1,13 @@
 // All four deck-pile stats — voter, ideology, conspiracy, headline —
-// rendered as a compact inline strip. Counts only, no actions. The
-// Conspiracy Buy button lives in the sidebar (see <ConspiracyBuyPanel>).
+// rendered as a compact inline strip. Counts only on the tile; hovering
+// each tile reveals a popover showing what's left (draw size, discard
+// breakdown / names) so the active player can plan turn actions.
+// The Conspiracy Buy button lives in the sidebar (see <ConspiracyBuyPanel>).
+import type { ReactNode } from "react";
 import type { GameState } from "@/engine/types";
+import { VOTER_CARDS } from "@/data/cards/voter";
+import { CONSPIRACY_CARDS } from "@/data/cards/conspiracy";
+import { HEADLINE_CARDS } from "@/data/cards/headline";
 
 interface Props {
   state: GameState;
@@ -18,21 +24,41 @@ export default function DeckStats({ state }: Props) {
         label="Voter"
         n={state.decks.voter.length}
         discard={state.decks.voterDiscard.length}
+        details={<VoterDetails state={state} />}
       />
       <Stat
         label="Ideology"
         n={state.decks.ideology.length}
         discard={state.decks.ideologyDiscard.length}
+        details={<IdeologyDetails state={state} />}
       />
       <Stat
         label="Conspiracy"
         n={state.decks.conspiracy.length}
         discard={state.decks.conspiracyDiscard.length}
+        details={
+          <NamedDiscardDetails
+            drawCount={state.decks.conspiracy.length}
+            discard={state.decks.conspiracyDiscard}
+            lookup={(id) => CONSPIRACY_CARDS.find((c) => c.id === id)?.name ?? id}
+            heading="Discarded"
+            emptyLabel="No conspiracies played yet."
+          />
+        }
       />
       <Stat
         label="Headline"
         n={state.decks.headline.length}
         discard={state.decks.headlineDiscard.length}
+        details={
+          <NamedDiscardDetails
+            drawCount={state.decks.headline.length}
+            discard={state.decks.headlineDiscard}
+            lookup={(id) => HEADLINE_CARDS.find((c) => c.id === id)?.name ?? id}
+            heading="Resolved"
+            emptyLabel="No headlines resolved yet."
+          />
+        }
       />
     </div>
   );
@@ -42,13 +68,15 @@ function Stat({
   label,
   n,
   discard,
+  details,
 }: {
   label: string;
   n: number;
   discard: number;
+  details?: ReactNode;
 }) {
   return (
-    <div className="bg-neutral-800/70 border border-neutral-700 rounded px-2 py-1 min-w-[68px]">
+    <div className="group relative bg-neutral-800/70 border border-neutral-700 rounded px-2 py-1 min-w-[68px]">
       <div className="font-semibold text-[10px] uppercase tracking-wide text-neutral-400">
         {label}
       </div>
@@ -58,6 +86,123 @@ function Stat({
           / {discard}
         </span>
       </div>
+      {details ? (
+        // Popover rises from the bottom bar; right-anchored so the right-most
+        // tile (Headline) doesn't push past the viewport.
+        <div
+          role="tooltip"
+          className="invisible group-hover:visible absolute bottom-full right-0 z-40 mb-2 pointer-events-none rounded-md border border-neutral-700 bg-neutral-900/95 px-3 py-2 shadow-xl min-w-[180px] max-w-[260px] text-left"
+        >
+          <div className="text-[9px] uppercase tracking-widest text-neutral-400 mb-1">
+            {label} deck
+          </div>
+          {details}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+// ---------- Per-deck detail blocks ----------------------------------------
+
+function VoterDetails({ state }: { state: GameState }) {
+  const buckets = { 1: 0, 2: 0, 3: 0 } as Record<1 | 2 | 3, number>;
+  for (const id of state.decks.voterDiscard) {
+    const c = VOTER_CARDS.find((v) => v.id === id);
+    if (c) buckets[c.voters]++;
+  }
+  const totalDisc = state.decks.voterDiscard.length;
+  return (
+    <div className="space-y-1">
+      <Row label="Draw" value={state.decks.voter.length} />
+      <Row label="Discard" value={totalDisc} />
+      <div className="border-t border-neutral-700/60 pt-1">
+        <div className="text-[10px] uppercase tracking-wider text-neutral-400 mb-0.5">
+          Discarded composition
+        </div>
+        {totalDisc === 0 ? (
+          <div className="text-[11px] text-neutral-500">No discards yet.</div>
+        ) : (
+          <ul className="text-[11px] text-neutral-100 space-y-0.5">
+            {([1, 2, 3] as const).map((k) =>
+              buckets[k] > 0 ? (
+                <li key={k}>
+                  <span className="tabular-nums font-semibold">
+                    {buckets[k]}
+                  </span>{" "}
+                  × {k}-voter card
+                </li>
+              ) : null,
+            )}
+          </ul>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function IdeologyDetails({ state }: { state: GameState }) {
+  return (
+    <div className="space-y-1">
+      <Row label="Draw" value={state.decks.ideology.length} />
+      <Row label="Discarded (redrawn)" value={state.decks.ideologyDiscard.length} />
+      <div className="border-t border-neutral-700/60 pt-1 text-[10px] text-neutral-400 leading-snug">
+        Chosen ideology cards live face-up under each player&apos;s row.
+      </div>
+    </div>
+  );
+}
+
+function NamedDiscardDetails({
+  drawCount,
+  discard,
+  lookup,
+  heading,
+  emptyLabel,
+}: {
+  drawCount: number;
+  discard: string[];
+  lookup: (id: string) => string;
+  heading: string;
+  emptyLabel: string;
+}) {
+  const recent = discard.slice(-8).reverse();
+  return (
+    <div className="space-y-1">
+      <Row label="Draw" value={drawCount} />
+      <Row label="Discard" value={discard.length} />
+      <div className="border-t border-neutral-700/60 pt-1">
+        <div className="text-[10px] uppercase tracking-wider text-neutral-400 mb-0.5">
+          {heading}
+        </div>
+        {discard.length === 0 ? (
+          <div className="text-[11px] text-neutral-500">{emptyLabel}</div>
+        ) : (
+          <>
+            <ul className="text-[11px] text-neutral-100 space-y-0.5">
+              {recent.map((id, i) => (
+                <li key={`${id}-${i}`} className="truncate">
+                  · {lookup(id)}
+                </li>
+              ))}
+            </ul>
+            {discard.length > recent.length ? (
+              <div className="mt-0.5 text-[10px] text-neutral-500">
+                + {discard.length - recent.length} earlier
+              </div>
+            ) : null}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function Row({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="flex items-center justify-between text-[11px]">
+      <span className="text-neutral-400">{label}</span>
+      <span className="font-bold tabular-nums text-neutral-100">{value}</span>
     </div>
   );
 }
