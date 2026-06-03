@@ -10,7 +10,14 @@
 // region. Hovering a region highlights just its outline in amber (no panel
 // or popover) so borders are easy to pick out at a glance.
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { GameState } from "@/engine/types";
 import { PLAYER_COLOR_HEX } from "./PlayerColorSwatch";
 
@@ -80,14 +87,46 @@ function hexVertices(cx: number, cy: number, size: number): [number, number][] {
 
 // ---- Component -------------------------------------------------------------
 
+export interface MapCellHit {
+  zoneId: string;
+  slotIdx: number;
+  isEmpty: boolean;
+  isVolatile: boolean;
+}
+
+export interface MapBoardHandle {
+  /** Resolve a viewport-space point to the map cell under it (or null). */
+  getCellAtPoint: (clientX: number, clientY: number) => MapCellHit | null;
+}
+
+export interface DraftPeg {
+  pegKey: string;
+  zoneId: string;
+  slotIdx: number;
+  color: string; // hex
+}
+
 interface Props {
   state: GameState;
   // zoneId -> empty slot indices to highlight as valid placement targets.
   selectableSlots?: Record<string, number[]>;
   onSlotClick?: (zoneId: string, slotIdx: number) => void;
+  // Draft preview pegs — rendered as an HTML overlay inside the pan/zoom
+  // layer. Each peg is draggable; the parent owns the drag state.
+  draftPegs?: DraftPeg[];
+  onDraftPegPointerDown?: (pegKey: string, e: React.PointerEvent) => void;
 }
 
-export default function MapBoard({ state, selectableSlots, onSlotClick }: Props) {
+const MapBoard = forwardRef<MapBoardHandle, Props>(function MapBoard(
+  {
+    state,
+    selectableSlots,
+    onSlotClick,
+    draftPegs,
+    onDraftPegPointerDown,
+  },
+  externalRef,
+) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const board = state.board;
   const [hoveredZone, setHoveredZone] = useState<string | null>(null);
@@ -276,10 +315,11 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
     return () => vp.removeEventListener("wheel", onWheel);
   }, [vbW, vbH]);
 
-  // Resolve a pointer event's viewport position to a zoneId, or null if the
-  // pointer isn't over any region (off-board, or it's near the outer edge of
-  // the bounding cell rather than inside the hex itself).
-  const zoneIdAtPointer = (clientX: number, clientY: number): string | null => {
+  // Resolve a pointer event's viewport position to the cell under it (zone +
+  // slot index, plus emptiness and volatile flags), or null if the pointer
+  // isn't over any region (off-board, or near the outer edge of the bounding
+  // hex rather than inside it).
+  const getCellAtPoint = (clientX: number, clientY: number): MapCellHit | null => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
     const rect = canvas.getBoundingClientRect();
@@ -288,12 +328,21 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
     const bx = (clientX - rect.left) * scale;
     const by = (clientY - rect.top) * scale;
     const { col, row } = pixelCell(bx, by);
-    const zoneId = layout.owner.get(`${col},${row}`);
-    if (!zoneId) return null;
+    const key = `${col},${row}`;
+    const zoneId = layout.owner.get(key);
+    const slotIdx = layout.slotOf.get(key);
+    if (zoneId === undefined || slotIdx === undefined) return null;
     const { x, y } = cellPixel(col, row);
     if (Math.hypot(bx - x, by - y) > SIZE) return null;
-    return zoneId;
+    const zone = board.zones.find((z) => z.id === zoneId);
+    if (!zone) return null;
+    const isEmpty = state.zones[zoneId].slots[slotIdx] === null;
+    const isVolatile = zone.volatileSlotIndices.includes(slotIdx);
+    return { zoneId, slotIdx, isEmpty, isVolatile };
   };
+
+  // Expose the cell hit-test so the parent can drive drag-and-drop placement.
+  useImperativeHandle(externalRef, () => ({ getCellAtPoint }));
 
   const onPointerDown = (e: React.PointerEvent) => {
     if (e.button !== 0) return;
@@ -315,7 +364,7 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
       return;
     }
     // Hover — outline whichever region the pointer is over.
-    const next = zoneIdAtPointer(e.clientX, e.clientY);
+    const next = getCellAtPoint(e.clientX, e.clientY)?.zoneId ?? null;
     setHoveredZone((cur) => (cur === next ? cur : next));
   };
   const onPointerUp = (e: React.PointerEvent) => {
@@ -424,6 +473,39 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
             </div>
           );
         })}
+
+        {/* Draft peg overlay — preview of voters the player has drag-dropped
+            during the floating placement panel. Stays inside the pan/zoom
+            layer so it tracks the map. Each peg captures pointerdown so the
+            parent can re-drag it (without the map's pan starting). */}
+        {draftPegs?.map((peg) => {
+          const { x, y } = cellPixel(
+            board.geometry[peg.zoneId].cells[peg.slotIdx].col,
+            board.geometry[peg.zoneId].cells[peg.slotIdx].row,
+          );
+          const left = (x / layout.vbW) * 100;
+          const top = (y / layout.vbH) * 100;
+          return (
+            <button
+              key={`draft-${peg.pegKey}`}
+              type="button"
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                onDraftPegPointerDown?.(peg.pegKey, e);
+              }}
+              title="Drag to move or back to the panel"
+              aria-label="Drafted voter peg"
+              className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white/85 shadow-md cursor-grab active:cursor-grabbing"
+              style={{
+                left: `${left}%`,
+                top: `${top}%`,
+                width: SIZE * 0.95,
+                height: SIZE * 0.95,
+                backgroundColor: peg.color,
+              }}
+            />
+          );
+        })}
       </div>
 
       {/* Zoom controls — sit above the transformed layer so they don't pan. */}
@@ -458,7 +540,9 @@ export default function MapBoard({ state, selectableSlots, onSlotClick }: Props)
       </div>
     </div>
   );
-}
+});
+
+export default MapBoard;
 
 // Stroke just the outer edges of `zoneId` — hex edges whose neighbour
 // belongs to a different region (or off-board). Uses the current
