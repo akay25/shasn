@@ -1,29 +1,32 @@
-// Standalone, reusable "headline pop" card. Renders a HeadlineCard over a
-// blurred, gray-tinted headline.jpg background. The image lives behind two
-// layers so the headline text stays crisp and legible:
-//   1. background layer — headline.jpg, blurred + desaturated, scaled up
-//      slightly so the blur doesn't reveal soft edges.
+// Generic, reusable "pop" card: a name/description rendered over a blurred,
+// gray-tinted background image. Used for headline and conspiracy popups (and
+// anywhere else a card-shaped art callout is wanted). The image lives behind
+// two layers so the text stays crisp:
+//   1. background layer — the image, blurred + desaturated, scaled up slightly
+//      so the blur doesn't reveal soft edges.
 //   2. tint layer — a grayish wash + bottom-up darkening for contrast.
 //   3. content layer — the eyebrow / name / description (never blurred).
 //
-// Not tied to the headlines modal; drop it anywhere you want to surface a
-// headline. Pass `children` to add an action row (e.g. a Resolve button).
+// Pass `children` to add a detail/action row at the bottom of the card.
 import type { ReactNode } from "react";
-import type { HeadlineCard } from "@/engine/types";
-import headlineArt from "@/assets/art/headline.jpg";
 
 interface Props {
-  card: HeadlineCard;
-  /** Small uppercase label above the name. Defaults to "Headline". */
+  /** Background image URL (import a .jpg/.png from @/assets/art/...). */
+  image: string;
+  name: ReactNode;
+  description: ReactNode;
+  /** Small uppercase label above the name. */
   eyebrow?: ReactNode;
-  /** Optional action row rendered at the bottom of the card. */
+  /** Optional detail/action row rendered at the bottom of the card. */
   children?: ReactNode;
   className?: string;
 }
 
-export default function HeadlinePopCard({
-  card,
-  eyebrow = "Headline",
+export default function ArtPopCard({
+  image,
+  name,
+  description,
+  eyebrow,
   children,
   className = "",
 }: Props) {
@@ -39,7 +42,7 @@ export default function HeadlinePopCard({
       <div
         className="absolute inset-0 scale-110"
         style={{
-          backgroundImage: `url(${headlineArt})`,
+          backgroundImage: `url(${image})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           filter: "blur(6px) grayscale(60%)",
@@ -55,15 +58,17 @@ export default function HeadlinePopCard({
       />
       {/* 3. Crisp content. */}
       <div className="relative h-full p-4 flex flex-col justify-between">
-        <div className="text-[10px] uppercase tracking-widest text-neutral-200/80 drop-shadow">
-          {eyebrow}
-        </div>
+        {eyebrow ? (
+          <div className="text-[10px] uppercase tracking-widest text-neutral-200/80 drop-shadow">
+            {eyebrow}
+          </div>
+        ) : null}
         <div className="space-y-1">
           <div className="text-base font-semibold leading-snug drop-shadow">
-            {card.name}
+            {name}
           </div>
           <div className="text-sm text-neutral-200/90 leading-snug drop-shadow">
-            {card.description}
+            {description}
           </div>
         </div>
         {children ? <div className="pt-2">{children}</div> : null}
