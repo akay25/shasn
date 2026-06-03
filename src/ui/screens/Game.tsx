@@ -17,6 +17,7 @@ import IdeologyCollection from "@/ui/components/IdeologyCollection";
 import ConspiracyBuyPanel from "@/ui/components/ConspiracyBuyPanel";
 import DeckStats from "@/ui/components/DeckStats";
 import ActionBar from "@/ui/components/ActionBar";
+import HelpButton from "@/ui/components/HelpButton";
 import IdeologyCardModal from "@/ui/components/IdeologyCardModal";
 import InfluenceVoterModal from "@/ui/components/InfluenceVoterModal";
 import PlaceVoterModal from "@/ui/components/PlaceVoterModal";
@@ -281,6 +282,8 @@ export default function Game() {
         inActionsPhase={inActions}
         trailing={<DeckStats state={state} />}
       />
+
+      <HelpButton />
 
       {/* Error toast */}
       {lastError ? (
